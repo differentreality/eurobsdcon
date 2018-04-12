@@ -117,6 +117,18 @@ class Mailbot < ActionMailer::Base
          body: conference.email_settings.generate_booth_mail(booth, conference.email_settings.booths_rejection_body))
   end
 
+  def registration_change_notification_mail(conference, registration_user, action, recipient)
+    @recipient = recipient
+    @registration_user = registration_user
+    @conference = conference
+    @registration_action = action
+
+    mail(to: @recipient.email,
+         from: @conference.contact.email,
+         subject: "Registration changes for user #{registration_user.try(:name)} in #{conference.title}",
+         template_name: 'registration_change_notification_template')
+  end
+
   def event_comment_mail(comment, user)
     @comment = comment
     @event = @comment.commentable

@@ -1,0 +1,16 @@
+Dear #{@recipient.name},
+%br
+%br
+
+user
+= link_to @registration_user.try(:name), admin_user_url(@registration_user)
+
+- if @registration_action == 'create'
+  registered to attend #{@conference.title}
+- elsif @registration_action == 'destroy'
+  unregistered from #{@conference.title}.
+
+%br
+%br
+%br
+%i This is an automated email, and you are receiving it because you are part of the #{@conference.title} team.

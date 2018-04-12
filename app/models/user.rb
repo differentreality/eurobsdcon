@@ -31,6 +31,7 @@ class User < ApplicationRecord
 
   # add scope
   scope :comment_notifiable, ->(conference) {joins(:roles).where('roles.name IN (?)', [:organizer, :cfp]).where('roles.resource_type = ? AND roles.resource_id = ?', 'Conference', conference.id)}
+  scope :registration_notifiable, ->(conference) {joins(:roles).where('roles.name IN (?)', [:organizer, :info_desk]).where('roles.resource_type = ? AND roles.resource_id = ?', 'Conference', conference.id)}
 
   # Include default devise modules. Others available are:
   # :token_authenticatable, :confirmable,
