@@ -9,6 +9,10 @@ user
   registered to attend #{@conference.title}
 - elsif @registration_action == 'destroy'
   unregistered from #{@conference.title}.
+- elsif @registration_action == 'apply_coupon'
+  applied #{@coupon.try(:name)} in #{@conference.title}
+- elsif @registration_action == 'remove_coupon'
+  removed #{@coupon.try(:name)} in #{@conference.title}
 
 %br
 %br
