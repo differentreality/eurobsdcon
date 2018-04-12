@@ -117,15 +117,26 @@ class Mailbot < ActionMailer::Base
          body: conference.email_settings.generate_booth_mail(booth, conference.email_settings.booths_rejection_body))
   end
 
-  def registration_change_notification_mail(conference, registration_user, action, recipient)
+  def registration_change_notification_mail(conference, registration_user, action, recipient, coupon=nil)
     @recipient = recipient
     @registration_user = registration_user
     @conference = conference
     @registration_action = action
+    @coupon = coupon
+
+    subject = if action == 'create'
+               "New registration for #{registration_user.try(:name)} in #{conference.title}"
+              elsif action == 'destroy'
+                "Cancelled registration for #{registration_user.try(:name)} in #{conference.title}"
+              elsif action == 'apply_coupon'
+                "Coupon #{coupon.try(:name)} applied for #{registration_user.try(:name)} in #{conference.title}"
+              elsif action == 'remove_coupon'
+                "Coupon #{coupon.try(:name)} removed for #{registration_user.try(:name)} in #{conference.title}"
+              end
 
     mail(to: @recipient.email,
          from: @conference.contact.email,
-         subject: "Registration changes for user #{registration_user.try(:name)} in #{conference.title}",
+         subject: subject,
          template_name: 'registration_change_notification_template')
   end
 
