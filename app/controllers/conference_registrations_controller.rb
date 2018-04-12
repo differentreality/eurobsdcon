@@ -52,6 +52,10 @@ class ConferenceRegistrationsController < ApplicationController
     authorize! :create, @registration
 
     if @registration.save
+      RegistrationChangeNotificationMailJob.perform_later(@conference, @registration.user, 'create')
+      # Trigger ahoy event
+      ahoy.track 'Registered', title: 'New registration'
+
       # Sign in the new user
       unless current_user
         sign_in(@registration.user)
@@ -83,7 +87,9 @@ class ConferenceRegistrationsController < ApplicationController
   end
 
   def destroy
+    registration_user = @registration.user
     if @registration.destroy
+      RegistrationChangeNotificationMailJob.perform_later(@conference, registration_user, 'destroy')
       redirect_to root_path,
                   notice: "You are not registered for #{@conference.title} anymore!"
     else
