@@ -49,6 +49,10 @@ OSEM_SUSE_SECRET=''
 STRIPE_PUBLISHABLE_KEY=''
 STRIPE_SECRET_KEY=''
 
+# Paymill keys
+PAYMILL_PRIVATE_API_KEY=''
+PAYMILL_PUBLIC_API_KEY=''
+
 # (OPTIONAL) Skylight keys. See https://www.skylight.io/oss.
 # SKYLIGHT_AUTHENTICATION=''
 # SKYLIGHT_PUBLIC_DASHBOARD_URL='https://oss.skylight.io/app/applications/xxxxxxxxxxxx'

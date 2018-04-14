@@ -632,6 +632,7 @@ DEPENDENCIES
   omniauth-google-oauth2
   omniauth-openid
   paper_trail
+  paymill_ruby
   phantomjs
   piwik_analytics (~> 1.0.1)
   poltergeist
