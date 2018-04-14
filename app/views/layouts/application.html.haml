@@ -10,7 +10,10 @@
 
     = csrf_meta_tags
     = content_for(:script_head)
-    - if ENV['OSEM_TRANSIFEX_APIKEY']
+    - if ENV['PAYMILL_PRIVATE_API_KEY'].present?
+      = javascript_include_tag 'https://bridge.paymill.com/'
+
+    - if ENV['OSEM_TRANSIFEX_APIKEY'].present?
       :javascript
         window.liveSettings = {
           api_key: "#{ENV['OSEM_TRANSIFEX_APIKEY']}",
