@@ -80,6 +80,18 @@
 # OSEM_PIWIK_DISABLED=true
 # OSEM_PIWIK_HOSTNAME=localhost
 
+# Paymill keys
+PAYMILL_PRIVATE_API_KEY=''
+PAYMILL_PUBLIC_API_KEY=''
+
+# (OPTIONAL) Skylight keys. See https://www.skylight.io/oss.
+# SKYLIGHT_AUTHENTICATION=''
+# SKYLIGHT_PUBLIC_DASHBOARD_URL='https://oss.skylight.io/app/applications/xxxxxxxxxxxx'
+
+# Disable linting of factories in the test suite.
+# Speeds up turn around times of tests
+OSEM_FACTORY_LINT="false"
+
 # The smtp configuration. See the rails guides for more
 # http://guides.rubyonrails.org/action_mailer_basics.html#action-mailer-configuration
 # OSEM_SMTP_ADDRESS=smtp.gmail.com

@@ -681,6 +681,8 @@ DEPENDENCIES
   paper_trail
   pdf-inspector
   pg
+  paymill_ruby
+  phantomjs
   piwik_analytics (~> 1.0.1)
   prawn-qrcode (~> 0.3.0)
   prawn_rails
