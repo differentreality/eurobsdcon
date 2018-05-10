@@ -21,6 +21,8 @@ notifications:
       - "chat.freenode.net#osem"
     on_success: change
     on_failure: change
+  webhooks:
+    - https://coveralls.io/webhook?repo_token=DMmQ05c9XLEiHsflEFD8f9RkFDequKGVA
 before_script:
   - RAILS_ENV=test bundle exec rake db:bootstrap --trace
 script:
