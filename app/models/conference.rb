@@ -40,7 +40,14 @@ class Conference < ApplicationRecord
   has_many :confirmed_booths, -> { where(state: 'confirmed') }, class_name: 'Booth'
 
   has_many :lodgings, dependent: :destroy
-  has_many :registrations, dependent: :destroy
+  has_many :registrations, dependent: :destroy do
+    def with_paid_registration_ticket
+      user_ids = map{ |registration|
+                      registration_ticket = Ticket.find_by(conference: registration.conference, registration_ticket: true)
+                      registration.user_id if registration.user.ticket_purchases.paid.where(ticket: registration_ticket, conference: registration.conference).present? }.compact
+      where(user_id: user_ids)
+    end
+  end
   has_many :participants, through: :registrations, source: :user
   has_many :vdays, dependent: :destroy
   has_many :vpositions, dependent: :destroy

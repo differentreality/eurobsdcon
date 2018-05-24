@@ -99,6 +99,10 @@ class Ticket < ApplicationRecord
     ticket_purchases.by_user(user).where(paid: paid).sum(:quantity)
   end
 
+  def paid?(user)
+    ticket_purchases.paid.by_user(user).present?
+  end
+
   def unpaid?(user)
     ticket_purchases.unpaid.by_user(user).present?
   end
