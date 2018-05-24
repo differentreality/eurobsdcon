@@ -7,6 +7,8 @@
         - unless @user.events.blank?
           %li{class: "#{'active' if params[:tab] == 'submissions-content'}"}
             = link_to 'Submissions', '#submissions-content', 'data-toggle'=>'tab'
+        %li{ class: "#{'active' if params[:tab] == 'tickets-content'}" }
+          = link_to 'Tickets', '#tickets', 'data-toggle'=>'tab'
         %li{class: "#{'active' if params[:tab] == 'event_registrations-content'}"}
           = link_to 'Event Registrations', '#event_registrations', 'data-toggle'=>'tab'
       .tab-content
@@ -48,5 +50,7 @@
                   %td= @user.send(attr)
         #submissions-content.tab-pane{class: "#{'active' if params[:tab] == 'submissions-content'}"}
           = render 'submissions'
+        #tickets.tab-pane{class: "#{'active' if params[:tab] == 'tickets'}"}
+          = render 'tickets'
         #event_registrations.tab-pane{class: "#{'active' if params[:tab] == 'event_registrations'}"}
           = render 'event_registrations'

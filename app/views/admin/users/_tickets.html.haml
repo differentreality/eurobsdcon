@@ -1,0 +1,35 @@
+.row
+  .col-md-12.page-header
+    %h2
+      Ticket purchases by #{@user.name}
+    .text-muted
+      = pluralize(@user.tickets.uniq.length, 'ticket')
+      bought
+  .col-md-12
+    .well
+      %table.table.table-bordered.table-striped.table-hover.datatable#tickets-bought
+        %thead
+          %th ID
+          %th Conference
+          %th Ticket
+          %th Amount paid
+          %th Paid
+          %th Paid at
+        %tbody
+          - @user.ticket_purchases.reorder(conference_id: :asc, ticket_id: :asc).each do |ticket_purchase|
+            %tr
+              %td= ticket_purchase.id
+              %td= link_to ticket_purchase.conference.short_title, admin_conference_path(ticket_purchase.conference.short_title)
+              %td= link_to ticket_purchase.ticket.title, admin_conference_ticket_path(ticket_purchase.ticket.conference, ticket_purchase.ticket)
+              %td
+                = humanized_money_with_symbol ticket_purchase.try(:amount_paid)
+                - if ticket_purchase.ticket.price_cents / 100 != ticket_purchase.try(:amount_paid)
+                  .text-muted
+                    Current price
+                    = humanized_money_with_symbol ticket_purchase.ticket.price
+              %td
+                - if ticket_purchase.try(:paid)
+                  .fa.fa-check.text-success
+                - else
+                  .fa.fa-times.text-danger
+              %td= ticket_purchase.payment.try(:created_at) || ticket_purchase.try(:created_at)
