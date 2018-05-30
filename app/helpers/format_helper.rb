@@ -12,6 +12,24 @@ module FormatHelper
       result << '%'
     else
       result << coupon.ticket.try(:price_currency)
+
+    end
+    return result
+  end
+
+  ##
+  # Includes functions related to formatting (like adding classes, colors)
+  ##
+  def event_status_icon(event)
+    case event.state
+    when 'new'
+      'fa-eye'
+    when 'unconfirmed'
+      'fa-check text-muted'
+    when 'confirmed'
+      'fa-check text-success'
+    when 'rejected', 'withdrawn', 'canceled'
+      'fa-ban'
     end
     return result.join
   end

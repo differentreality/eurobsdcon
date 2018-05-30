@@ -21,7 +21,7 @@
             *
       .input-group#discount
 
-        = f.input :discount_amount, label: false, input_html: { value: 100 }, wrapper: :vertical_input_group, class: 'form-control', hint: 'Select 100% if this is for free items'
+        = f.input :discount_amount, label: false, wrapper: :vertical_input_group, class: 'form-control', hint: 'Select 100% if this is for free items'
         %span.input-group-btn#discount_type_text
           %button.btn.btn-default.disabled#discount-type-btn{ disabled: true }
             = '%'
