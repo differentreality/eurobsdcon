@@ -1,5 +1,19 @@
 @import "bootstrap/mixins";
 
+.input-group#discount .form-control:first-child {
+  border-bottom-left-radius: 4px !important;
+  border-top-left-radius: 4px !important;
+}
+
+.input-group#discount > .input-group-btn {
+  padding-top: 5px !important;
+  vertical-align: top !important;
+}
+
+#coupons-table td {
+padding: 2px 10px ;
+}
+
 html {
   position: relative;
   min-height: 100%;

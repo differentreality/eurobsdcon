@@ -1,0 +1,55 @@
+.row
+  .col-md-12
+    .page-header
+      %h1
+        - if @coupon.new_record?
+          New
+        - else
+          Edit
+        Registration Code
+.row
+  .col-xs-12.col-sm-8.col-md-4.col-lg-3
+    = semantic_form_for @coupon, url: @coupon.new_record? ? admin_conference_coupons_path(@conference) : admin_conference_coupon_path do |f|
+
+      = f.input :name, required: true
+      = f.input :description, input_html: { rows: 3 }
+      %b
+        Discount Amount
+        %span.text-warning
+          %abbr{ title: 'This field is required'}
+            *
+      .input-group#discount
+
+        = f.input :discount_amount, label: false, wrapper: :vertical_input_group, class: 'form-control', hint: 'Select 100% if this is for free items'
+        %span.input-group-btn#discount_type_text
+          %button.btn.btn-default.disabled#discount-type-btn{ disabled: true }
+            = '%'
+      %br
+      = f.input :discount_type, required: true
+      = f.input :ticket, label: 'Select ticket', hint: 'If this code is for ticket discount (optional)', collection: @tickets.map{ |ticket| ["#{ticket.title} (#{ticket.price} #{ticket.price_currency})", ticket.id]}, include_blank: '(Please select)'
+
+      = f.submit 'Save', class: 'btn btn-primary'
+
+:javascript
+  $(document).ready( function(){
+    $('#coupon_discount_type').change(function(){
+      if ($(this).val() == 'value') {
+        // if selected ticket, get ticket price
+        var selected_ticket_id = parseInt($('#coupon_ticket_id').val());
+        if (selected_ticket_id) {
+          var currencies = #{@currencies};
+          var currency = '';
+
+          var selected_ticket_currency = $.grep(currencies, function(obj){
+            return obj['id'] === selected_ticket_id;
+          })[0]['currency'];
+
+          $('#discount-type-btn').text(selected_ticket_currency);
+        }
+      }
+      else {
+        $('#discount-type-btn').text('%');
+      }
+
+    });
+  });
