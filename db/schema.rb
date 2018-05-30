@@ -293,11 +293,6 @@ ActiveRecord::Schema.define(version: 20181113195810) do
     t.datetime "created_at"
   end
 
-  create_table "events_tickets", force: :cascade do |t|
-    t.integer "ticket_id"
-    t.integer "event_id"
-  end
-
   create_table "lodgings", force: :cascade do |t|
     t.string   "name"
     t.text     "description"
@@ -531,26 +526,36 @@ ActiveRecord::Schema.define(version: 20181113195810) do
     t.datetime "end_date"
     t.string   "title"
     t.text     "description"
-    t.integer  "surveyable_id"
     t.string   "surveyable_type"
+    t.integer  "surveyable_id"
     t.datetime "created_at",                  null: false
     t.datetime "updated_at",                  null: false
     t.integer  "target",          default: 0
     t.index ["surveyable_type", "surveyable_id"], name: "index_surveys_on_surveyable_type_and_surveyable_id"
   end
 
+  create_table "targets", force: :cascade do |t|
+    t.integer  "conference_id"
+    t.integer  "campaign_id"
+    t.date     "due_date"
+    t.integer  "target_count"
+    t.string   "unit"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
   create_table "ticket_purchases", force: :cascade do |t|
     t.integer  "ticket_id"
     t.integer  "conference_id"
-    t.boolean  "paid",                     default: false
+    t.boolean  "paid",             default: false
     t.datetime "created_at"
-    t.integer  "quantity",                 default: 1
+    t.integer  "quantity",         default: 1
     t.integer  "user_id"
     t.integer  "payment_id"
     t.integer  "week"
-    t.float    "amount_paid",              default: 0.0
-    t.float    "discount_percent",         default: 0.0
-    t.float    "discount_value",           default: 0.0
+    t.float    "amount_paid",      default: 0.0
+    t.float    "discount_percent", default: 0.0
+    t.float    "discount_value",   default: 0.0
   end
 
   create_table "ticket_scannings", force: :cascade do |t|
@@ -571,6 +576,7 @@ ActiveRecord::Schema.define(version: 20181113195810) do
     t.datetime "start_date"
     t.datetime "end_date"
     t.integer  "dependent_id"
+    t.integer  "event_id"
   end
 
   create_table "tracks", force: :cascade do |t|

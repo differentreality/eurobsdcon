@@ -126,6 +126,8 @@ Osem::Application.routes.draw do
       resources :lodgings, except: [:show]
       resources :emails, only: [:show, :update, :index]
       resources :physical_tickets, only: [:index]
+      resources :ticket_purchases
+      resources :payments
       resources :roles, except: [:new, :create] do
         member do
           post :toggle_user

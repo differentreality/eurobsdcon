@@ -1,0 +1,80 @@
+
+.row
+  .col-md-12
+    .page-header
+      %h1
+        New ticket purchase for #{@user.name}
+
+= semantic_form_for @ticket_purchase, url: admin_conference_ticket_purchases_path(@conference), method: :post do |f|
+  .row
+    .col-md-12
+      %table.table.table-hover
+        %thead
+          %tr
+            %th Ticket
+            %th Registration Ticket
+            %th.text-center Quantity
+            %th.text-center Price
+            %th.text-center Total
+        %tbody
+          - @conference.tickets.each do |ticket|
+            = render partial: 'tickets/ticket', f: f, locals: { ticket: ticket }
+          - if @user.overall_discount_coupons?(@conference)
+            %tr
+              %td{ colspan: 4, title: "Discount is calculated based on the coupons you have applied in your registration page" }
+                Discount (#{overall_discount_text(@conference)})
+
+              %td.text-center
+                = @conference.tickets.first.price.symbol
+                %span{ id: 'total_discount' }
+                  0
+          %tr
+            %td{ colspan: 3 }
+            %td.col-sm-1.col-md-1.text-center
+              %h4
+                Total
+            %td.col-sm-1.col-md-1.text-center
+              %h4
+                %strong
+                  = @conference.tickets.first.price.symbol
+                  %span{ id: 'total_price' }
+                    0
+
+      #overall_discount.hidden{ data: { 'value': @overall_discount_value || 0, 'percent': @overall_discount_percent || 0 } }
+      = hidden_field_tag :user_id, @user.id
+
+      .row
+        .col-md-2
+          = f.label 'Last 4 digits of card'
+          = text_field_tag 'payment[last4]', '', maxlength: 4, value: '0000', class: 'form-control', autofocus: true
+        .col-md-2
+          = f.label 'Amount paid'
+          = number_field_tag 'payment[amount]', '', class: 'form-control', required: 'required', step: 0.01
+        .col-md-3
+          = f.label 'Payment authorization code'
+          = text_field_tag 'payment[authorization_code]', '', class: 'form-control'
+
+      %br
+
+      .pull-right
+        .btn-group-vertical
+          = button_tag(type: 'submit', class: 'btn btn-success btn-lg') do
+            Continue
+            %i.fa.fa-shopping-cart
+
+:javascript
+
+  $(document).ready(function() {
+    $('#ticket_purchase_user_id').selectize({
+      plugins: ['remove_button'],
+      maxItems: 1
+    });
+
+    var amount = $('#total_price').text();
+    $('#payment_amount').val(amount);
+  });
+
+  $('#total_price').on('change',function(){
+    var amount = $('#total_price').text();
+    $('#payment_amount').val(amount);
+  });
