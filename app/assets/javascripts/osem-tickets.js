@@ -26,7 +26,7 @@ function update_price($this){
       total = 0
     }
 
-    $('#total_price').text(total.toFixed(2));
+    $('#total_price').text(total.toFixed(2)).trigger('change');
     $('#total_discount').text(total_discount.toFixed(2))
 }
 

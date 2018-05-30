@@ -6,8 +6,7 @@ class Ticket < ApplicationRecord
   # Ticket X depends on ticket Y, so you can't buy X without buying Y as well
   belongs_to :dependent, class_name: 'Ticket'
   has_many :ticket_purchases, dependent: :destroy
-  has_many :events_tickets, dependent: :destroy
-  has_many :events, through: :events_tickets
+  belongs_to :event
   has_many :buyers, -> { distinct }, through: :ticket_purchases, source: :user
 
   has_paper_trail meta: { conference_id: :conference_id },
