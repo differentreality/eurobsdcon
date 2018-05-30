@@ -1,0 +1,26 @@
+.row
+  .col-md-12
+    .page-header
+      %h1
+        Registration Code
+        %b= @coupon.name
+        %small
+          (#{discount(@coupon)} discount)
+      .text-muted
+        Used in
+        = pluralize(@coupon.registrations.size, 'registration')
+.row
+  .col-md-12
+    %table.table.table-bordered.table-striped.table-hover.datatable#coupon-registrations
+      %thead
+        %th
+        %th Name
+        %th Email
+        %th Applied At
+      %tbody
+        - @coupon.registrations.each.with_index(1) do |registration, index|
+          %tr
+            %td= index
+            %td= registration.name
+            %td= registration.email
+            %td= registration.coupons_registrations.find_by(coupon: @coupon).applied_at
