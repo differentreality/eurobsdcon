@@ -1,0 +1,21 @@
+- if @conference.coupons.any?
+  %br
+  .row
+    .col-md-12
+      -# if user has any codes applied
+      %h4
+        %span.fa-stack
+          %i.fa.fa-square-o.fa-stack-2x
+          %i.fa.fa-map-o.fa-stack-1x
+        Registration codes
+      %ul
+        #codes
+          = render partial: 'coupons_table'
+
+      #codes-form
+        = semantic_form_for @registration, url: apply_coupon_conference_conference_registration_path, method: :patch, remote: true do |f|
+          .input-group.col-md-4
+            = text_field_tag 'coupon_id', 'Have a registration code?', class: 'form-control', id: 'registration_coupon_input', onfocus: "if (this.value == 'Have a registration code?') {this.value = '';}"
+            .input-group-btn
+              = f.submit 'Apply Code', class: 'btn btn-success', id: 'apply_code_btn'
+        .unobtrusive-flash-container

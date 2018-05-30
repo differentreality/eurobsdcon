@@ -2,6 +2,21 @@
 
 module FormatHelper
   ##
+  # Discount of ticket (formatted as string)
+  # ===Returns
+  # * +String+ -> '100%' or '$20'
+  def discount(coupon)
+    result = ''
+    result << number_to_human(coupon.discount_amount, strip_insignificant_zeros: true)
+    if coupon.discount_type == 'percent'
+      result << '%'
+    else
+      result << coupon.ticket.try(:price_currency)
+    end
+    return result
+  end
+
+  ##
   # Includes functions related to formatting (like adding classes, colors)
   ##
   def status_icon(object)

@@ -34,6 +34,7 @@ class Conference < ApplicationRecord
       where(registration_ticket: true)
     end
   end
+  has_many :coupons
   has_many :resources, dependent: :destroy
   has_many :booths, dependent: :destroy
   has_many :confirmed_booths, -> { where(state: 'confirmed') }, class_name: 'Booth'

@@ -100,6 +100,9 @@
         - if can? :update, Question.new(conference_id: @conference.id)
           %li{class: active_nav_li(admin_conference_questions_path(@conference.short_title))}
             = link_to 'Questions', admin_conference_questions_path(@conference.short_title)
+        - if can? :update, @conference.coupons.build
+          %li{ class: active_nav_li(admin_conference_coupons_path(@conference.short_title)) }
+            = link_to 'Registration Codes', admin_conference_coupons_path(@conference.short_title)
 
   - if (can? :manage, @conference.sponsorship_levels.build) || (can? :manage, @conference.sponsors.build) || (can? :manage, @conference.tickets.build)
     %li

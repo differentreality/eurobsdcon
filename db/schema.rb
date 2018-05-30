@@ -12,6 +12,18 @@
 
 ActiveRecord::Schema.define(version: 20181113195810) do
 
+  create_table "ahoy_events", force: :cascade do |t|
+    t.integer  "visit_id"
+    t.integer  "user_id"
+    t.string   "name"
+    t.text     "properties"
+    t.datetime "time"
+    t.index ["name", "time"], name: "index_ahoy_events_on_name_and_time"
+    t.index ["time"], name: "index_ahoy_events_on_time"
+    t.index ["user_id"], name: "index_ahoy_events_on_user_id"
+    t.index ["visit_id"], name: "index_ahoy_events_on_visit_id"
+  end
+
   create_table "answers", force: :cascade do |t|
     t.string   "title"
     t.datetime "created_at"
@@ -126,6 +138,25 @@ ActiveRecord::Schema.define(version: 20181113195810) do
     t.string   "mastodon"
     t.string   "youtube"
     t.string   "blog"
+  end
+
+  create_table "coupons", force: :cascade do |t|
+    t.string   "name"
+    t.text     "description"
+    t.integer  "discount_type",   default: 0
+    t.float    "discount_amount", default: 0.0
+    t.integer  "conference_id"
+    t.integer  "ticket_id"
+    t.datetime "created_at",                    null: false
+    t.datetime "updated_at",                    null: false
+    t.index ["conference_id"], name: "index_coupons_on_conference_id"
+    t.index ["ticket_id"], name: "index_coupons_on_ticket_id"
+  end
+
+  create_table "coupons_registrations", force: :cascade do |t|
+    t.integer  "coupon_id"
+    t.integer  "registration_id"
+    t.datetime "applied_at",      default: '2018-04-06 14:24:07'
   end
 
   create_table "delayed_jobs", force: :cascade do |t|

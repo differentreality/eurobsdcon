@@ -64,6 +64,7 @@ Osem::Application.routes.draw do
         end
       end
 
+      resources :coupons
       resources :registrations, except: [:create, :new] do
         member do
           patch :toggle_attendance
@@ -190,7 +191,10 @@ Osem::Application.routes.draw do
     end
 
     # TODO: change conference_registrations to singular resource
-    resource :conference_registration, path: 'register'
+    resource :conference_registration, path: 'register' do
+      patch :apply_coupon
+      delete :remove_coupon
+    end
     resources :tickets, only: [:index]
     resources :ticket_purchases, only: [:create, :destroy, :index]
     resources :payments, only: [:index, :new, :create]
