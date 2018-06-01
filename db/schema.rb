@@ -10,11 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-<<<<<<< HEAD
-ActiveRecord::Schema.define(version: 20180316220446) do
-=======
 ActiveRecord::Schema.define(version: 20180405114126) do
->>>>>>> Add coupons functionality
 
   create_table "ahoy_events", force: :cascade do |t|
     t.integer  "visit_id"
@@ -168,7 +164,7 @@ ActiveRecord::Schema.define(version: 20180405114126) do
   create_table "coupons_registrations", force: :cascade do |t|
     t.integer  "coupon_id"
     t.integer  "registration_id"
-    t.datetime "applied_at",      default: '2018-04-06 14:24:07'
+    t.datetime "applied_at"
   end
 
   create_table "delayed_jobs", force: :cascade do |t|
