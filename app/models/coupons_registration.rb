@@ -8,7 +8,6 @@ class CouponsRegistration < ApplicationRecord
 
   validate :applied_before_conference
 
-
   private
 
   def applied_before_conference

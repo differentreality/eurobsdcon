@@ -93,6 +93,7 @@ class ConferenceRegistrationsController < ApplicationController
       if @coupon && @conference.coupons.include?(@coupon)
         begin
           @registration.coupons << @coupon
+          CouponsRegistration.find_by(registration: @registration, coupon: @coupon).update_attribute(:applied_at, Time.current)
           flash.now[:notice] ='Successfully added registration code!'
           format.js
         rescue => e
