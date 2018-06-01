@@ -18,6 +18,9 @@
   - unless @conference.pending?
     .col-md-4
       = render partial: 'admin/conferences/doughnut_chart', locals: {title: 'Attended registrations', data: @registration_distribution}
+  .col-md-4
+    = render partial: 'admin/conferences/doughnut_chart', locals: { title: 'Users with Coupons', data: @coupon_distribution }
+
 .row
   .col-md-12
     %div.margin-event-table
@@ -27,6 +30,7 @@
             %th ID#
             %th Name
             %th E-Mail
+            %th Coupons
             - if @code_of_conduct
               %th
                 %abbr{ title: 'Code of Conduct' } CoC
@@ -48,6 +52,7 @@
                     = role.name.titleize
               %td
                 = registration.email
+              %td= registration.coupons.pluck(:name).sort.join('<br>').html_safe
               - if @code_of_conduct
                 - if registration.accepted_code_of_conduct
                   %td.text-success.text-center= fa_icon('check', title: 'accepted')

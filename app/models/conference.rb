@@ -438,6 +438,38 @@ class Conference < ApplicationRecord
   end
 
   ##
+  # Returns a hash with Registration attended vs. Registration not attended
+  # { "Attended" => { value: number of registration attended, color: color },
+  #   "Not attended" => { value: number of registration not attended, color: color }
+  #
+  # ====Returns
+  # * +hash+ -> hash
+  def coupon_distribution
+    counted_coupons = coupons.joins(:registrations).group(:name).count
+
+    result = {}
+    i = 1
+    others = 0
+    none = 0
+    counted_coupons.each do |key, value|
+      if value < 0.02 * registrations.length
+        others += value
+      elsif key.blank?
+        none += value
+      else
+        result[key.capitalize] = { 'value' => value, 'color' => next_color(i) }
+        i += 1
+      end
+    end
+    if others > 0
+      result['Others'] = { 'value' => others, 'color' => next_color(i) }
+      i += 1
+    end
+    result['None'] = { 'value' => none, 'color' => next_color(i) } if none > 0
+    result
+  end
+
+  ##
   # Returns a hash with affiliation =>
   # {value: count of registration whose user has that affilation, color: color}
   # In case that the affiliation is blank, it groups them in None and
