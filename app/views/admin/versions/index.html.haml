@@ -42,6 +42,9 @@
             - when 'Registration', 'EventsRegistration'
               = registration_change_description(version)
 
+            - when 'CouponsRegistration'
+              = coupons_registration_change_description(version)
+
             - when 'Comment'
               = comment_change_description(version)
 
