@@ -14,6 +14,7 @@ module Admin
 
       @registration_distribution = @conference.registration_distribution
       @affiliation_distribution = @conference.affiliation_distribution
+      @coupon_distribution = @conference.coupon_distribution
       @code_of_conduct = @conference.code_of_conduct.present?
 
       respond_to do |format|
