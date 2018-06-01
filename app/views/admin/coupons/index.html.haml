@@ -6,12 +6,7 @@
         = link_to 'New code', new_admin_conference_coupon_path(@conference), class: 'btn btn-primary pull-right'
 .row
   .col-md-12
-    = pie_chart @data, ytitle: 'Πληρωτέο', label: 'Πληρωτέο',
-                          library: { chartArea: { width: '90%' },
-                                     pointSize: 15,
-                                     pointShape: { type: 'triangle', rotation: 90 } },
-                          id: 'invoices_years', legend: 'top'
-
+    
 .row
   .col-md-12
     - if @coupons.any?
