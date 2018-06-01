@@ -5,7 +5,7 @@ class Coupon < ApplicationRecord
   belongs_to :ticket
 
   has_many :coupons_registrations
-  has_many :registrations, through: :coupons_registrations
+  has_many :registrations, through: :coupons_registrations, dependent: :destroy
 
   enum discount_type: [:percent, :value]
 
