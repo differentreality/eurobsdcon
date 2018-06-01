@@ -156,7 +156,7 @@ ActiveRecord::Schema.define(version: 20181113195810) do
   create_table "coupons_registrations", force: :cascade do |t|
     t.integer  "coupon_id"
     t.integer  "registration_id"
-    t.datetime "applied_at",      default: '2018-04-06 14:24:07'
+    t.datetime "applied_at"
   end
 
   create_table "delayed_jobs", force: :cascade do |t|
