@@ -1,6 +1,6 @@
 :ruby
   version_item = current_or_last_object_state(version.item_type, version.item_id)
-  previous_version = version.event == 'create' ? version : (version.reify || version.previous_version)
+  previous_version = version.event == 'create' ? version : version.reify
   version_previous_item = current_or_last_object_state(previous_version.try(:item_type), previous_version.try(:item_id))
 
 .col-md-10.col-md-offset-1.changeset{ id: "changeset-#{version.id}" }
@@ -38,8 +38,14 @@
                 - else
                   = values[0].blank? ?  '-' : values[0]
 
-                  - if attribute == 'price_cents'
-                    = "(#{humanized_money_with_symbol previous_version.try(:price)})"
+                - if attribute == 'price_cents'
+                  = "(#{humanized_money_with_symbol previous_version.try(:price)})"
+
+                - elsif attribute == 'discount_amount'
+                  - if previous_version.discount_type == 'percent'
+                    = '%'
+                  - else
+                    = Conference.find(previous_version.conference_id).tickets.first.price_currency
             %td
               - if attribute.include?('_id')
                 - model_name = attribute.chomp('_id').camelize
@@ -53,6 +59,11 @@
 
                 - if attribute == 'price_cents'
                   = "(#{humanized_money_with_symbol version_item.try(:price)})"
+                - elsif attribute == 'discount_amount'
+                  - if version_item.discount_type == 'percent'
+                    = '%'
+                  - else
+                    = Conference.find(version_item.conference_id).tickets.first.price_currency
 
             - if can? :revert_attribute, version
               %td= link_to 'Revert', admin_revision_history_revert_attribute_path(id: version.id, attribute: attribute), class: 'btn btn-sm btn-primary', data: { confirm: "Are you sure you want to revert #{attribute}?" }
@@ -72,3 +83,8 @@
 
                 - if attribute == 'price_cents'
                   = "(#{humanized_money_with_symbol version_item.try(:price)})"
+                - elsif attribute == 'discount_amount'
+                  - if version_item.discount_type == 'percent'
+                    = '%'
+                  - else
+                    = Conference.find(version_item.conference_id).tickets.first.price_currency
