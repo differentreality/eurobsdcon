@@ -6,9 +6,15 @@ class CouponsRegistration < ApplicationRecord
 
   validates :coupon_id, uniqueness: { scope: :registration_id }
 
-  # same conference for coupon and registration
+  validate :applied_before_conference
+
 
   private
+
+  def applied_before_conference
+    errors
+    .add(:base, "can't apply coupon after the conference") if Date.current > coupon.conference.end_date
+  end
 
   def conference_id
     registration.conference_id
