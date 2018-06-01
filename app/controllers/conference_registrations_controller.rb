@@ -96,7 +96,7 @@ class ConferenceRegistrationsController < ApplicationController
           flash.now[:notice] ='Successfully added registration code!'
           format.js
         rescue => e
-          flash.now[:alert] = 'Cannot apply code.'
+          flash.now[:alert] = 'Cannot apply code. ' + e.message
           logger.debug "Cannot apply code with name #{params[:coupon_id]} with error: #{e.message}}"
           format.js { head :no_content }
         end
