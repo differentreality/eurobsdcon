@@ -94,6 +94,7 @@ class ConferenceRegistrationsController < ApplicationController
         begin
           @registration.coupons << @coupon
           CouponsRegistration.find_by(registration: @registration, coupon: @coupon).update_attribute(:applied_at, Time.current)
+          RegistrationChangeNotificationMailJob.perform_later(@conference, @registration.user, 'apply_coupon', @coupon)
           flash.now[:notice] ='Successfully added registration code!'
           format.js
         rescue => e
@@ -113,6 +114,7 @@ class ConferenceRegistrationsController < ApplicationController
     if @coupon && @registration.coupons.include?(@coupon)
       begin
         @registration.coupons.delete @coupon
+        RegistrationChangeNotificationMailJob.perform_later(@conference, @registration.user, 'remove_coupon', @coupon)
         respond_to do |format|
           format.js { render 'apply_coupon' }
         end
