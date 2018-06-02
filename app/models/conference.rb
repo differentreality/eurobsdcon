@@ -34,6 +34,7 @@ class Conference < ApplicationRecord
       where(registration_ticket: true)
     end
   end
+  has_many :coupons
   has_many :resources, dependent: :destroy
   has_many :booths, dependent: :destroy
   has_many :confirmed_booths, -> { where(state: 'confirmed') }, class_name: 'Booth'
@@ -424,6 +425,38 @@ class Conference < ApplicationRecord
     attended_value = { 'value' => reg.where(attended: true).count, 'color' => 'magenta' }
     not_attended_value = { 'value' => reg.where.not(attended: true).count, 'color' => 'blue' }
     { 'Attended' => attended_value, 'Not attended' => not_attended_value }
+  end
+
+  ##
+  # Returns a hash with Registration attended vs. Registration not attended
+  # { "Attended" => { value: number of registration attended, color: color },
+  #   "Not attended" => { value: number of registration not attended, color: color }
+  #
+  # ====Returns
+  # * +hash+ -> hash
+  def coupon_distribution
+    counted_coupons = coupons.joins(:registrations).group(:name).count
+
+    result = {}
+    i = 1
+    others = 0
+    none = 0
+    counted_coupons.each do |key, value|
+      if value < 0.02 * registrations.length
+        others += value
+      elsif key.blank?
+        none += value
+      else
+        result[key.capitalize] = { 'value' => value, 'color' => next_color(i) }
+        i += 1
+      end
+    end
+    if others > 0
+      result['Others'] = { 'value' => others, 'color' => next_color(i) }
+      i += 1
+    end
+    result['None'] = { 'value' => none, 'color' => next_color(i) } if none > 0
+    result
   end
 
   ##

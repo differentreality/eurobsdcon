@@ -1,0 +1,41 @@
+.row
+  .col-md-12
+    .page-header
+      %h1
+        Registration Codes (#{@coupons.length})
+        = link_to 'New code', new_admin_conference_coupon_path(@conference), class: 'btn btn-primary pull-right'
+.row
+  .col-md-12
+    
+.row
+  .col-md-12
+    - if @coupons.any?
+      %table.table.table-bordered.table-striped.datatable#registration-codes
+        %thead
+          %th Name
+          %th Description
+          %th Discount
+          %th # of registrations
+          %th Ticket
+          %th.text-center Actions
+
+        %tbody
+          - @coupons.each do |coupon|
+            %tr
+              %td= coupon.name
+              %td= coupon.description
+              %td
+                = number_to_human(coupon.discount_amount, strip_insignificant_zeros: true)
+                - if coupon.discount_type == 'percent'
+                  = '%'
+                - else
+                  = coupon.ticket.try(:price_currency)
+              %td= coupon.registrations.length
+              %td
+                - if coupon.ticket
+                  = link_to coupon.ticket.title, admin_conference_ticket_path(@conference, coupon.ticket)
+              %td
+                .btn-group
+                  = link_to 'Show', admin_conference_coupon_path(@conference, coupon), class: 'btn btn-success'
+                  = link_to 'Edit', edit_admin_conference_coupon_path(@conference, coupon), class: 'btn btn-primary'
+                  = link_to 'Destroy', admin_conference_coupon_path(@conference, coupon), method: :delete, class: 'btn btn-danger', data: { confirm: 'Are you sure?' }

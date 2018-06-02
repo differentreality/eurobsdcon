@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180316220446) do
+ActiveRecord::Schema.define(version: 20180405114126) do
 
   create_table "ahoy_events", force: :cascade do |t|
     t.integer  "visit_id"
@@ -146,6 +146,25 @@ ActiveRecord::Schema.define(version: 20180316220446) do
     t.datetime "updated_at"
     t.string   "sponsor_email"
     t.string   "mastodon"
+  end
+
+  create_table "coupons", force: :cascade do |t|
+    t.string   "name"
+    t.text     "description"
+    t.integer  "discount_type",   default: 0
+    t.float    "discount_amount", default: 0.0
+    t.integer  "conference_id"
+    t.integer  "ticket_id"
+    t.datetime "created_at",                    null: false
+    t.datetime "updated_at",                    null: false
+    t.index ["conference_id"], name: "index_coupons_on_conference_id"
+    t.index ["ticket_id"], name: "index_coupons_on_ticket_id"
+  end
+
+  create_table "coupons_registrations", force: :cascade do |t|
+    t.integer  "coupon_id"
+    t.integer  "registration_id"
+    t.datetime "applied_at"
   end
 
   create_table "delayed_jobs", force: :cascade do |t|

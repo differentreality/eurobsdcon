@@ -4,7 +4,8 @@ class ConferenceRegistrationsController < ApplicationController
   before_action :authenticate_user!, except: [:new, :create]
   load_resource :conference, find_by: :short_title
   authorize_resource :conference_registrations, class: Registration, except: [:new, :create]
-  before_action :set_registration, only: [:edit, :update, :destroy, :show]
+  after_action :prepare_unobtrusive_flash, only: [:apply_coupon, :remove_coupon]
+  before_action :set_registration, only: [:edit, :update, :destroy, :show, :apply_coupon, :remove_coupon]
 
   def new
     @registration = Registration.new(conference_id: @conference.id)
@@ -83,6 +84,49 @@ class ConferenceRegistrationsController < ApplicationController
       flash.now[:error] = "Could not update your registration for #{@conference.title}: "\
                         "#{@registration.errors.full_messages.join('. ')}."
       render :edit
+    end
+  end
+
+  def apply_coupon
+    @coupon = @conference.coupons.find_by(name: params[:coupon_id])
+    respond_to do |format|
+      if @coupon && @conference.coupons.include?(@coupon)
+        begin
+          @registration.coupons << @coupon
+          CouponsRegistration.find_by(registration: @registration, coupon: @coupon).update_attribute(:applied_at, Time.current)
+          flash.now[:notice] ='Successfully added registration code!'
+          format.js
+        rescue => e
+          flash.now[:alert] = 'Cannot apply code. ' + e.message
+          logger.debug "Cannot apply code with name #{params[:coupon_id]} with error: #{e.message}}"
+          format.js { head :no_content }
+        end
+      else
+        flash.now[:alert] = 'Cannot apply code.'
+        format.js { head :no_content }
+      end
+    end
+  end
+
+  def remove_coupon
+    @coupon = @conference.coupons.find_by(name: params[:coupon_id])
+    if @coupon && @registration.coupons.include?(@coupon)
+      begin
+        @registration.coupons.delete @coupon
+        respond_to do |format|
+          format.js { render 'apply_coupon' }
+        end
+      rescue => e
+        flash[:error] = "Could not remove coupon. #{e.message}"
+        respond_to do |format|
+          format.js { head :no_content }
+        end
+      end
+    else
+      flash[:alert] = 'Coupon does not exist'
+      respond_to do |format|
+        format.js { head :no_content }
+      end
     end
   end
 

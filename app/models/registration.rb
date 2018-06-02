@@ -8,6 +8,8 @@ class Registration < ApplicationRecord
   has_and_belongs_to_many :qanswers
   has_and_belongs_to_many :vchoices
 
+  has_many :coupons_registrations
+  has_many :coupons, through: :coupons_registrations, dependent: :destroy
   has_many :events_registrations
   has_many :events, through: :events_registrations, dependent: :destroy
 

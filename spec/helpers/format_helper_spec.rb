@@ -4,6 +4,13 @@ require 'spec_helper'
 
 describe FormatHelper, type: :helper do
 
+  describe 'discount' do
+    it 'returns correct text for discount' do
+      coupon = create(:coupon)
+      expect(discount(coupon)).to eq '100%'
+    end
+  end
+
   describe 'markdown' do
     it 'should return empty string for nil' do
       expect(markdown(nil)).to eq ''

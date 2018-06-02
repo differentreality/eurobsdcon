@@ -36,6 +36,18 @@
   conference
   = link_to_conference(version.conference_id)
 
+- when 'Coupon'
+  coupon
+
+  = link_if_alive version, object.name, admin_conference_coupon_path(conference.short_title, version.item_id), conference
+
+- when 'CouponsRegistration'
+  - coupon_id = current_or_last_object_state(version.item_type, version.item_id).try(:coupon_id) || PaperTrail::Version.where(item_type: version.item_type, item_id: version.item_id).last.changeset[:coupon_id].second
+  - coupon_version = PaperTrail::Version.where(item_type: 'Coupon', item_id: coupon_id).last
+  - coupon_name = current_or_last_object_state(coupon_version.item_type, coupon_version.item_id).try(:name)
+
+  = link_if_alive coupon_version, coupon_name, admin_conference_coupon_path(conference.short_title, coupon_id), conference
+
 - when 'Commercial'
   - commercialable = current_or_last_object_state(object.commercialable_type, object.commercialable_id)
 

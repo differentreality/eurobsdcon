@@ -1,0 +1,9 @@
+%table#coupons-table
+  - @registration.coupons.each do |coupon|
+    %tr
+      %td
+        = link_to remove_coupon_conference_conference_registration_path(@conference, coupon_id: coupon.name), method: :delete, remote: true, title: 'Remove' do
+          .fa.fa-times.text-danger
+      %td
+        %b= coupon.name
+      %td= coupon.description
