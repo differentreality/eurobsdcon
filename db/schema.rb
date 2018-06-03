@@ -561,6 +561,8 @@ ActiveRecord::Schema.define(version: 20181113195810) do
     t.boolean  "registration_ticket", default: false
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.datetime "start_date"
+    t.datetime "end_date"
   end
 
   create_table "tracks", force: :cascade do |t|

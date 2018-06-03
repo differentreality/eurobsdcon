@@ -23,6 +23,10 @@ class Ticket < ApplicationRecord
     buyers.include?(user)
   end
 
+  def active?
+    (start_date..end_date).cover? Time.current
+  end
+
   def tickets_paid(user)
     paid_tickets    = quantity_bought_by(user, paid: true)
     unpaid_tickets  = quantity_bought_by(user, paid: false)
