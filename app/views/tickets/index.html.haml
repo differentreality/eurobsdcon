@@ -19,7 +19,7 @@
               %th Price
               %th Total
           %tbody
-          - @conference.tickets.each do |ticket|
+          - @conference.tickets.active.each do |ticket|
             = render partial: 'ticket', f: f, locals: {ticket: ticket}
           %tr
             %td

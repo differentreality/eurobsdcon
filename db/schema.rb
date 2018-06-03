@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180405114126) do
+ActiveRecord::Schema.define(version: 20180603091955) do
 
   create_table "ahoy_events", force: :cascade do |t|
     t.integer  "visit_id"
@@ -577,6 +577,8 @@ ActiveRecord::Schema.define(version: 20180405114126) do
     t.boolean  "registration_ticket", default: false
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.datetime "start_date"
+    t.datetime "end_date"
   end
 
   create_table "tracks", force: :cascade do |t|

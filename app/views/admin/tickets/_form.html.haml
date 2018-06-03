@@ -14,5 +14,7 @@
       = f.input :price
       = f.input :price_currency, as: :select, class: 'form-control', collection: ['USD', 'EUR', 'GBP', 'INR', 'CNY', 'CHF'], include_blank: false
       = f.input :registration_ticket, hint: 'A registration ticket is with which user register for the conference.'
+      = f.input :start_date, as: :string, input_html: { readonly: 'readonly', id: 'datetimepicker-start-date'}
+      = f.input :end_date, as: :string, input_html: { readonly: 'readonly', id: 'datetimepicker-end-date'}
       %p.text-right
         = f.action :submit, as: :button, button_html: { class: 'btn btn-primary' }
