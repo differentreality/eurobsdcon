@@ -332,6 +332,7 @@ GEM
     parallel (1.12.1)
     parser (2.5.1.0)
       ast (~> 2.4.0)
+    paymill_ruby (2.0.2)
     pdf-core (0.2.5)
     phantomjs (2.1.1.0)
     piwik_analytics (1.0.2)
