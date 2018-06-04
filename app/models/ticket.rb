@@ -24,6 +24,7 @@ class Ticket < ApplicationRecord
   end
 
   def active?
+    return true unless start_date || end_date
     (start_date..end_date).cover? Time.current
   end
 

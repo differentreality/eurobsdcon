@@ -19,8 +19,8 @@
               %th Price
               %th Total
           %tbody
-          - @conference.tickets.active.each do |ticket|
-            = render partial: 'ticket', f: f, locals: {ticket: ticket}
+          - @conference.tickets.select(&:active?).each do |ticket|
+            = render partial: 'ticket', f: f, locals: { ticket: ticket }
           %tr
             %td
             %td
