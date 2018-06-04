@@ -33,10 +33,6 @@ class Conference < ApplicationRecord
     def for_registration
       where(registration_ticket: true)
     end
-
-    def active
-      where('start_date <= ? and end_date >= ?', Time.current, Time.current)
-    end
   end
   has_many :coupons
   has_many :resources, dependent: :destroy
