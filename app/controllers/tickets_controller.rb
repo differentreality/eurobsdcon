@@ -11,7 +11,8 @@ class TicketsController < ApplicationController
     @user_registration = current_user.registrations.for_conference @conference
     @unpaid_ticket_purchases = current_user.ticket_purchases.unpaid.by_conference(@conference) if params[:show_unpaid_ticket_purchases]
 
-    @overall_discount = current_user.overall_discount
+    @overall_discount_percent = current_user.overall_discount_percent(@conference)
+    @overall_discount_value = current_user.overall_discount_value(@conference)
   end
 
   def check_load_resource

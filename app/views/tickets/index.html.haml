@@ -34,7 +34,7 @@
                   = @conference.tickets.first.price.symbol
                   %span{id: 'total_price'}
                     0
-              #overall_discount.hidden{ data: { 'value': @overall_discount } }
+              #overall_discount.hidden{ data: { 'value': @overall_discount_value, 'percent': @overall_discount_percent } }
 
         .pull-right
           .btn-group-vertical
