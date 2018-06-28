@@ -20,7 +20,7 @@
   %td.col-sm-1.col-md-1.text-center
     = ticket.price.symbol
     %span{id: "price_#{ticket.id}"}
-      = humanized_money ticket.price
+      = price_with_discount(ticket, @user_registration)
   %td.col-sm-1.col-md-1.text-center
     %strong
       = ticket.price.symbol

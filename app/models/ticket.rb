@@ -23,6 +23,63 @@ class Ticket < ApplicationRecord
     buyers.include?(user)
   end
 
+  ##
+  # Sums the discount of ticket
+  # based on the unpaid ticket purchases of the user
+  def ticket_discount(user, paid: false)
+    ticket_purchases.by_user(user).where(paid: paid).sum{ |tp| (tp.discount_value || 0) + (tp.discount_percent || 0) }
+  end
+
+  def discount(registration)
+    discount_value(registration) + discount_percent(registration)
+  end
+  ##
+  # Calculate ticket discount for specific user registration
+  # Returns price minus all discounts (percent and value)
+  # ==== Returns
+  # * +Money+ -> ticket price minus discounts
+
+  # calc_ticket_discount
+  def discount_for_ticket(registration)
+    return 0 unless registration
+    discount_percent = registration.coupons.joins(:ticket).where(ticket: self).select(&:percent?).sum(&:discount_amount)
+    discount_value = registration.coupons.joins(:ticket).where(ticket: self).select(&:value?).sum(&:discount_amount)
+    total_discount = (price*discount_percent/100).to_f + discount_value
+    return Money.new(total_discount * 100, self.price_currency)
+  end
+
+  def discount_value(registration)
+    return 0 unless registration
+    discount_value = registration.coupons.joins(:ticket).where(ticket: self).select(&:value?).sum(&:discount_amount)
+    # No need to multiply by 100 here, because amount_paid is already in price cents
+    # so amount_paid is 0.1 instead of 100, and we want the discount to be at the same scale
+    return discount_value#, self.price_currency)
+  end
+
+  def discount_percent(registration)
+    return 0 unless registration
+    discount = registration.coupons.joins(:ticket).where(ticket: self).select(&:percent?).sum(&:discount_amount)
+    discount_percent = (price*discount/100).to_f
+    return discount_percent# * 100, self.price_currency)
+  end
+
+  def discount_overall_value(registration)
+    return 0 unless registration
+    coupons = registration.coupons - registration.coupons.joins(:ticket)
+    discount_overall_value = coupons.select(&:value?).sum(&:discount_amount)
+    # No need to multiply by 100 here, because amount_paid is already in price cents
+    # so amount_paid is 0.1 instead of 100, and we want the discount to be at the same scale
+    return discount_overall_value#, registration.conference.tickets.first.price_currency)
+  end
+
+  def discount_overall_percent(registration)
+    return 0 unless registration
+    coupons = registration.coupons - registration.coupons.joins(:ticket)
+    discount = coupons.select(&:percent?).sum(&:discount_amount)
+    discount_overall_percent = (price * discount/100).to_f
+    return discount_overall_percent #* 100, registration.conference.tickets.first.price_currency)
+  end
+
   def active?
     return true unless start_date || end_date
     (start_date..end_date).cover? Time.current
@@ -43,7 +100,8 @@ class Ticket < ApplicationRecord
   end
 
   def total_price(user, paid: false)
-    quantity_bought_by(user, paid: paid) * price
+    user_registration = user.registrations.for_conference conference
+    quantity_bought_by(user, paid: paid) * price - quantity_bought_by(user, paid: paid) * Money.new(discount_for_ticket(user_registration), price_currency)
   end
 
   def self.total_price(conference, user, paid: false)
@@ -66,7 +124,7 @@ class Ticket < ApplicationRecord
 
   def self.total_price_user(conference, user, paid: false)
     tickets = TicketPurchase.where(conference: conference, user: user, paid: paid)
-    tickets.inject(0){ |sum, ticket| sum + (ticket.amount_paid * ticket.quantity) }
+    tickets.inject(0){ |sum, ticket| sum + (ticket.final_amount * ticket.quantity) }
   end
 
   def tickets_turnover_total(id)

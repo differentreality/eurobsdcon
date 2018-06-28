@@ -11,7 +11,7 @@ class TicketPurchasesController < ApplicationController
     message = TicketPurchase.purchase(@conference, current_user, params[:tickets].try(:first))
     if message.blank?
       if current_user.ticket_purchases.by_conference(@conference).unpaid.any?
-        redirect_to new_conference_payment_path,
+        redirect_to new_conference_payment_path(overall_discount: params[:overall_discount]),
                     notice: 'Please pay here to get tickets.'
       elsif current_user.ticket_purchases.by_conference(@conference).paid.any?
         redirect_to conference_physical_tickets_path,

@@ -7,6 +7,7 @@
           %th Quantity
           %th Price
           %th Total
+      - total_amount = 0
       %tbody
       - @unpaid_ticket_purchases.each do |ticket|
         %tr
@@ -15,9 +16,18 @@
           %td
             = ticket.quantity
           %td
-            = humanized_money_with_symbol ticket.price
+            = price_with_discount(ticket.ticket, @user_registration, true)
           %td
-            = humanized_money_with_symbol ticket.quantity * ticket.price
+            - amount = ticket.quantity * ticket.price - Money.new(ticket.quantity * ticket.ticket.discount(@user_registration) *100, ticket.price_currency)
+            - total_amount += amount
+            = humanized_money_with_symbol(amount)
+      - if current_user.overall_discount(@conference, total_amount) > 0
+        %tr
+          %td{ colspan: 2, title: "Discount is calculated based on the coupons you have applied in your registration page" } Discount
+          %td
+            = simple_format(overall_discount_text(@conference))
+          %td= humanized_money_with_symbol(current_user.overall_discount(@conference, total_amount))
+
 - if ENV['PAYMILL_PRIVATE_API_KEY'].present?
   = render partial: 'paymill_payment'
 - else

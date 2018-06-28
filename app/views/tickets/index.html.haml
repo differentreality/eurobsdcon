@@ -9,7 +9,7 @@
         %strong
           = @conference.title
         here*
-      =form_tag(conference_ticket_purchases_path, method: :post) do |f|
+      =form_tag(conference_ticket_purchases_path(overall_discount_percent: @overall_discount_percent, overall_discount_value: @overall_discount_value), method: :post) do |f|
         %table.table.table-hover
           %thead
             %tr
@@ -34,6 +34,8 @@
                   = @conference.tickets.first.price.symbol
                   %span{id: 'total_price'}
                     0
+              #overall_discount.hidden{ data: { 'value': @overall_discount } }
+
         .pull-right
           .btn-group-vertical
             = button_tag(type: 'submit', class: 'btn btn-success btn-lg') do

@@ -13,11 +13,15 @@ class PaymentsController < ApplicationController
 
   def new
     @total_amount_to_pay = Ticket.total_price(@conference, current_user, paid: false)
+    @total_amount_to_pay = @total_amount_to_pay - current_user.overall_discount(@conference, @total_amount_to_pay)
+
     if @total_amount_to_pay.zero?
       raise CanCan::AccessDenied.new('Nothing to pay for!', :new, Payment)
     end
-
+    @user_registration = current_user.registrations.for_conference @conference
     @unpaid_ticket_purchases = current_user.ticket_purchases.unpaid.by_conference(@conference)
+    @overall_discount_percent = params[:overall_discount_percent]
+    @overall_discount_value = params[:overall_discount_value]
   end
 
   def create

@@ -35,6 +35,7 @@ module Admin
 
     # GET /coupons/1/edit
     def edit
+      @tickets = @conference.tickets
     end
 
     # POST /coupons
@@ -60,10 +61,13 @@ module Admin
     def update
       respond_to do |format|
         if @coupon.update(coupon_params)
-          format.html { redirect_to @coupon, notice: 'Coupon was successfully updated.' }
+          format.html { redirect_to admin_conference_coupons_path, notice: 'Coupon was successfully updated.' }
           format.json { head :no_content }
         else
-          format.html { render action: 'edit' }
+          format.html {
+            flash[:error] = "Could not update coupon #{@coupon.try(:name)}. #{@coupon.errors.full_messages.to_sentence}"
+            render action: 'edit'
+          }
           format.json { render json: @coupon.errors, status: :unprocessable_entity }
         end
       end

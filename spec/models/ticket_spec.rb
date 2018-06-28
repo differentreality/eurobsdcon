@@ -67,6 +67,21 @@ describe Ticket do
     end
   end
 
+  describe '#discount_value' do
+    it 'returns correct amount' do
+      registration = create(:registration, user: user, conference: conference)
+      coupon_ticket_value = create(:coupon_value, conference: conference, ticket: ticket, discount_amount: 10)
+      coupon_ticket_percent = create(:coupon_percent, conference: conference, ticket: ticket, discount_amount: 10)
+      coupon_value = create(:coupon_value, conference: conference, discount_amount: 10)
+      coupon_percent = create(:coupon_percent, conference: conference, discount_amount: 10)
+      registration.coupon_ids = [coupon_ticket_value.id, coupon_ticket_percent.id, coupon_value.id, coupon_percent.id]
+      expect(ticket.discount_value(registration)).to eq 10
+      expect(ticket.discount_percent(registration)).to eq 5
+      expect(ticket.discount_overall_value(registration)).to eq 10
+      expect(ticket.discount_overall_percent(registration)).to eq 5
+    end
+  end
+
   describe '#tickets_turnover_total' do
     let!(:purchase1) { create :ticket_purchase, ticket: ticket, amount_paid: 5_000, quantity: 1, paid: true, user: user }
     let!(:purchase2) { create :ticket_purchase, ticket: ticket, amount_paid: 5_000, quantity: 2, paid: true, user: user }
@@ -155,6 +170,17 @@ describe Ticket do
       it 'returns the correct value if the user has bought this ticket' do
         expect(ticket.total_price(user, paid: true)).to eq(Money.new(100000, 'USD'))
       end
+    end
+  end
+
+  describe '#ticket_discount' do
+    it 'returns total amount of discount for ticket' do
+      ticket = create(:ticket, conference: conference, price: 100)
+      create(:coupon_value, discount_amount: 10)
+      create(:coupon_percent, discount_amount: 10)
+      create(:ticket_purchase, ticket: ticket, user: user, discount_value: 10, discount_percent: 10)
+
+      expect(ticket.ticket_discount(user)).to eq 20
     end
   end
 

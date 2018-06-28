@@ -3,8 +3,9 @@
 FactoryBot.define do
   factory :ticket do
     title { "#{Faker::Hipster.word} Ticket" }
-    price_cents { 1000 }
-    price_currency { 'USD' }
+    price_cents 1000
+    price_currency 'USD'
+    conference
     factory :registration_ticket do
       registration_ticket { true }
     end

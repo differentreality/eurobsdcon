@@ -131,5 +131,26 @@ describe TicketPurchase do
       expect(purchase.quantity).to eq(10)
       expect(message.blank?).to be true
     end
+
+    it 'creates purchase with discounts' do
+      registration = create(:registration, user: participant, conference: conference)
+      registration.reload
+      ticketA = create(:ticket, conference: conference, price_cents: 100*100, registration_ticket: false)
+      ticketB = create(:ticket, conference: conference, price_cents: 1000*100, registration_ticket: false)
+      coupon_ticket_value = create(:coupon_value, conference: conference, ticket: ticketB, discount_amount: 50)
+      coupon_ticket_percent = create(:coupon_percent, conference: conference, ticket: ticketB, discount_amount: 50)
+      coupon_value = create(:coupon_value, conference: conference, discount_amount: 20)
+      coupon_percent = create(:coupon_percent, conference: conference, discount_amount: 10)
+      registration.coupon_ids = [coupon_ticket_value.id, coupon_ticket_percent.id, coupon_value.id, coupon_percent.id]
+      conference.reload
+
+      tickets = { ticketA.id.to_s => '2', ticketB.id.to_s => '1' }
+
+      TicketPurchase.purchase(conference, participant, tickets)
+      expect(TicketPurchase.count).to eq 2
+
+      expect(TicketPurchase.first.final_amount).to eq 100
+      expect(TicketPurchase.second.final_amount).to eq 450
+    end
   end
 end
