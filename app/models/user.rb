@@ -107,6 +107,25 @@ class User < ApplicationRecord
     event_registration.attended
   end
 
+  def overall_discount_percent(conference)
+    registration = registrations.for_conference(conference)
+    coupons = registration.coupons - registration.coupons.joins(:ticket)
+    return coupons.select(&:percent?).sum(&:discount_amount)
+  end
+
+  def overall_discount_value(conference)
+    registration = registrations.for_conference(conference)
+    coupons = registration.coupons - registration.coupons.joins(:ticket)
+    return coupons.select(&:value?).sum(&:discount_amount)
+  end
+
+  def overall_discount(conference, amount)
+    discount_percent = overall_discount_percent(conference)
+    discount_value = overall_discount_value(conference)
+    total_discount = (amount*discount_percent/100).to_f + discount_value
+    return Money.new(total_discount * 100, conference.tickets.first.price_currency || 'EUR')
+  end
+
   def mark_attendance_for_conference conference
     registration = registrations.for_conference(conference)
     registration.attended = true

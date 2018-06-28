@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180603091955) do
+ActiveRecord::Schema.define(version: 20180628192009) do
 
   create_table "ahoy_events", force: :cascade do |t|
     t.integer  "visit_id"
@@ -559,7 +559,9 @@ ActiveRecord::Schema.define(version: 20180603091955) do
     t.integer  "user_id"
     t.integer  "payment_id"
     t.integer  "week"
-    t.float    "amount_paid",   default: 0.0
+    t.float    "amount_paid",              default: 0.0
+    t.float    "discount_percent",         default: 0.0
+    t.float    "discount_value",           default: 0.0
   end
 
   create_table "ticket_scannings", force: :cascade do |t|

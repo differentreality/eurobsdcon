@@ -11,6 +11,8 @@ function update_price($this){
     $('.total_row').each(function( index ) {
         total += parseFloat($(this).text());
     });
+    var discount = parseFloat($('#overall_discount').attr('data-value'));
+    total = total - discount;
     $('#total_price').text(total.toFixed(2));
 }
 

@@ -8,7 +8,10 @@ class TicketsController < ApplicationController
   before_action :check_load_resource, only: :index
 
   def index
+    @user_registration = current_user.registrations.for_conference @conference
     @unpaid_ticket_purchases = current_user.ticket_purchases.unpaid.by_conference(@conference) if params[:show_unpaid_ticket_purchases]
+
+    @overall_discount = current_user.overall_discount
   end
 
   def check_load_resource

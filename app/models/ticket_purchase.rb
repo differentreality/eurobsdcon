@@ -49,13 +49,26 @@ class TicketPurchase < ApplicationRecord
     errors.join('. ')
   end
 
+  ##
+  # Does NOT include overall discounts
+  def final_amount
+    amount_paid - discount_value - discount_percent
+  end
+
+  def discounted_price
+    quantity * ticket.price - Money.new(ticket.quantity * ticket.discount*100, ticket.price_currency)
+  end
+
   def self.purchase_ticket(conference, quantity, ticket, user)
     if quantity > 0
+      registration = user.registrations.for_conference(ticket.conference)
       purchase = new(ticket_id: ticket.id,
                      conference_id: conference.id,
                      user_id: user.id,
                      quantity: quantity,
-                     amount_paid: ticket.price)
+                     amount_paid: ticket.price,
+                     discount_percent: ticket.discount_percent(registration),
+                     discount_value: ticket.discount_value(registration))
       purchase.pay(nil) if ticket.price_cents.zero?
     end
     purchase
