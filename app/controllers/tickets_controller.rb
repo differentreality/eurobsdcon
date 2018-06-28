@@ -7,7 +7,9 @@ class TicketsController < ApplicationController
   authorize_resource :conference_registrations, class: Registration
   before_action :check_load_resource, only: :index
 
-  def index; end
+  def index
+    @unpaid_ticket_purchases = current_user.ticket_purchases.unpaid.by_conference(@conference) if params[:show_unpaid_ticket_purchases]
+  end
 
   def check_load_resource
     if @tickets.empty?

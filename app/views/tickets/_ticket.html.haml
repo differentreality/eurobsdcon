@@ -1,3 +1,5 @@
+- ticket_unpaid = @unpaid_ticket_purchases.find_by(ticket: ticket) if @unpaid_ticket_purchases
+
 %tr
   %td.col-sm-8.col-md-4
     .media
@@ -14,7 +16,7 @@
     - if ticket.registration_ticket?
       - options[:max] = 1
       - options[:disabled] = current_user.tickets.for_registration(ticket.conference).present?
-    = text_field_tag("tickets[][#{ticket.id}]", 0, options)
+    = text_field_tag("tickets[][#{ticket.id}]", ticket_unpaid.try(:quantity) || 0 , options)
   %td.col-sm-1.col-md-1.text-center
     = ticket.price.symbol
     %span{id: "price_#{ticket.id}"}

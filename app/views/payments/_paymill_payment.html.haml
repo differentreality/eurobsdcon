@@ -3,7 +3,7 @@
     %button.btn.btn-primary.pull-right{ 'data-toggle': 'modal', 'data-target': '#paymill_form' }
       Pay #{humanized_money_with_symbol @total_amount_to_pay}
 
-    = link_to 'Edit Purchase', conference_tickets_path(@conference.short_title), class: 'btn btn-default'
+    = link_to 'Edit Purchase', conference_tickets_path(@conference.short_title, show_unpaid_ticket_purchases: true), class: 'btn btn-default'
 
     .modal.fade#paymill_form{ tabindex: -1, role: 'dialog', 'aria-labelledby':'myModalLabel' }
       .modal-dialog.modal-default.modal-sm{ role: 'document' }
