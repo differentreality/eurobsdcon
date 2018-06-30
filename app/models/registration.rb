@@ -30,6 +30,7 @@ class Registration < ApplicationRecord
 
   validates :user_id, uniqueness: { scope: :conference_id, message: 'already Registered!' }
   validate :registration_limit_not_exceed, on: :create
+  validate :registered_to_non_intersecting_events
   validate :registration_to_events_only_if_present
 
   validates :accepted_code_of_conduct, acceptance: {
@@ -49,6 +50,18 @@ class Registration < ApplicationRecord
   end
 
   private
+
+  def registered_to_non_intersecting_events
+    result = false
+    events_with_time = events.select(&:time)
+    events_with_time.each_with_index do |check_event, index|
+      remaining_events = events.where.not(id: check_event.id).select(&:time)
+
+      puts "check_event ID #{check_event.id}"
+      result = remaining_events.any?{ |event| puts "event ID #{event.id}"; (event.time.to_datetime..(event.time+event.event_type.length.minutes).to_datetime).include? check_event.time.to_datetime }
+    end
+    errors.add(:base, 'You cannot register to 2 happenings at the same time!') if result
+  end
 
   ##
   # If the user registers to attend events that are already scheduled,
