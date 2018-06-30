@@ -16,12 +16,12 @@
     - @registration.events_ordered.each do |event|
       %label
         = hidden_field_tag "registration[event_ids][]", nil
-        = check_box_tag "registration[event_ids][]", event.id, event.registrations.include?(@registration)
+        = check_box_tag "registration[event_ids][]", event.id, event.registrations.include?(@registration), id: event.id, data: { time: event.time }
         = event.title
         .text-muted
           = registered_text(event)
           - if event.scheduled?
-            (Scheduled on: #{event.time.to_date})
+            (Scheduled on: #{event.time.strftime('%Y-%m-%d %H:%M')})
       %br
 
 

@@ -83,7 +83,7 @@ class ConferenceRegistrationsController < ApplicationController
                    notice: 'Registration was successfully updated.'
     else
       flash.now[:error] = "Could not update your registration for #{@conference.title}: "\
-                        "#{@registration.errors.full_messages.join('. ')}."
+                        "#{@registration.errors.full_messages.join('. ')}"
       render :edit
     end
   end
