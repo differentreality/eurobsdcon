@@ -15,6 +15,8 @@ describe Event do
     it { is_expected.to belong_to :event_type }
     it { is_expected.to have_many :events_registrations }
     it { is_expected.to have_many :registrations }
+    it { is_expected.to have_many :events_tickets }
+    # it { is_expected.to have_many :tickets, through: :events_tickets }
   end
 
   describe 'validation' do

@@ -3,10 +3,14 @@
 class Ticket < ApplicationRecord
   belongs_to :conference
   has_many :coupons
+  # Ticket X depends on ticket Y, so you can't buy X without buying Y as well
+  belongs_to :dependent, class_name: 'Ticket'
   has_many :ticket_purchases, dependent: :destroy
+  has_many :events_tickets, dependent: :destroy
+  has_many :events, through: :events_tickets
   has_many :buyers, -> { distinct }, through: :ticket_purchases, source: :user
 
-  has_paper_trail meta:   { conference_id: :conference_id },
+  has_paper_trail meta: { conference_id: :conference_id },
                   ignore: %i[updated_at]
 
   monetize :price_cents, with_model_currency: :price_currency
@@ -124,14 +128,15 @@ class Ticket < ApplicationRecord
 
   def self.total_price_user(conference, user, paid: false)
     tickets = TicketPurchase.where(conference: conference, user: user, paid: paid)
-    tickets.inject(0){ |sum, ticket| sum + (ticket.final_amount * ticket.quantity) }
+    puts "user id: #{user.id}"
+    tickets.map{ |tp| tp.payment }.compact.uniq.pluck(:amount).sum / 100
+    # tickets.inject(0){ |sum, ticket| sum + (ticket.final_amount * ticket.quantity) }
   end
 
   def tickets_turnover_total(id)
     ticket = Ticket.find(id)
     return Money.new(0, 'USD') unless ticket
-
-    sum = ticket.ticket_purchases.paid.total
+    sum = ticket.ticket_purchases.paid.total_amount
     Money.new(sum, ticket.price_currency)
   end
 

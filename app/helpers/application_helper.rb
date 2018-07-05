@@ -152,6 +152,13 @@ module ApplicationHelper
     )
   end
 
+  def event_selector_input(form)
+    events = @conference.program.events.pluck(:id, :title).map { |user| [user[0], user[1]] }
+    form.input :events, as: :select,
+                          collection: options_for_select(events.map {|event| ["#{event[1]} ", event[0]]}, @ticket.events.map(&:id)),
+                          include_blank: false, label: 'Events', input_html: { class: 'select-help-toggle', multiple: 'false' }
+  end
+
   def event_types_sentence(conference)
     conference.event_types.map { |et| et.title.pluralize }.to_sentence
   end

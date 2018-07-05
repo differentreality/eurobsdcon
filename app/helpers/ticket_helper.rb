@@ -18,7 +18,6 @@ module TicketHelper
     if current_user.overall_discount_percent(conference) > 0
       text_percent += current_user.overall_discount_percent(conference).to_f.to_s
       text_percent += '%'
-      text_percent += "\n"
       text_array[0] = text_percent
     end
 
@@ -27,6 +26,6 @@ module TicketHelper
       text_array[1] = humanized_money_with_symbol(value)
     end
 
-    return text_array.join("\n")
+    return text_array.join(' and ')
   end
 end

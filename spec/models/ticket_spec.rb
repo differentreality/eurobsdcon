@@ -52,6 +52,8 @@ describe Ticket do
     it { should belong_to(:conference) }
     it { should have_many(:ticket_purchases).dependent(:destroy) }
     it { should have_many(:buyers).through(:ticket_purchases).source(:user) }
+    it { is_expected.to have_many :events_tickets }
+    # it { is_expected.to have_many :events, through: :events_tickets }
   end
 
   describe '#bought?' do
