@@ -161,7 +161,7 @@ class ConferenceRegistrationsController < ApplicationController
   end
 
   def registration_params
-    params.require(:registration)
+    params.fetch(:registration, {})
         .permit(
           :conference_id, :arrival, :departure,
           :volunteer, :accepted_code_of_conduct,

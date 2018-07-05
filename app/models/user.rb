@@ -118,18 +118,21 @@ class User < ApplicationRecord
   # * +Boolean+ -> False, if user has not applied coupons with overall discount
   def overall_discount_coupons?(conference)
     registration = registrations.for_conference(conference)
+    return unless registration
     coupons = registration.coupons - registration.coupons.joins(:ticket)
     return coupons.any?
   end
 
   def overall_discount_percent(conference)
     registration = registrations.for_conference(conference)
+    return unless registration
     coupons = registration.coupons - registration.coupons.joins(:ticket)
     return coupons.select(&:percent?).sum(&:discount_amount)
   end
 
   def overall_discount_value(conference)
     registration = registrations.for_conference(conference)
+    return unless registration
     coupons = registration.coupons - registration.coupons.joins(:ticket)
     return coupons.select(&:value?).sum(&:discount_amount)
   end

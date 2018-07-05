@@ -136,7 +136,7 @@ def registered_to_buying(conference, user, purchases)
   buying_tickets = purchases.keys.map{ |ticket_id| Ticket.find(ticket_id) }
 
   buying_tickets.each do |ticket|
-    ticket_events_with_registration = ticket.event if ticket.event.require_registration
+    ticket_events_with_registration = ticket.event && ticket.event.require_registration ? [ticket.event] : []
 
     if ticket_events_with_registration.any?
       if !ticket_events_with_registration.any?{ |event| user.registered_to_event?(event) }

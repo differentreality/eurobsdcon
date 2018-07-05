@@ -14,8 +14,8 @@ module Admin
     def new
       existing_ticket = @conference.tickets.find_by(id: params[:ticket_id])
       @ticket = existing_ticket.dup || @conference.tickets.new
-      @ticket.start_date = nil
-      @ticket.end_date = nil
+      @ticket.event = existing_ticket.try(:event)
+      @ticket.dependent = existing_ticket.try(:dependent)
     end
 
     def create
@@ -43,12 +43,17 @@ module Admin
     end
 
     def destroy
+      if @ticket.coupons.any?
+        redirect_to admin_conference_tickets_path(conference_id: @conference.short_title),
+                    error: 'The ticket is used in coupons, and cannot be destroyed' and return
+      end
+
       if @ticket.destroy
         redirect_to admin_conference_tickets_path(conference_id: @conference.short_title),
                     notice: 'Ticket successfully destroyed.'
       else
         redirect_to admin_conference_tickets_path(conference_id: @conference.short_title),
-                    error: 'Ticket was successfully destroyed.' \
+                    error: 'Ticket could not be destroyed.' \
                     "#{@ticket.errors.full_messages.join('. ')}."
       end
     end
