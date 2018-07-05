@@ -9,7 +9,11 @@ class TicketsController < ApplicationController
 
   def index
     @user_registration = current_user.registrations.for_conference @conference
-    @unpaid_ticket_purchases = current_user.ticket_purchases.unpaid.by_conference(@conference) if params[:show_unpaid_ticket_purchases]
+    @selection = if params[:show_unpaid_ticket_purchases]
+                   current_user.ticket_purchases.unpaid.by_conference(@conference).map{ |tp| [tp.ticket_id, tp.quantity] }.compact.to_h
+                 elsif params[:tickets]
+                   params[:tickets].map{|k, v| [k.to_i, v.to_i] if v.to_i > 0 }.compact.to_h
+                 end
 
     @overall_discount_percent = current_user.overall_discount_percent(@conference)
     @overall_discount_value = current_user.overall_discount_value(@conference)

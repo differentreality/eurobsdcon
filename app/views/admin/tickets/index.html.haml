@@ -18,6 +18,8 @@
           %th Registration Ticket
           %th Start Date
           %th End Date
+          %th Related Event(s)
+          %th Requires ticket
           %th Actions
         %tbody
           - @conference.tickets.each do |ticket|
@@ -40,6 +42,15 @@
                 = ticket.registration_ticket? ? 'Yes' : 'No'
               %td= ticket.start_date
               %td= ticket.end_date
+              %td
+                - if ticket.events.any?
+                  %ol
+                    - ticket.events.each do |event|
+                      %li= link_to event.title, admin_conference_program_event_path(@conference, event)
+
+              %td
+                - if ticket.dependent
+                  = link_to ticket.dependent.title, admin_conference_ticket_path(@conference, ticket.dependent)
               %td
                 .btn-group
                   = link_to 'Edit', edit_admin_conference_ticket_path(@conference.short_title, ticket.id),

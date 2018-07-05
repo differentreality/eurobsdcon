@@ -19,9 +19,25 @@
         = check_box_tag "registration[event_ids][]", event.id, event.registrations.include?(@registration), id: event.id, data: { time: event.time }
         = event.title
         .text-muted
-          = registered_text(event)
-          - if event.scheduled?
-            (Scheduled on: #{event.time.strftime('%Y-%m-%d %H:%M')})
+          .col-md-12
+            = registered_text(event)
+            - if event.scheduled?
+              (Scheduled on: #{event.time.strftime('%Y-%m-%d %H:%M')})
+            - if event.tickets.any?
+              %br
+              %b Available tickets:
+              %br
+              - event.tickets.each do |ticket|
+                - if ticket.bought?(current_user)
+                  %span{ title: 'You already have this ticket!'}
+                    .fa.fa-check.text-success
+                    = ticket.title
+                    = "(#{ticket.description})" if ticket.description.present?
+                - else
+                  %span{ title: 'You have not bought this ticket yet.' }
+                    .fa.fa-times.text-danger
+                    = ticket.title
+                %br
       %br
 
 = render 'conferences/code_of_conduct', organization: @conference.organization
