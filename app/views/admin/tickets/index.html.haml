@@ -1,3 +1,6 @@
+= javascript_include_tag "//www.google.com/jsapi", "chartkick"
+= javascript_include_tag 'chartkick'
+
 .row
   .col-md-12
     .page-header
@@ -44,8 +47,7 @@
               %td= ticket.end_date
               %td
                 - if ticket.event
-                  %ol
-                    %li= link_to ticket.event.title, admin_conference_program_event_path(@conference, ticket.event)
+                  = link_to ticket.event.title, admin_conference_program_event_path(@conference, ticket.event)
 
               %td
                 - if ticket.dependent

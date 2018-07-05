@@ -293,6 +293,11 @@ ActiveRecord::Schema.define(version: 20181113195810) do
     t.datetime "created_at"
   end
 
+  create_table "events_tickets", force: :cascade do |t|
+    t.integer "ticket_id"
+    t.integer "event_id"
+  end
+
   create_table "lodgings", force: :cascade do |t|
     t.string   "name"
     t.text     "description"
