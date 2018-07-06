@@ -57,12 +57,16 @@ class TicketPurchase < ApplicationRecord
     amount_paid - discount_value - discount_percent
   end
 
+  def discount
+    discount_value + discount_percent
+  end
+
   def self.total_amount
     sum{ |tp| tp.quantity * tp.final_amount }
   end
 
-  def discounted_price
-    quantity * ticket.price - Money.new(ticket.quantity * ticket.discount*100, ticket.price_currency)
+  def final_amount_sum
+    quantity * (amount_paid - discount)
   end
 
   def self.purchase_ticket(conference, quantity, ticket, user)

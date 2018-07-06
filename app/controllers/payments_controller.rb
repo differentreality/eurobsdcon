@@ -47,6 +47,7 @@ class PaymentsController < ApplicationController
        end
       if @payment.save
         update_purchased_ticket_purchases
+        @payment.update_attributes(status: 'success')
         redirect_to conference_physical_tickets_path,
                     notice: 'Thanks! Your ticket is booked successfully.'
         return
@@ -57,7 +58,6 @@ class PaymentsController < ApplicationController
         render :new
         return
       end
-
     end
 
     if @payment.purchase && @payment.save
