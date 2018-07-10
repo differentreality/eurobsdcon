@@ -28,4 +28,23 @@ namespace :data do
       puts "Fixed #{attribute}!"
     end
   end
+
+  ##
+  # Add survey for registration
+  # For specific conference (by short_title)
+  task :add_survey, [:conference_short_title, :duplicate] => :environment do |t, args|
+
+    conference = Conference.find_by(short_title: args.conference_short_title)
+    fail 'To continue, you need to provide the short_title of a conference. Usage: rake data:add_survey[short_title]' unless args.conference_short_title && conference
+    # Do not create dplicate survey, unless duplicate
+    if conference.surveys.for_registration.any? && !args.duplicate
+      fail 'You already have a survey during registration. If you want to create another one, pass the argument true after the conference short_title. Usage: rake data:add_survey[short_title,true]'
+    end
+
+    registration_survey = create(:survey, surveyable: conference, target: :during_registration, title: 'Survey during registation', start_date: conference.registration_period.start_date, end_date: conference.registration_period.end_date, description: 'Survey during registration.')
+
+    tshirt_size_question = create(:choice_non_mandatory_1_reply, survey: registration_survey, title: "What's your T-shirt size?", possible_answers: 'S, M, L, XL')
+
+    puts 'Successfully created a survey to show during registration.'
+  end
 end

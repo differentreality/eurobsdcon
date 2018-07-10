@@ -11,10 +11,15 @@
       %table.datatable#tickets
         %thead
           %th Title
+          %th Active
           %th Price
           %th Sold
           %th Turnover
           %th Registration Ticket
+          %th Start Date
+          %th End Date
+          %th Related Event(s)
+          %th Requires ticket
           %th Actions
         %tbody
           - @conference.tickets.each do |ticket|
@@ -22,6 +27,11 @@
               %td
                 = link_to(admin_conference_ticket_path(@conference.short_title, ticket.id)) do
                   = ticket.title
+              %td{ 'data-order' => ticket.active?.to_s }
+                - if ticket.active?
+                  .fa.fa-check.text-success
+                - else
+                  .fa.fa-times.text-danger
               %td
                 = humanized_money_with_symbol ticket.price
               %td
@@ -30,13 +40,28 @@
                 = humanized_money_with_symbol ticket.tickets_turnover_total(ticket.id)
               %td
                 = ticket.registration_ticket? ? 'Yes' : 'No'
+              %td= ticket.start_date
+              %td= ticket.end_date
+              %td
+                - if ticket.events.any?
+                  %ol
+                    - ticket.events.each do |event|
+                      %li= link_to event.title, admin_conference_program_event_path(@conference, event)
+
+              %td
+                - if ticket.dependent
+                  = link_to ticket.dependent.title, admin_conference_ticket_path(@conference, ticket.dependent)
               %td
                 .btn-group
                   = link_to 'Edit', edit_admin_conference_ticket_path(@conference.short_title, ticket.id),
                   method: :get, class: 'btn btn-primary'
+
+                  = link_to 'Duplicate', new_admin_conference_ticket_path(@conference, ticket_id: ticket), class: 'btn btn-success'
+
                   = link_to 'Delete', admin_conference_ticket_path(@conference.short_title, ticket.id),
                   method: :delete, class: 'btn btn-danger',
                   data: { confirm: "Do you really want to delete the Ticket for #{ticket.title}? Attention: All ticket purchases will be also deleted!" }
+
 .row
   .col-md-12
     = link_to 'Add Ticket', new_admin_conference_ticket_path, class: 'btn btn-success pull-right'

@@ -4,12 +4,13 @@
       .page-header
         %h1
           Tickets
+          = link_to 'Edit Registration', edit_conference_conference_registration_path(@conference), class: 'btn btn-primary pull-right'
       %p.lead
         Please choose your tickets for
         %strong
           = @conference.title
         here*
-      =form_tag(conference_ticket_purchases_path, method: :post) do |f|
+      =form_tag(conference_ticket_purchases_path(overall_discount_percent: @overall_discount_percent, overall_discount_value: @overall_discount_value), method: :post) do |f|
         %table.table.table-hover
           %thead
             %tr
@@ -19,8 +20,18 @@
               %th Price
               %th Total
           %tbody
-          - @conference.tickets.each do |ticket|
-            = render partial: 'ticket', f: f, locals: {ticket: ticket}
+          - @conference.tickets.select(&:active?).each do |ticket|
+            = render partial: 'ticket', f: f, locals: { ticket: ticket }
+
+          - if current_user.overall_discount_coupons?(@conference)
+            %tr
+              %td{ colspan: 4, title: "Discount is calculated based on the coupons you have applied in your registration page" }
+                Discount (#{overall_discount_text(@conference)})
+
+              %td.text-center
+                = @conference.tickets.first.price.symbol
+                %span{ id: 'total_discount' }
+                  0
           %tr
             %td
             %td
@@ -34,6 +45,9 @@
                   = @conference.tickets.first.price.symbol
                   %span{id: 'total_price'}
                     0
+
+              #overall_discount.hidden{ data: { 'value': @overall_discount_value, 'percent': @overall_discount_percent } }
+
         .pull-right
           .btn-group-vertical
             = button_tag(type: 'submit', class: 'btn btn-success btn-lg') do

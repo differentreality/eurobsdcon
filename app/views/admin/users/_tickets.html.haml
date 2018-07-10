@@ -1,0 +1,27 @@
+.row
+  .col-md-12.page-header
+    %h2
+      Ticket purchases by #{@user.name}
+    .text-muted
+      = pluralize(@user.tickets.uniq.length, 'ticket')
+      bought,
+      = humanized_money_with_symbol @user.payments.where(status: 1).sum(:amount)/100
+      paid
+  .col-md-12
+    .well
+      %table.table.table-bordered.table-striped.table-hover.datatable#tickets-bought
+        %thead
+          %th Ticket ID
+          %th Conference
+          %th Ticket
+          %th Amount paid
+          %th Paid on
+        %tbody
+          - @user.ticket_purchases.paid.reorder(conference_id: :asc, ticket_id: :asc).group_by(&:ticket).each do |ticket, ticket_purchases|
+            %tr
+              %td= ticket.id
+              %td= link_to ticket.conference.short_title, admin_conference_path(ticket.conference.short_title)
+              %td= link_to ticket.title, admin_conference_ticket_path(ticket.conference, ticket)
+              %td
+                = humanized_money_with_symbol ticket_purchases.sum(&:final_amount_sum)
+              %td= simple_format(ticket_purchases.map{ |tp| tp.payment.created_at.strftime('%Y-%m-%d') if tp.payment }.compact.uniq.join("\n"))

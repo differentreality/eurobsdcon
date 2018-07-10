@@ -4,6 +4,11 @@
       .media-body
         %h4.media-heading
           = ticket.title
+          - if ticket.dependent
+            %h5.text-muted
+              To get this ticket you also need the
+              =  ticket.dependent.title
+              ticket
         %h5.media-heading
         - unless ticket.description.blank?
           = markdown(ticket.description)
@@ -14,11 +19,11 @@
     - if ticket.registration_ticket?
       - options[:max] = 1
       - options[:disabled] = current_user.tickets.for_registration(ticket.conference).present?
-    = text_field_tag("tickets[][#{ticket.id}]", 0, options)
+    = text_field_tag("tickets[][#{ticket.id}]", @selection.present? ? @selection[ticket.id] : 0 , options)
   %td.col-sm-1.col-md-1.text-center
     = ticket.price.symbol
     %span{id: "price_#{ticket.id}"}
-      = humanized_money ticket.price
+      = price_with_discount(ticket, @user_registration)
   %td.col-sm-1.col-md-1.text-center
     %strong
       = ticket.price.symbol

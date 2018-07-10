@@ -12,10 +12,14 @@ module Admin
     end
 
     def new
-      @ticket = @conference.tickets.new
+      existing_ticket = @conference.tickets.find_by(id: params[:ticket_id])
+      @ticket = existing_ticket.dup || @conference.tickets.new
+      @ticket.start_date = nil
+      @ticket.end_date = nil
     end
 
     def create
+
       @ticket = @conference.tickets.new(ticket_params)
       if @ticket.save(ticket_params)
         redirect_to admin_conference_tickets_path(conference_id: @conference.short_title),
@@ -52,7 +56,7 @@ module Admin
     private
 
     def ticket_params
-      params.require(:ticket).permit(:conference, :title, :url, :description, :conference_id, :price_cents, :price_currency, :price, :registration_ticket)
+      params.require(:ticket).permit(:conference, :title, :url, :description, :conference_id, :start_date, :end_date, :dependent_id, :price_cents, :price_currency, :price, :registration_ticket, event_ids: [])
     end
   end
 end

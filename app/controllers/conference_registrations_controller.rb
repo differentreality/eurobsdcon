@@ -32,7 +32,8 @@ class ConferenceRegistrationsController < ApplicationController
   def show
     @total_price = Ticket.total_price_user(@conference, current_user, paid: true)
     @tickets = current_user.ticket_purchases.by_conference(@conference).paid
-    @total_price_per_ticket = @tickets.group(:ticket_id).sum('amount_paid * quantity')
+    # @total_price_per_ticket = @tickets.group(:ticket_id).sum('amount_paid * quantity')
+    @total_price_per_ticket = @tickets.group_by{ |tp| tp.ticket.id }.map{ |ticket_id, tps| [ticket_id, tps.sum{|x| x.final_amount * x.quantity} ] }.to_h
     @ticket_payments = @tickets.group_by(&:ticket_id)
     @total_quantity = @tickets.group(:ticket_id).sum(:quantity)
   end
@@ -82,7 +83,7 @@ class ConferenceRegistrationsController < ApplicationController
                    notice: 'Registration was successfully updated.'
     else
       flash.now[:error] = "Could not update your registration for #{@conference.title}: "\
-                        "#{@registration.errors.full_messages.join('. ')}."
+                        "#{@registration.errors.full_messages.join('. ')}"
       render :edit
     end
   end

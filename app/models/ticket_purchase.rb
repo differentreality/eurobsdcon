@@ -28,9 +28,11 @@ class TicketPurchase < ApplicationRecord
 
   def self.purchase(conference, user, purchases)
     errors = []
-    if count_purchased_registration_tickets(conference, purchases) > 1
-      errors.push('You cannot buy more than one registration tickets.')
-    else
+    errors << dependents_bought(conference, user, purchases)
+    errors << 'You cannot buy more than one registration tickets.' if count_purchased_registration_tickets(conference, purchases) > 1
+    errors << registered_to_buying(conference, user, purchases)
+
+    unless errors.compact.any?
       ActiveRecord::Base.transaction do
         conference.tickets.each do |ticket|
           quantity = purchases[ticket.id.to_s].to_i
@@ -46,16 +48,37 @@ class TicketPurchase < ApplicationRecord
         end
       end
     end
-    errors.join('. ')
+    errors.compact
+  end
+
+  ##
+  # Does NOT include overall discounts
+  def final_amount
+    amount_paid - discount_value - discount_percent
+  end
+
+  def discount
+    discount_value + discount_percent
+  end
+
+  def self.total_amount
+    sum{ |tp| tp.quantity * tp.final_amount }
+  end
+
+  def final_amount_sum
+    quantity * (amount_paid - discount)
   end
 
   def self.purchase_ticket(conference, quantity, ticket, user)
     if quantity > 0
+      registration = user.registrations.for_conference(ticket.conference)
       purchase = new(ticket_id: ticket.id,
                      conference_id: conference.id,
                      user_id: user.id,
                      quantity: quantity,
-                     amount_paid: ticket.price)
+                     amount_paid: ticket.price,
+                     discount_percent: ticket.discount_percent(registration),
+                     discount_value: ticket.discount_value(registration))
       purchase.pay(nil) if ticket.price_cents.zero?
     end
     purchase
@@ -102,6 +125,44 @@ private
 def set_week
   self.week = created_at.strftime('%W')
   save!
+end
+
+##
+# If user is buying a ticket for a specific event,
+# check if user is already registered to that event
+def registered_to_buying(conference, user, purchases)
+  errors = []
+  purchases = purchases.map{|k, v| [k, v] if v.to_i > 0 }.compact.to_h
+  buying_tickets = purchases.keys.map{ |ticket_id| Ticket.find(ticket_id) }
+
+  buying_tickets.each do |ticket|
+    ticket_events_with_registration = ticket.events.where(require_registration: true)
+
+    if ticket_events_with_registration.any?
+      if !ticket_events_with_registration.any?{ |event| user.registered_to_event?(event) }
+        errors << "To buy ticket #{ticket.title} you first need to register #{ticket_events_with_registration.length > 1 ? 'to at least one of its events' : 'to'} (#{ticket_events_with_registration.pluck(:title).join(', ')})"
+      end
+    end
+  end
+  result = errors.any? ? errors.join('. ') : nil
+  return result
+end
+
+##
+# If a ticket depends on another ticket, user needs to buy both
+def dependents_bought(conference, user, purchases)
+  errors = []
+  purchases = purchases.map{|k, v| [k, v] if v.to_i > 0 }.compact.to_h
+  user_tickets = user.ticket_purchases.where(conference: conference).pluck(:ticket_id) + purchases.keys.map(&:to_i)
+  buying_tickets = purchases.keys.map{ |ticket_id| Ticket.find(ticket_id) }
+
+  buying_tickets.each do |ticket|
+    if ticket.dependent && !user_tickets.include?(ticket.dependent_id)
+      errors << "Ticket #{ticket.title} requires ticket #{ticket.dependent.title} to be bought as well"
+    end
+  end
+  result = errors.any? ? errors.join('. ') : nil
+  return result
 end
 
 def count_purchased_registration_tickets(conference, purchases)

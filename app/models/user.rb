@@ -107,6 +107,40 @@ class User < ApplicationRecord
     event_registration.attended
   end
 
+  ##
+  # Check if current_user has applied coupons that provide overall discount
+  # (Not discount per ticket, but for the whole payable amount)
+  # We check user's registration, for the supplied conference, for applied coupons
+  # ==== Gets
+  # * +ActiveRecord+ -> conference
+  # ==== Returns
+  # * +Boolean+ -> True, if user has applied coupons with overall discount
+  # * +Boolean+ -> False, if user has not applied coupons with overall discount
+  def overall_discount_coupons?(conference)
+    registration = registrations.for_conference(conference)
+    coupons = registration.coupons - registration.coupons.joins(:ticket)
+    return coupons.any?
+  end
+
+  def overall_discount_percent(conference)
+    registration = registrations.for_conference(conference)
+    coupons = registration.coupons - registration.coupons.joins(:ticket)
+    return coupons.select(&:percent?).sum(&:discount_amount)
+  end
+
+  def overall_discount_value(conference)
+    registration = registrations.for_conference(conference)
+    coupons = registration.coupons - registration.coupons.joins(:ticket)
+    return coupons.select(&:value?).sum(&:discount_amount)
+  end
+
+  def overall_discount(conference, amount)
+    discount_percent = overall_discount_percent(conference)
+    discount_value = overall_discount_value(conference)
+    total_discount = (amount*discount_percent/100).to_f + discount_value
+    return Money.new(total_discount * 100, conference.tickets.first.price_currency || 'EUR')
+  end
+
   def mark_attendance_for_conference conference
     registration = registrations.for_conference(conference)
     registration.attended = true

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180405114126) do
+ActiveRecord::Schema.define(version: 20180704103702) do
 
   create_table "ahoy_events", force: :cascade do |t|
     t.integer  "visit_id"
@@ -299,6 +299,11 @@ ActiveRecord::Schema.define(version: 20180405114126) do
     t.datetime "created_at"
   end
 
+  create_table "events_tickets", force: :cascade do |t|
+    t.integer "ticket_id"
+    t.integer "event_id"
+  end
+
   create_table "lodgings", force: :cascade do |t|
     t.string   "name"
     t.text     "description"
@@ -553,13 +558,15 @@ ActiveRecord::Schema.define(version: 20180405114126) do
   create_table "ticket_purchases", force: :cascade do |t|
     t.integer  "ticket_id"
     t.integer  "conference_id"
-    t.boolean  "paid",          default: false
+    t.boolean  "paid",                     default: false
     t.datetime "created_at"
-    t.integer  "quantity",      default: 1
+    t.integer  "quantity",                 default: 1
     t.integer  "user_id"
     t.integer  "payment_id"
     t.integer  "week"
-    t.float    "amount_paid",   default: 0.0
+    t.float    "amount_paid",              default: 0.0
+    t.float    "discount_percent",         default: 0.0
+    t.float    "discount_value",           default: 0.0
   end
 
   create_table "ticket_scannings", force: :cascade do |t|
@@ -577,6 +584,9 @@ ActiveRecord::Schema.define(version: 20180405114126) do
     t.boolean  "registration_ticket", default: false
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.datetime "start_date"
+    t.datetime "end_date"
+    t.integer  "dependent_id"
   end
 
   create_table "tracks", force: :cascade do |t|

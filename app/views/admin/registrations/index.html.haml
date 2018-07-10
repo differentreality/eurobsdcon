@@ -30,7 +30,7 @@
             %th ID#
             %th Name
             %th E-Mail
-            %th Coupons
+            %th Codes Applied
             - if @code_of_conduct
               %th
                 %abbr{ title: 'Code of Conduct' } CoC
@@ -45,7 +45,8 @@
               %td
                 = registration.id
               %td
-                = registration.name.present? ? registration.name : registration.username
+                - name = registration.name.present? ? registration.name : registration.username
+                = link_to name, admin_user_path(registration.user)
                 %br
                 - registration.user.roles.where(resource: @conference).each do |role|
                   %span.label.label-info
