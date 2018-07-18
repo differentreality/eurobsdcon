@@ -95,6 +95,65 @@ describe Ticket do
     end
   end
 
+  describe '#active?' do
+    let(:ticket_without_dates) { create(:ticket, start_date: nil, end_date: nil)}
+    let(:ticket_with_dates) { create(:ticket, start_date: Date.current - 1, end_date: Date.current + 2)}
+    let(:ticket_later) { create(:ticket, start_date: Date.current + 1, end_date: Date.current + 2)}
+    let(:ticket_previously) { create(:ticket, start_date: Date.current - 2, end_date: Date.current - 1)}
+
+    context 'returns false' do
+      it 'when current time before start_date' do
+        expect(ticket_later.active?).to eq false
+      end
+
+      it 'when current time after end_date' do
+        expect(ticket_previously.active?).to eq false
+      end
+
+      it 'when current time before start_date with nil end_date' do
+        ticket_later.end_date = nil
+        ticket_later.save!
+        ticket_later.reload
+
+        expect(ticket_later.active?).to eq false
+      end
+
+      it 'when current time after end_date with nil start_date' do
+        ticket_previously.start_date = nil
+        ticket_previously.save!
+        ticket_previously.reload
+
+        expect(ticket_previously.active?).to eq false
+      end
+    end
+
+    context 'returns true' do
+      it 'when there is no start_date or end_date' do
+        expect(ticket_without_dates.active?).to eq true
+      end
+
+      it 'when current time is within range' do
+        expect(ticket_with_dates.active?).to eq true
+      end
+
+      it 'when current time after start_date with nil end_date' do
+        ticket_with_dates.end_date = nil
+        ticket_with_dates.save!
+        ticket_with_dates.reload
+
+        expect(ticket_with_dates.active?).to eq true
+      end
+
+      it 'when current time before end_date with nil start_date' do
+        ticket_with_dates.start_date = nil
+        ticket_with_dates.save!
+        ticket_with_dates.reload
+
+        expect(ticket_with_dates.active?).to eq true
+      end
+    end
+  end
+
   describe '#unpaid?' do
     let!(:ticket_purchase) { create(:ticket_purchase, user: user, ticket: ticket) }
 
