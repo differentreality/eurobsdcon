@@ -86,7 +86,13 @@ class Ticket < ApplicationRecord
 
   def active?
     return true unless start_date || end_date
-    (start_date..end_date).cover? Time.current
+    if start_date && end_date
+      (start_date..end_date).cover? Time.current
+    elsif start_date
+      Time.current >= start_date
+    elsif end_date
+      Time.current <= end_date
+    end
   end
 
   def tickets_paid(user)
