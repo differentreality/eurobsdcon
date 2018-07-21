@@ -31,7 +31,6 @@ module Admin
 
       @payment = @conference.payments.new(payment_params)
       @payment.amount = params[:payment][:amount].to_f * 100.0
-      puts "payment amount: #{@payment.amount}"
 
       @payment.user = @user
       @payment.status = 1

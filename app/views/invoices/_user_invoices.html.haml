@@ -1,0 +1,37 @@
+.row
+  .col-md-12
+
+    %table.table.table-bordered.table-striped.table-hover.datatable#invoices
+      %thead
+        %tr
+          %th Conference
+          %th No
+          %th Tickets
+          %th Total amount
+          %th Vat
+          %th Payable
+          %th Paid
+          %th Actions
+      %tbody
+        - user.invoices.each do |invoice|
+          %tr
+            %td
+              - if invoice.conference
+                - if can? :show, invoice.conference
+                  = link_to invoice.conference.title, conference_path(invoice.conference.short_title)
+                - else
+                  invoice.conference.title
+            %td= invoice.number
+            %td= invoice.ticket_purchases.map(&:ticket).pluck(:title).to_sentence
+            %td.text-right= invoice.total_amount
+            %td.text-right= invoice.vat
+            %td.text-right= invoice.payable
+            %td
+              - if invoice.paid
+                .fa.fa-check.text-success
+              - else
+                .fa.fa-times.text-danger
+            %td
+              .btn-group
+                = link_to 'Show', user_invoice_path(current_user, invoice), class: 'btn btn-success'
+                = link_to 'Download PDF', user_invoice_path(current_user, invoice, format: 'pdf'), class: 'btn btn-success'

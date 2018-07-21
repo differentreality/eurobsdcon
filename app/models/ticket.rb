@@ -137,7 +137,6 @@ class Ticket < ApplicationRecord
 
   def self.total_price_user(conference, user, paid: false)
     tickets = TicketPurchase.where(conference: conference, user: user, paid: paid)
-    puts "user id: #{user.id}"
     tickets.map{ |tp| tp.payment }.compact.uniq.pluck(:amount).sum / 100
     # tickets.inject(0){ |sum, ticket| sum + (ticket.final_amount * ticket.quantity) }
   end

@@ -1,0 +1,81 @@
+.row
+  .col-md-12
+    .page-header
+      %h1
+        Invoices for #{@conference.title} (#{@invoices.length})
+        = link_to new_admin_conference_invoice_path(@conference), class: 'btn btn-warning pull-right' do
+          .fa.fa-plus
+          Add Invoice
+
+    - if @invoices.any?
+      %table.table.table-bordered.table-striped.table-hover#invoices-overview
+        %thead
+          %tr
+            %th.text-center Amount invoiced
+            %th.text-center VAT amount
+            %th.text-center Payable Amount
+        %tbody
+          %tr
+            %td.text-right= number_with_precision(@conference.invoices.sum(:total_amount), precision: 2, delimiter: ',')
+            %td.text-right= number_with_precision(@conference.invoices.sum(:vat), precision: 2, delimiter: ',')
+            %td.text-right= number_with_precision(@conference.invoices.sum(:payable), precision: 2, delimiter: ',')
+    - else
+      %i
+        .text-center
+          There are no invoices yet
+.row
+  .col-md-12
+    - if @invoices.any?
+      %table.table.table-bordered.table-striped.table-hover.datatable#invoices
+        %thead
+          %tr
+            %th No
+            %th Recipient
+            %th Tickets
+            %th Total amount
+            %th Vat
+            %th Payable
+            %th Paid
+            %th Actions
+        %tbody
+          - @invoices.each do |invoice|
+            %tr
+              %td= invoice.number
+              %td
+                - if invoice.recipient_type == 'User'
+                  = link_to invoice.recipient&.email, admin_user_path(invoice.recipient) if invoice.recipient
+                - elsif invoice.recipient_type == 'Sponsor'
+                  = link_to invoice.recipient&.email || invoice.recipient&.name, admin_conference_sponsors_path(@conference)
+              %td
+                %table.table{ style: 'background-color: inherit'}
+                  - invoice.description.each do |item|
+                    %tr
+                      %td.col-md-7
+                        - if ticket = @conference.tickets.find_by(title: item[:description])
+                          = link_to item[:description], admin_conference_ticket_path(@conference, ticket)
+                        - else
+                          = item[:description]
+                      %td.col-md-1.text-right= item[:quantity]
+                      %td.col-md-1.text-center
+                        x
+                      %td.col-md-2.text-right
+                        = number_to_currency(item[:price], currency: invoice.currency)
+              %td.nowrap.text-right= number_with_precision(invoice.total_amount, precision: 2, delimiter: ',')
+              %td.nowrap.text-right= number_with_precision(invoice.vat, precision: 2, delimiter: ',')
+              %td.nowrap.text-right= number_with_precision(invoice.payable, precision: 2, delimiter: ',')
+              %td.text-center
+                - if invoice.paid
+                  .fa.fa-check.text-success
+                - else
+                  .fa.fa-times.text-danger
+              %td
+                .btn-group
+                  = link_to 'Show', admin_conference_invoice_path(@conference.short_title, invoice), class: 'btn btn-success'
+                  = link_to 'PDF',
+                  admin_conference_invoice_path(@conference,
+                                                invoice,
+                                                format: 'pdf'),
+                  class: 'btn btn-success'
+
+                  = link_to 'Edit', edit_admin_conference_invoice_path(@conference.short_title, invoice), class: 'btn btn-primary'
+                  = link_to 'Destroy', admin_conference_invoice_path(@conference.short_title, invoice), method: :delete, data: { confirm: 'Are you sure?' }, class: 'btn btn-danger'

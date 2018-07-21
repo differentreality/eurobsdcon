@@ -25,6 +25,11 @@
       %span.fa.fa-id-badge
         = @conference.short_title
         registration
+%li
+  = link_to user_invoices_path(current_user) do
+    %span.fa.fa-file-text-o
+    My Invoices
+
 -if @conference && @conference.program
   %li
     = link_to(conference_program_proposals_path(@conference.short_title)) do

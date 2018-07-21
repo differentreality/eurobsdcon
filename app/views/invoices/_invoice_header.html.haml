@@ -1,0 +1,16 @@
+.row
+  .col-xs-12.col-md-12
+    %h1.text-center
+      %b EuroBSDcon Foundation
+      %br
+      %br
+
+.row
+  .col-xs-6.col-md-6
+    %i
+      = simple_format(ENV['INVOICE_DETAILS'])
+
+  .col-xs-6.col-md-6
+    %i
+      .text-right
+        = simple_format(ENV['BANK_DETAILS'])

@@ -1,0 +1,15 @@
+!!!
+%html
+  %head
+    %meta{ content: 'text/html; charset=UTF-8', 'http-equiv' => 'Content-Type' }
+    %style
+      = (Rails.application.assets || ::Sprockets::Railtie.build_environment(Rails.application)).find_asset('strap-on.scss').to_s
+
+      = (Rails.application.assets ||  ::Sprockets::Railtie.build_environment(Rails.application)).find_asset('osem-pdf.scss').to_s
+
+  %body
+    .container-fluid
+      .row
+        .col-xs-12.col-sm-12.col-md-12
+          .main#content
+            = yield

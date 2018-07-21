@@ -148,6 +148,7 @@ class AdminAbility
     can :manage, SponsorshipLevel, conference_id: conf_ids
     can :manage, Ticket, conference_id: conf_ids
     can :manage, Payment, conference_id: conf_ids
+    can :manage, Invoice, conference_id: conf_ids
     can :create, TicketScanning do |ticket_scanning|
       conf_id = ticket_scanning.physical_ticket.ticket_purchase.conference_id
       conf_ids.include? conf_id

@@ -39,3 +39,4 @@ docker-compose.override.yml
 .buildconfig
 osem_development
 osem_test
+config/initializers/pdfkit.rb

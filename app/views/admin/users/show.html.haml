@@ -11,6 +11,8 @@
           = link_to 'Tickets', '#tickets', 'data-toggle'=>'tab'
         %li{class: "#{'active' if params[:tab] == 'event_registrations-content'}"}
           = link_to 'Event Registrations', '#event_registrations', 'data-toggle'=>'tab'
+        %li{class: "#{'active' if params[:tab] == 'invoices-content'}"}
+          = link_to 'Invoices', '#invoices', 'data-toggle'=>'tab'
       .tab-content
         #user-info-content.tab-pane{class: "#{'active' unless params[:tab] == 'submissions-content'}"}
           - if can? :edit, @user
@@ -54,3 +56,5 @@
           = render 'tickets'
         #event_registrations.tab-pane{class: "#{'active' if params[:tab] == 'event_registrations'}"}
           = render 'event_registrations'
+        #invoices.tab-pane{class: "#{'active' if params[:tab] == 'invoices'}"}
+          = render 'invoices'

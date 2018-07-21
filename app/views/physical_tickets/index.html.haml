@@ -34,6 +34,19 @@
                                                     physical_ticket.token,
                                                     format: :pdf),
                     class: 'button btn btn-default btn-info'
+
+                    - invoice = physical_ticket.try(:ticket_purchase).try(:payment).try(:invoice)
+                    - if invoice
+                      = link_to 'Show Invoices',
+                      admin_conference_invoice_path(@conference.short_title,
+                                                    invoice),
+                      class: 'btn btn-success'
+
+                    - else
+                      = link_to 'Request Invoice',
+                      request_invoice_conference_physical_ticket_path(@conference.short_title,
+                                                                       physical_ticket.token),
+                      class: 'btn btn-warning'
       - else
         %h5 No Tickets found!
   .row

@@ -22,6 +22,7 @@
           .modal-body
             = form_tag conference_payments_path, class: 'payment-form', id: 'payment-form' do
               = text_field_tag 'payment[amount]', @total_amount_to_pay.cents.to_s, hidden: true
+              = text_field_tag 'payment[overall_discount]', overall_discount, hidden: true
               #credit-card-fields
 
               %br

@@ -8,6 +8,7 @@ class ApplicationController < ActionController::Base
   before_action :store_location
   # Ensure every controller authorizes resource or skips authorization (skip_authorization_check)
   check_authorization unless: :devise_controller?
+  skip_authorization_check only: :invoice_info
 
   def store_location
     # store last url - this is needed for post-login redirect to whatever the user last visited.
@@ -62,7 +63,70 @@ class ApplicationController < ActionController::Base
     redirect_to User.ichain_logout_url, error:  "This User is disabled. Please contact #{mail}!"
   end
 
+  def invoice_info
+    model = params[:model]
+    id = params[:id]
+
+    recipient = model.camelize.constantize.find_by(id: id.to_i)
+    @vat = recipient.invoice_vat
+    @details = recipient.invoice_details
+    @tickets_grouped = []
+    @tickets_collection = []
+
+    if recipient.class.to_s == 'User'
+      conference = Conference.find_by(short_title: params[:conference_id]) if params[:conference_id]
+      ticket_purchases = recipient.ticket_purchases.where(conference: conference).where.not(ticket: nil)
+      @tickets_grouped = tickets_grouped(ticket_purchases)
+      @tickets_collection = tickets_collection(@tickets_grouped)
+    end
+
+    render 'shared/invoice_info'
+  end
+
   def not_found
     raise ActionController::RoutingError.new('Not Found')
+  end
+
+  private
+
+  ##
+  # Result:
+  # [ { ticket: ticket, price: 0, quantity: 1, ticket_purchase_ids: [1,2] }, { } ]
+  # ==== Gets
+  # * +ActiveRecord Collection+ -> ticket purchases
+  # ==== Returns
+  # * +Array+ * -> With ticket information
+  def tickets_grouped(ticket_purchases)
+    ticket_purchases.group_by(&:ticket).map{ |ticket, purchases|
+      [ticket, purchases.group_by(&:amount_paid).map{|amount, p| [amount, p.pluck(:quantity).sum, p.pluck(:id)] }  ]}
+      .to_h.map{ |ticket, p| p.map{ |x| { :ticket => ticket, :price => x.first, :quantity => x.second, :ticket_purchase_ids => x.last} } }.flatten
+  end
+
+  def tickets_selected(tickets_grouped)
+    tickets_grouped.select{ |data| @invoice.description.any?{ |invoice_item| invoice_item[:description] == data[:ticket].title && invoice_item[:quantity] == data[:quantity].to_s && invoice_item[:price] == data[:price].to_s} }
+  end
+
+  ##
+  # Create collection for select input of tickets, grouped by price
+  # ==== Returns
+  # [
+  #   ['ticket title (quantity * price)', [ticket purchase ids],
+  #     { :id, data: { :ticket_name, :quantity, :price, :index } }
+  #   ]
+  # ]
+  # Example:
+  # [ ['ticket title (1 * 10.0 EUR)', [1,2,3], { id: 'tickets_collection_option1',
+  #                                              data: { ticket_name: 'tickeet title',
+  #                                                      quantity: 1,
+  #                                                      price: 10.0,
+  #                                                      index: 1 } } ],
+  #   ['other ticket'] ]
+  def tickets_collection(tickets_grouped)
+    tickets_grouped.map.with_index(1){ |data, index|
+      ["#{data[:ticket].title} (#{data[:quantity]} * #{data[:price]} #{data[:ticket].price_currency})",
+        data[:ticket_purchase_ids].split.join,
+        id: "tickets_collection_option#{index}",
+        data: { ticket_name: data[:ticket].title, quantity: data[:quantity], price: data[:price], index: index }
+      ] }
   end
 end
