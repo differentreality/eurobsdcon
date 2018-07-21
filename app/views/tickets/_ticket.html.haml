@@ -12,7 +12,7 @@
         %h5.media-heading
         - unless ticket.description.blank?
           = markdown(ticket.description)
-  %td.col-sm-1.col-md-2.text-center
+  %td
     = ticket.registration_ticket? ? 'Yes' : 'No'
   %td.col-sm-1.col-md-1
     - options = { type: 'number', min: 0, max: ticket.event.try(:max_attendees) ? 1 : 99, class: "form-control quantity", 'data-id' => ticket.id }
@@ -23,7 +23,7 @@
   %td.col-sm-1.col-md-1.text-center
     = ticket.price.symbol
     %span{id: "price_#{ticket.id}"}
-      = price_with_discount(ticket, @user_registration)
+      = price_with_discount(ticket.reload, @user_registration)
   %td.col-sm-1.col-md-1.text-center
     %strong
       = ticket.price.symbol

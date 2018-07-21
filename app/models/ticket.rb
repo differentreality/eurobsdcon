@@ -44,7 +44,7 @@ class Ticket < ApplicationRecord
 
   # calc_ticket_discount
   def discount_for_ticket(registration)
-    return 0 unless registration
+    return Money.new(0, self.price_currency) unless registration
     discount_percent = registration.coupons.joins(:ticket).where(ticket: self).select(&:percent?).sum(&:discount_amount)
     discount_value = registration.coupons.joins(:ticket).where(ticket: self).select(&:value?).sum(&:discount_amount)
     total_discount = (price*discount_percent/100).to_f + discount_value
@@ -52,7 +52,7 @@ class Ticket < ApplicationRecord
   end
 
   def discount_value(registration)
-    return 0 unless registration
+    return Money.new(0, self.price_currency) unless registration
     discount_value = registration.coupons.joins(:ticket).where(ticket: self).select(&:value?).sum(&:discount_amount)
     # No need to multiply by 100 here, because amount_paid is already in price cents
     # so amount_paid is 0.1 instead of 100, and we want the discount to be at the same scale
@@ -60,7 +60,7 @@ class Ticket < ApplicationRecord
   end
 
   def discount_percent(registration)
-    return 0 unless registration
+    return Money.new(0, self.price_currency) unless registration
     discount = registration.coupons.joins(:ticket).where(ticket: self).select(&:percent?).sum(&:discount_amount)
     discount_percent = (price*discount/100).to_f
     return discount_percent# * 100, self.price_currency)
