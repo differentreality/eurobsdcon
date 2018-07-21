@@ -10,10 +10,10 @@
         Registration codes
       %ul
         #codes
-          = render partial: 'coupons_table'
+          = render partial: 'conference_registrations/coupons_table'
 
       #codes-form
-        = semantic_form_for @registration, url: apply_coupon_conference_conference_registration_path, method: :patch, remote: true do |f|
+        = semantic_form_for @registration, url: apply_coupon_conference_conference_registration_path(@conference), method: :patch, remote: true do |f|
           .input-group.col-md-4
             = text_field_tag 'coupon_id', 'Have a registration code?', class: 'form-control', id: 'registration_coupon_input', onfocus: "if (this.value == 'Have a registration code?') {this.value = '';}"
             .input-group-btn

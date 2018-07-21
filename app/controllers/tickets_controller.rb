@@ -9,6 +9,7 @@ class TicketsController < ApplicationController
 
   def index
     @user_registration = current_user.registrations.for_conference @conference
+    @registration = @user_registration
     @selection = if params[:show_unpaid_ticket_purchases]
                    current_user.ticket_purchases.unpaid.by_conference(@conference).map{ |tp| [tp.ticket_id, tp.quantity] }.compact.to_h
                  elsif params[:tickets]
