@@ -96,12 +96,17 @@ class ConferenceRegistrationsController < ApplicationController
           @registration.coupons << @coupon
           CouponsRegistration.find_by(registration: @registration, coupon: @coupon).update_attribute(:applied_at, Time.current)
           RegistrationChangeNotificationMailJob.perform_later(@conference, @registration.user, 'apply_coupon', @coupon)
+          @user_registration = @registration
           flash.now[:notice] ='Successfully added registration code!'
-          format.js
+          format.js {
+            @overall_discount_percent = current_user.overall_discount_percent(@conference)
+            @overall_discount_value = current_user.overall_discount_value(@conference)
+            render 'conference_registrations/apply_coupon'
+          }
         rescue => e
           flash.now[:alert] = 'Cannot apply code. ' + e.message
           logger.debug "Cannot apply code with name #{params[:coupon_id]} with error: #{e.message}}"
-          format.js { head :no_content }
+          format.js { render 'conference_registrations/apply_coupon' }
         end
       else
         flash.now[:alert] = 'Cannot apply code.'
@@ -115,9 +120,14 @@ class ConferenceRegistrationsController < ApplicationController
     if @coupon && @registration.coupons.include?(@coupon)
       begin
         @registration.coupons.delete @coupon
+        @user_registration = @registration
         RegistrationChangeNotificationMailJob.perform_later(@conference, @registration.user, 'remove_coupon', @coupon)
         respond_to do |format|
-          format.js { render 'apply_coupon' }
+          format.js {
+            @overall_discount_percent = current_user.overall_discount_percent(@conference)
+            @overall_discount_value = current_user.overall_discount_value(@conference)
+            render 'conference_registrations/apply_coupon'
+          }
         end
       rescue => e
         flash[:error] = "Could not remove coupon. #{e.message}"
