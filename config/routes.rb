@@ -199,7 +199,7 @@ Osem::Application.routes.draw do
     # TODO: change conference_registrations to singular resource
     resource :conference_registration, path: 'register' do
       patch :apply_coupon
-      delete :remove_coupon
+      patch :remove_coupon
     end
     resources :tickets, only: [:index]
     resources :ticket_purchases, only: [:create, :destroy, :index]

@@ -26,6 +26,6 @@ module TicketHelper
       text_array[1] = humanized_money_with_symbol(value)
     end
 
-    return text_array.join(' and ')
+    return text_array.compact.join(' and ')
   end
 end
