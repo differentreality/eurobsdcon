@@ -19,5 +19,6 @@
  *= require selectize
  *= require selectize.bootstrap3
  *= require mastodon
+ *= require eurobsdcon
  *= require bootstrap-select
 */

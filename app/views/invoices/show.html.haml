@@ -1,0 +1,26 @@
+%style
+  = (Rails.application.assets || ::Sprockets::Railtie.build_environment(Rails.application)).find_asset('osem-invoice.scss').to_s
+
+.container
+  .row
+    .hidden-print
+      .col-md-10.col-md-offset-1
+        .page-header
+          = link_to 'Download Invoice (PDF)',
+          user_invoice_path(current_user, @invoice,
+                            format: 'pdf'),
+          class: 'btn btn-primary pull-right'
+
+          .btn-group
+            = link_to 'My invoices',
+            user_invoices_path(current_user),
+            class: 'btn btn-success'
+
+            = link_to 'My Registration',
+            conference_conference_registration_path(@invoice.conference),
+            class: 'btn btn-success'
+
+
+      %p{ style: 'height: 50px' }
+
+  = render partial: 'invoice_pdf', locals: { invoice: @invoice }

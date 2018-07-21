@@ -48,7 +48,7 @@ class PaymentsController < ApplicationController
                              description: "#{@conference.short_title} -  Registration ID #{current_user.registrations.find_by(conference: @conference).try(:id)}"
         @payment.authorization_code = paymill_response.id
         @payment.last4 = paymill_response.payment.id
-       rescue => e
+      rescue => e
          @total_amount_to_pay = Ticket.total_price(@conference, current_user, paid: false)
          @unpaid_ticket_purchases = current_user.ticket_purchases.unpaid.by_conference(@conference)
          Rails.logger.info "An error occured during payment for user #{current_user.email}. This is the error message: #{e.message}"
@@ -60,7 +60,7 @@ class PaymentsController < ApplicationController
          flash[:error] = error
          render :new
          return
-       end
+      end
       if @payment.save
         update_purchased_ticket_purchases
         @payment.update_attributes(status: 'success')
@@ -92,7 +92,7 @@ class PaymentsController < ApplicationController
 
   def payment_params
     if ENV['PAYMILL_PRIVATE_API_KEY'].present?
-      params.require(:payment).permit(:amount).merge(conference: @conference,
+      params.require(:payment).permit(:amount, :overall_discount).merge(conference: @conference,
                                                      user: current_user)
     else
       params.permit(:stripe_customer_email, :stripe_customer_token)

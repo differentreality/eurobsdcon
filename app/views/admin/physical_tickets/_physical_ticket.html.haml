@@ -14,3 +14,16 @@
                                       physical_ticket.token,
                                       format: :pdf),
       class: 'button btn btn-default btn-info'
+
+      - invoice = physical_ticket.try(:ticket_purchase).try(:payment).try(:invoice)
+      - if invoice
+        = link_to 'Show Invoices',
+        admin_conference_invoice_path(@conference.short_title,
+                                      invoice),
+        class: 'btn btn-success'
+
+      - else
+        - if physical_ticket.ticket_purchase.try(:payment)
+          = link_to 'Create Invoice',
+          new_admin_conference_invoice_path(@conference.short_title, physical_ticket_id: physical_ticket, payment_id: physical_ticket.ticket_purchase.payment.id, kind: 'ticket_purchases'),
+          class: 'btn btn-warning'

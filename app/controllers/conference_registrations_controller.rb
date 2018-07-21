@@ -36,6 +36,7 @@ class ConferenceRegistrationsController < ApplicationController
     @total_price_per_ticket = @tickets.group_by{ |tp| tp.ticket.id }.map{ |ticket_id, tps| [ticket_id, tps.sum{|x| x.final_amount * x.quantity} ] }.to_h
     @ticket_payments = @tickets.group_by(&:ticket_id)
     @total_quantity = @tickets.group(:ticket_id).sum(:quantity)
+    @invoices = current_user.invoices.for_conference(@conference)
   end
 
   def edit; end

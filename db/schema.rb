@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180706101054) do
+ActiveRecord::Schema.define(version: 20180808115607) do
 
   create_table "ahoy_events", force: :cascade do |t|
     t.integer  "visit_id"
@@ -18,7 +18,6 @@ ActiveRecord::Schema.define(version: 20180706101054) do
     t.string   "name"
     t.text     "properties"
     t.datetime "time"
-    t.index ["name", "time"], name: "index_ahoy_events_on_name_and_time"
     t.index ["time"], name: "index_ahoy_events_on_time"
     t.index ["user_id"], name: "index_ahoy_events_on_user_id"
     t.index ["visit_id"], name: "index_ahoy_events_on_visit_id"
@@ -299,6 +298,39 @@ ActiveRecord::Schema.define(version: 20180706101054) do
     t.datetime "created_at"
   end
 
+  create_table "invoices", force: :cascade do |t|
+    t.integer  "no"
+    t.date     "date"
+    t.string   "recipient_type"
+    t.integer  "recipient_id"
+    t.integer  "conference_id"
+    t.text     "description"
+    t.text     "recipient_details"
+    t.string   "recipient_vat"
+    t.float    "total_amount"
+    t.float    "vat_percent"
+    t.float    "vat"
+    t.float    "payable"
+    t.string   "currency"
+    t.boolean  "paid"
+    t.integer  "kind"
+    t.datetime "created_at",        null: false
+    t.datetime "updated_at",        null: false
+    t.index ["conference_id"], name: "index_invoices_on_conference_id"
+    t.index ["recipient_type", "recipient_id"], name: "index_invoices_on_recipient_type_and_recipient_id"
+  end
+
+  create_table "invoices_ticket_purchases", force: :cascade do |t|
+    t.integer  "invoice_id"
+    t.integer  "ticket_purchase_id"
+    t.integer  "total_quantity"
+    t.decimal  "invoice_payable"
+    t.datetime "created_at",         null: false
+    t.datetime "updated_at",         null: false
+    t.index ["invoice_id"], name: "index_invoices_ticket_purchases_on_invoice_id"
+    t.index ["ticket_purchase_id"], name: "index_invoices_ticket_purchases_on_ticket_purchase_id"
+  end
+
   create_table "lodgings", force: :cascade do |t|
     t.string   "name"
     t.text     "description"
@@ -338,6 +370,7 @@ ActiveRecord::Schema.define(version: 20180706101054) do
     t.integer  "conference_id",                  null: false
     t.datetime "created_at",                     null: false
     t.datetime "updated_at",                     null: false
+    t.float    "overall_discount"
   end
 
   create_table "physical_tickets", force: :cascade do |t|
@@ -484,6 +517,8 @@ ActiveRecord::Schema.define(version: 20180706101054) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.string   "picture"
+    t.text     "invoice_details"
+    t.string   "invoice_vat"
   end
 
   create_table "sponsorship_levels", force: :cascade do |t|
@@ -639,6 +674,8 @@ ActiveRecord::Schema.define(version: 20180706101054) do
     t.boolean  "is_admin",               default: false
     t.string   "username"
     t.boolean  "is_disabled",            default: false
+    t.text     "invoice_details"
+    t.string   "invoice_vat",            default: ""
     t.index ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true

@@ -3,6 +3,7 @@
 class Sponsor < ApplicationRecord
   belongs_to :sponsorship_level
   belongs_to :conference
+  has_many :invoices, as: :recipient
 
   has_paper_trail ignore: [:updated_at], meta: { conference_id: :conference_id }
 

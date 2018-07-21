@@ -139,6 +139,12 @@ gem 'country_select'
 # as PDF generator
 gem 'prawn-qrcode', '~> 0.2.2.1'
 gem 'prawn_rails'
+
+# Use PDFKit as PDF generator
+gem 'pdfkit'
+gem 'wicked_pdf', '~> 1.1'
+gem 'wkhtmltopdf-binary', '~> 0.12.3.1'
+
 gem 'rqrcode'
 
 # to render XLS spreadsheets
