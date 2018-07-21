@@ -79,7 +79,7 @@ class TicketPurchase < ApplicationRecord
                      amount_paid: ticket.price,
                      discount_percent: ticket.discount_percent(registration),
                      discount_value: ticket.discount_value(registration))
-      purchase.pay(nil) if ticket.price_cents.zero?
+      purchase.pay(nil) if purchase.final_amount_sum #ticket.price_cents.zero?
     end
     purchase
   end
@@ -136,7 +136,7 @@ def registered_to_buying(conference, user, purchases)
   buying_tickets = purchases.keys.map{ |ticket_id| Ticket.find(ticket_id) }
 
   buying_tickets.each do |ticket|
-    ticket_events_with_registration = ticket.event && ticket.event.require_registration ? [ticket.event] : []
+    ticket_events_with_registration = ticket.event && ticket.event.require_registration && ticket.event.confirmed? ? [ticket.event] : []
 
     if ticket_events_with_registration.any?
       if !ticket_events_with_registration.any?{ |event| user.registered_to_event?(event) }
