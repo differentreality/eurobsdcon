@@ -1,3 +1,6 @@
+= javascript_include_tag "//www.google.com/jsapi", "chartkick"
+= javascript_include_tag 'chartkick'
+
 .row
   .col-md-12
     .page-header
@@ -6,11 +9,7 @@
         = link_to 'New code', new_admin_conference_coupon_path(@conference), class: 'btn btn-primary pull-right'
 .row
   .col-md-12
-    = pie_chart @data, ytitle: 'Πληρωτέο', label: 'Πληρωτέο',
-                          library: { chartArea: { width: '90%' },
-                                     pointSize: 15,
-                                     pointShape: { type: 'triangle', rotation: 90 } },
-                          id: 'invoices_years', legend: 'top'
+    = pie_chart @data, legend: 'bottom'
 
 .row
   .col-md-12
