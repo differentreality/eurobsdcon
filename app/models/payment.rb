@@ -18,6 +18,10 @@ class Payment < ApplicationRecord
     failure: 2
   }
 
+  def tickets
+
+  end
+
   def amount_to_pay
     Ticket.total_price(conference, user, paid: false).cents
   end

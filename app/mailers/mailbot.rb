@@ -26,6 +26,17 @@ class Mailbot < ActionMailer::Base
          subject: "#{@conference.title} | Ticket Confirmation and PDF!")
   end
 
+  def invoice_request(user, conference)
+    @conference = conference
+    @user = user
+
+    mail(to: @conference.contact.email,
+         from: @conference.contact.email,
+         reply_to: @user.email,
+         template_name: 'invoice_request_template',
+         subject: "#{@conference.title} | Invoice request for #{@user.email}!")
+  end
+
   def acceptance_mail(event)
     conference = event.program.conference
 

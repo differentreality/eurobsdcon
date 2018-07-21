@@ -1,0 +1,70 @@
+table.invoice-table {
+    border-style: hidden;
+}
+
+table.invoice-table th {
+    border-bottom: 1px solid black !important;
+}
+
+table.invoice-table td {
+    border-bottom: 0px !important;
+    border-top: 0px !important;
+}
+
+table.table-pdf-right tr, table.table-pdf-right td, table.table-pdf-right th {
+  text-align: right !important;
+}
+
+table.table-invoice, table.table-invoice tr, table.table-invoice td, table.table-invoice th {
+  border: 1px solid black !important;
+  padding: 5px;
+  width: 100%;
+}
+
+table.table-pdf tr, table.table-pdf td, table.table-pdf th {
+  border: 1px solid #B8B8B8;
+  text-align: center;
+  padding: 5px;
+}
+
+table.table-pdf {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+tr.striped td {
+  background-color: #f5f5f5 !important;
+}
+
+table.table-opentop tr:first-child td {
+  border-top: 0;
+}
+
+th {
+  font-size: 16px;
+}
+
+th.striped {
+  background-color: #e8e8e8 !important;
+}
+
+td, p {
+  font-size: 14px;
+}
+
+#line_items {
+  page-break-before: always;
+}
+
+.hidden-print {
+  display: none;
+}
+
+/* Adds green color to horizontal line*/
+.page-header {
+  border-bottom: 1px solid #4cae4c !important;
+}
+
+.bold {
+  font-weight: bold;
+}

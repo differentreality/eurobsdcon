@@ -1,0 +1,48 @@
+.row
+  .col-md-8
+    %hr
+    %h4
+      %span.fa-stack
+        %i.fa.fa-square-o.fa-stack-2x
+        %i.fa.fa-file-text-o.fa-stack-1x
+      Invoices
+      = link_to 'My Invoices', user_invoices_path(current_user), class: 'btn btn-success pull-right'
+
+    - if @invoices.any?
+      %table.table.table-striped.table-hover#user-invoices-table
+        %thead
+          %th.text-center Date
+          %th.text-center Amount
+          %th.text-center VAT
+          %th.text-center Payable
+          %th.text-center Actions
+
+        %tbody
+          - @invoices.each do |invoice|
+            %tr
+              %td= invoice.date
+              %td.text-right= invoice.total_amount
+              %td.text-right= invoice.vat
+              %td.text-right= invoice.payable
+              %td.text-center
+                .btn-group
+                  = link_to 'Show', user_invoice_path(current_user, invoice),
+                  class: 'btn btn-success'
+
+                  = link_to 'Download PDF',
+                  user_invoice_path(current_user,
+                                    invoice,
+                                    format: 'pdf'),
+                  class: 'btn btn-primary'
+    %h4
+      Request your Invoice
+    .text-muted
+      To request an invoice, please fill out your invoice details below or in your
+      = link_to 'profile', edit_user_path(current_user)
+    %hr
+    = semantic_form_for current_user, url: conference_request_invoice_path(@conference.short_title), method: :get do |f|
+      .col-md-6
+        ~ f.input :invoice_details, input_html: { required: 'required', rows: 4, data: { provide: 'markdown-editable' } }, hint: markdown_hint
+        = f.input :invoice_vat
+      .col-md-6
+        = f.submit 'Request Invoice', class: 'btn btn-warning pull-right'

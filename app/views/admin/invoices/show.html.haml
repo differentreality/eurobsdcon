@@ -1,0 +1,25 @@
+%style
+  = (Rails.application.assets || ::Sprockets::Railtie.build_environment(Rails.application)).find_asset('osem-invoice.scss').to_s
+
+- invoice = @invoice
+
+.container
+  .row
+    .col-md-10.col-md-offset-1
+      .hidden-print
+        .page-header
+          = link_to 'PDF',
+          admin_conference_invoice_path(@conference.short_title,
+                                        invoice,
+                                        format: 'pdf'),
+          class: 'btn btn-success'
+
+          = link_to 'Invoices', admin_conference_invoices_path(@conference), class: 'btn btn-success'
+
+          - if can? :edit, Invoice
+            = link_to 'Edit',
+            edit_admin_conference_invoice_path(@conference.short_title,
+                                          invoice),
+            class: 'btn btn-primary pull-right'
+
+      = render partial: 'invoices/invoice_pdf', locals: { invoice: @invoice }

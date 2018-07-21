@@ -34,6 +34,7 @@
                 = link_to "Register", new_conference_conference_registration_path(conference.short_title), class: "btn btn-default", disabled: cannot?(:new, Registration.new(conference_id: conference.id))
                 - if cannot?(:new, Registration.new(conference_id: conference.id)) && conference.registration_limit_exceeded?
                   Sorry, no places left
+            = link_to 'Request Invoice', conference_request_invoice_path(conference.short_title), class: 'btn btn-default'
             - if current_user && current_user.tracks.where(program: conference.program).length > 0
               = link_to 'My Track Requests', conference_program_tracks_path(conference.short_title), class: 'btn btn-default'
             - elsif can? :new, conference.program.tracks.new
@@ -50,7 +51,5 @@
               = link_to 'Subscribe', conference_subscriptions_path(conference.short_title), method: :post, class: 'btn btn-default'
             - else
               = link_to 'Unsubscribe', conference_subscriptions_path(conference.short_title), method: :delete, class: 'btn btn-default'
-            - if current_user && current_user.physical_tickets.by_conference(conference).any?
-              = link_to 'My Tickets', conference_physical_tickets_path(conference.short_title), class: 'btn btn-default'
             - surveys_after_conference = conference.surveys.after_conference.select(&:active?)
             = link_to 'Surveys', conference_surveys_path(conference.short_title), class: 'btn btn-default' if surveys_after_conference.any? && conference.ended?

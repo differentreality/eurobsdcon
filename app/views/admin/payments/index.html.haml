@@ -6,7 +6,7 @@
         = semantic_form_for '', url: new_admin_conference_payment_path(@conference), method: :get, html: { class: 'form-inline pull-right' } do |f|
           .input-group.pull-right#user-payment
 
-            = f.input :user_id, collection:@registered_users.map {|user| ["#{user.name} (#{user.username}) #{user.email}", user.id] }, input_html: { required: 'required' }, include_blank: 'Select User', label: false
+            = f.input :user_id, collection:@registered_users.map {|user| ["#{user.name} (#{user.username}) #{user.email}", user.id] }, input_html: { required: 'required' }, include_blank: 'Select User (must be registered to the conference)', label: false
 
             -# = user_selector_input f, @conference.registrations.pluck(:user_id)
             %span.input-group-btn
@@ -18,15 +18,16 @@
       %thead
         %th ID
         %th Status
-        %th Amount
-        %th Authorization Code
+        %th.text-center.nowrap= Money.new(0, @conference.tickets&.first&.price_currency).currency.symbol || '$'
+        %th.col-md-1 Transaction Authorization Code
         %th User
         %th Tickets
-        %th Created At
+        %th.nowrap Created At
+        %th Actions
       %tbody
         - @payments.each.with_index do |payment, index|
           %tr
-            %td= payment.id
+            %td= link_to payment.id, admin_conference_payment_path(@conference, payment), class: 'btn btn-default'
             %td
               - if payment.success?
                 .fa.fa-check.text-success{ title: 'Success' }
@@ -35,14 +36,19 @@
               - else
                 .fa.fa-times.text-danger{ title: 'Failed' }
             %td.text-right= payment.amount/100.0
-            %td= payment.authorization_code
+            %td.col-md-1= payment.authorization_code
             %td= link_to payment.user.name, user_path(payment.user)
             %td
               - payment.ticket_purchases.group_by(&:ticket).each do |ticket, purchase|
-                = purchase.sum(&:quantity)
-                x
-                = link_to ticket.title, admin_conference_ticket_path(@conference, ticket)
-
-                %br
+                .col-md-1
+                  = purchase.sum(&:quantity)
+                .col-md-1
+                  x
+                .col-md-10
+                  = link_to ticket.title, admin_conference_ticket_path(@conference, ticket)
 
             %td{ title: payment.created_at }= payment.created_at.to_date
+            %td
+              - if payment.ticket_purchases.select{ |tp| tp.invoices.any? }.any?
+                = link_to 'Invoices', admin_conference_invoices_path(@conference, payment_id: payment), class: 'btn btn-success'
+              = link_to 'Create Invoice', new_admin_conference_invoice_path(@conference.short_title, payment_id: payment, kind: 'ticket_purchases'), class: 'btn btn-warning'

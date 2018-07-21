@@ -21,8 +21,11 @@ Osem::Application.routes.draw do
     mount LetterOpenerWeb::Engine, at: "/letter_opener"
   end
 
+  get 'invoice_info' => 'application#invoice_info'
+
   resources :users, except: [:new, :index, :create, :destroy] do
     resources :openids, only: :destroy
+    resources :invoices, only: [:show, :index]
   end
 
   namespace :admin do
@@ -132,6 +135,8 @@ Osem::Application.routes.draw do
       resources :physical_tickets, only: [:index]
       resources :ticket_purchases
       resources :payments
+      get 'invoices/add_item', 'invoices#add_invoice_item'
+      resources :invoices
       resources :roles, except: [:new, :create] do
         member do
           post :toggle_user
@@ -171,6 +176,8 @@ Osem::Application.routes.draw do
         patch :restart
       end
     end
+    get 'request_invoice' => 'invoices#request_invoice'
+
     resources :surveys, only: [:index, :show] do
       member do
         post :reply
@@ -204,7 +211,11 @@ Osem::Application.routes.draw do
     resources :tickets, only: [:index]
     resources :ticket_purchases, only: [:create, :destroy, :index]
     resources :payments, only: [:index, :new, :create]
-    resources :physical_tickets, only: [:index, :show]
+    resources :physical_tickets, only: [:index, :show] do
+      member do
+        get :request_invoice
+      end
+    end
     resource :subscriptions, only: [:create, :destroy]
     resource :schedule, only: [:show] do
       member do

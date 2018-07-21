@@ -51,7 +51,7 @@
           = f.label 'Amount paid'
           = number_field_tag 'payment[amount]', '', class: 'form-control', required: 'required', step: 0.01
         .col-md-3
-          = f.label 'Payment authorization code'
+          = f.label 'Transaction authorization code (tran_xxx)'
           = text_field_tag 'payment[authorization_code]', '', class: 'form-control'
 
       %br

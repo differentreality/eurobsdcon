@@ -1,0 +1,52 @@
+.row
+  .col-md-12
+    .page-header
+      %h1
+        Payment (ID #{@payment.id})
+        .pull-right
+          - if @payment.ticket_purchases.select{ |tp| tp.invoices.any? }.any?
+            = link_to 'Invoices', admin_conference_invoices_path(@conference, payment_id: @payment), class: 'btn btn-success'
+          = link_to 'New Invoice', new_admin_conference_invoice_path(@conference, payment_id: @payment), class: 'btn btn-warning'
+.row
+  .col-md-12
+    %dl.dl-horizontal
+      %dt.wrap Status
+      %dd
+        = @payment.status
+      %dt.wrap
+        Transaction authorization code
+      %dd= @payment.authorization_code
+      %dt Created At
+      %dd= @payment.created_at
+      %hr
+      %h3 User Info
+      %hr
+      %dt
+        User
+      %dd
+        = @payment.user.name
+        %br
+        = @payment.user.email
+      %hr
+      %h3 Transaction Info
+      %hr
+      %dt
+        Amount
+      %dd= number_with_precision(@payment.amount / 100, precision: 2)
+      %dt.wrap Payment authorization code or last 4 card digits
+      %dd= @payment.last4
+      - if @payment.ticket_purchases.any?
+        %dt Tickets
+        %dd
+          %table.table
+            %thead
+              %th Ticket
+              %th Quantity
+              %th Price
+            %tbody
+              - @ticket_purchases.each do |item|
+                %tr
+                  %td
+                    = link_to item[:ticket].title, admin_conference_ticket_path(@conference, item[:ticket])
+                  %td= item[:quantity]
+                  %td= item[:price]

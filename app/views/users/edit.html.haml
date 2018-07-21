@@ -22,4 +22,6 @@
         words.  Biographies are limited to 150 words.
         %br
         %br
+        = f.input :invoice_details, input_html: { rows: 4, data: { provide: 'markdown-editable' } }, hint: markdown_hint
+        = f.input :invoice_vat, hint: 'If you need an invoice, please fill this out with a valid VAT number corresponding to the invoice details above'
         = f.action :submit, as: :button, label: 'Update', button_html: {class: 'btn btn-primary'}

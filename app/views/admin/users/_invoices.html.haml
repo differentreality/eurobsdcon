@@ -1,0 +1,6 @@
+.row
+  .col-md-12.page-header
+    %h2
+      Invoices for #{@user.name} (#{@user.invoices.length })
+
+= render partial: 'invoices/user_invoices', locals: { user: @user }
