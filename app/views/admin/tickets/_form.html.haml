@@ -17,7 +17,7 @@
       = f.input :start_date, as: :string, input_html: { readonly: 'readonly', id: 'datetimepicker-start-date'}
       = f.input :end_date, as: :string, input_html: { readonly: 'readonly', id: 'datetimepicker-end-date'}
       = f.input :dependent, collection: @conference.tickets, include_blank: '(Please select)', label: 'Requires purchase of ticket:'
-      = event_selector_input f
+      = f.input :event, collection: @conference.program.events, include_blank: '(Please select)'
       %p.text-right
         = f.action :submit, as: :button, button_html: { class: 'btn btn-primary' }
 
@@ -25,6 +25,6 @@
   $(document).ready(function() {
     $('#ticket_event_ids').selectize({
       plugins: ['remove_button'],
-      maxItems: 5
+      maxItems: 1
     } )
   });

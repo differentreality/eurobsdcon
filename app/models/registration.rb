@@ -60,9 +60,7 @@ class Registration < ApplicationRecord
     events_with_time = events.select(&:time)
     events_with_time.each_with_index do |check_event, index|
       remaining_events = events.where.not(id: check_event.id).select(&:time)
-
-      puts "check_event ID #{check_event.id}"
-      result = remaining_events.any?{ |event| puts "event ID #{event.id}"; (event.time.to_datetime..(event.time+event.event_type.length.minutes).to_datetime).include? check_event.time.to_datetime }
+      result = remaining_events.any?{ |event| (event.time.to_datetime...(event.time+event.event_type.length.minutes).to_datetime).cover? check_event.time.to_datetime }
     end
     errors.add(:base, 'You cannot register to 2 happenings at the same time!') if result
   end

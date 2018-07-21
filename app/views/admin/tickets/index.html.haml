@@ -43,10 +43,9 @@
               %td= ticket.start_date
               %td= ticket.end_date
               %td
-                - if ticket.events.any?
+                - if ticket.event
                   %ol
-                    - ticket.events.each do |event|
-                      %li= link_to event.title, admin_conference_program_event_path(@conference, event)
+                    %li= link_to ticket.event.title, admin_conference_program_event_path(@conference, ticket.event)
 
               %td
                 - if ticket.dependent

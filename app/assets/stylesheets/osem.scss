@@ -1,8 +1,12 @@
 @import "bootstrap/mixins";
 
-.input-group#discount .form-control:first-child {
+.input-group#discount .form-control:first-child, .input-group#user-payment .form-control:first-child  {
   border-bottom-left-radius: 4px !important;
   border-top-left-radius: 4px !important;
+}
+
+.form-inline {
+  display: inline;
 }
 
 .input-group#discount > .input-group-btn {

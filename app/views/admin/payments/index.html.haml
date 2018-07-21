@@ -1,0 +1,48 @@
+.row
+  .col-md-12
+    .page-header
+      %h1
+        Payments
+        = semantic_form_for '', url: new_admin_conference_payment_path(@conference), method: :get, html: { class: 'form-inline pull-right' } do |f|
+          .input-group.pull-right#user-payment
+
+            = f.input :user_id, collection:@registered_users.map {|user| ["#{user.name} (#{user.username}) #{user.email}", user.id] }, input_html: { required: 'required' }, include_blank: 'Select User', label: false
+
+            -# = user_selector_input f, @conference.registrations.pluck(:user_id)
+            %span.input-group-btn
+              = f.submit 'New Payment', class: 'btn btn-success'
+
+.row
+  .col-md-12
+    %table.table
+      %thead
+        %th ID
+        %th Status
+        %th Amount
+        %th Authorization Code
+        %th User
+        %th Tickets
+        %th Created At
+      %tbody
+        - @payments.each.with_index do |payment, index|
+          %tr
+            %td= payment.id
+            %td
+              - if payment.success?
+                .fa.fa-check.text-success{ title: 'Success' }
+              - elsif payment.unpaid?
+                .fa.fa-angle-double-right.text-warning{ title: 'Pending' }
+              - else
+                .fa.fa-times.text-danger{ title: 'Failed' }
+            %td.text-right= payment.amount/100.0
+            %td= payment.authorization_code
+            %td= link_to payment.user.name, user_path(payment.user)
+            %td
+              - payment.ticket_purchases.group_by(&:ticket).each do |ticket, purchase|
+                = purchase.sum(&:quantity)
+                x
+                = link_to ticket.title, admin_conference_ticket_path(@conference, ticket)
+
+                %br
+
+            %td{ title: payment.created_at }= payment.created_at.to_date

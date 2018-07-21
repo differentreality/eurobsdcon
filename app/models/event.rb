@@ -9,8 +9,7 @@ class Event < ApplicationRecord
 
   after_create :set_week
 
-  has_many :events_tickets, dependent: :destroy
-  has_many :tickets, through: :events_tickets
+  has_many :tickets
 
   has_many :event_users, dependent: :destroy
   has_many :users, through: :event_users

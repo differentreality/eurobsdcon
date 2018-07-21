@@ -135,8 +135,8 @@ module ApplicationHelper
 
   def event_selector_input(form)
     events = @conference.program.events.pluck(:id, :title).map { |user| [user[0], user[1]] }
-    form.input :events, as: :select,
-                          collection: options_for_select(events.map {|event| ["#{event[1]} ", event[0]]}, @ticket.events.map(&:id)),
+    form.input :event, as: :select,
+                          collection: options_for_select(events.map {|event| ["#{event[1]} ", event[0]]}, [@ticket.event.try(:id)].compact),
                           include_blank: false, label: 'Events', input_html: { class: 'select-help-toggle', multiple: 'false' }
   end
 
@@ -194,5 +194,13 @@ module ApplicationHelper
     else
       object.picture.large.url
     end
+  end
+
+  def user_selector_input(form, user_ids)
+    users = user_ids ? User.where(id: user_ids) : User.active
+    users = users.pluck(:id, :name, :username, :email).map { |user| [user[0], user[1].blank? ? user[2] : user[1], user[2], user[3]] }.sort_by { |user| user[1].downcase }
+    form.input :user, as: :select,
+                      collection: options_for_select(users.map {|user| ["#{user[1]} (#{user[2]}) #{user[3]}", user[0]]}, @user), input_html: { required: 'required' },
+                      include_blank: 'Select User'
   end
 end
