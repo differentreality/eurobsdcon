@@ -79,7 +79,7 @@ class TicketPurchase < ApplicationRecord
                      amount_paid: ticket.price,
                      discount_percent: ticket.discount_percent(registration),
                      discount_value: ticket.discount_value(registration))
-      purchase.pay(nil) if purchase.final_amount_sum #ticket.price_cents.zero?
+      purchase.pay(nil) if purchase.final_amount_sum.zero? #ticket.price_cents.zero?
     end
     purchase
   end
