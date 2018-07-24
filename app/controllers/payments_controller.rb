@@ -26,6 +26,16 @@ class PaymentsController < ApplicationController
 
   def create
     @payment = Payment.new payment_params
+    registration_survey = @conference.surveys.during_registration.select(&:active?)
+    redirect_path = if registration_survey.any?
+                      if current_user.survey_submissions.where(survey: registration_survey.first).any?
+                        conference_conference_registration_path(@conference)
+                        else
+                          conference_survey_path(@conference, registration_survey.first)
+                        end
+                      else
+                        conference_conference_registration_path(@conference)
+                      end
 
     if ENV['PAYMILL_PRIVATE_API_KEY'].present?
       Paymill.api_key = ENV['PAYMILL_PRIVATE_API_KEY']
@@ -48,8 +58,8 @@ class PaymentsController < ApplicationController
       if @payment.save
         update_purchased_ticket_purchases
         @payment.update_attributes(status: 'success')
-        redirect_to conference_physical_tickets_path,
-                    notice: 'Thanks! Your ticket is booked successfully.'
+        flash[:notice] = 'Ticket(s) successfully booked. Thank you!'
+        redirect_to redirect_path || :back
         return
       else
         @total_amount_to_pay = Ticket.total_price(@conference, current_user, paid: false)

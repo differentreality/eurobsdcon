@@ -16,6 +16,13 @@ class SurveysController < ApplicationController
   end
 
   def reply
+    redirect_link = case @survey.target
+                    when 'during_registration'
+                      conference_conference_registration_path(@conference)
+                    when 'after_conference'
+                      root_path
+                    end
+
     unless can? :reply, @survey
       redirect_to conference_survey_path(@conference, @survey), alert: 'This survey is currently closed'
       return
@@ -41,6 +48,6 @@ class SurveysController < ApplicationController
       end
     end
 
-    redirect_to params[:request_referer] || :back
+    redirect_to redirect_link || :back
   end
 end
