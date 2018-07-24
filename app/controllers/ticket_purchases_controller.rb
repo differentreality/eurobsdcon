@@ -9,13 +9,23 @@ class TicketPurchasesController < ApplicationController
   def create
     current_user.ticket_purchases.by_conference(@conference).unpaid.destroy_all
     message = TicketPurchase.purchase(@conference, current_user, params[:tickets].try(:first))
+    registration_survey = @conference.surveys.during_registration.select(&:active?)
+    redirect_path = if registration_survey.any?
+                      if current_user.survey_submissions.where(survey: registration_survey.first).any?
+                        conference_conference_registration_path(@conference)
+                        else
+                          conference_survey_path(@conference, registration_survey.first)
+                        end
+                      else
+                        conference_conference_registration_path(@conference)
+                      end
     if message.blank?
       if current_user.ticket_purchases.by_conference(@conference).unpaid.any?
         redirect_to new_conference_payment_path(overall_discount: params[:overall_discount]),
                     notice: 'Please pay here to get the tickets.'
       elsif current_user.ticket_purchases.by_conference(@conference).paid.any?
-        redirect_to conference_physical_tickets_path,
-                    notice: 'Your tickets for the conference.'
+        flash[:notice] = 'Ticket(s) successfully booked!'
+        redirect_to redirect_path
       else
         redirect_to conference_tickets_path(@conference.short_title),
                     error: 'Please get at least one ticket to continue.'
