@@ -12,6 +12,7 @@ class SurveysController < ApplicationController
 
   def show
     @survey_submission = @survey.survey_submissions.new
+    @request_referer = request.referer
   end
 
   def reply
@@ -40,6 +41,6 @@ class SurveysController < ApplicationController
       end
     end
 
-    redirect_to :back
+    redirect_to params[:request_referer] || :back
   end
 end
