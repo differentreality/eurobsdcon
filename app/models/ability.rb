@@ -33,7 +33,11 @@ class Ability
 
     # can view Commercials of confirmed Events
     can :show, Commercial, commercialable_type: 'Event', commercialable_id: Event.where(state: 'confirmed').pluck(:id)
-    can [:show, :create], User
+    can [:create], User
+    can :show, User do |user|
+      user.presented_events.confirmed.any?
+    end
+
     unless ENV['OSEM_ICHAIN_ENABLED'] == 'true'
       can :show, Registration do |registration|
         registration.new_record?
