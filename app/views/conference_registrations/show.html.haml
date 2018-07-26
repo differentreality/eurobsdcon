@@ -137,7 +137,10 @@
           Registered
           = word_pluralize(@conference.participants.count, 'Attendee')
         - @conference.participants.each do |participant|
-          = link_to image_tag(participant.gravatar_url(size: '25'), title: "#{participant.name}!", class: 'img-circle'), user_path(participant)
+          - if can? :show, participant
+            = link_to image_tag(participant.gravatar_url(size: '25'), title: "#{participant.name}!", class: 'img-circle'), user_path(participant)
+          - else
+            = image_tag(participant.gravatar_url(size: '25'))
     .col-md-4.col-md-offset-2
       - if @conference.program.speakers.confirmed.any?
         %h4
