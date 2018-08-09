@@ -52,7 +52,7 @@ class PaymentsController < ApplicationController
          @total_amount_to_pay = Ticket.total_price(@conference, current_user, paid: false)
          @unpaid_ticket_purchases = current_user.ticket_purchases.unpaid.by_conference(@conference)
          Rails.logger.info "An error occured during payment for user #{current_user.email}. This is the error message: #{e.message}"
-         error = if e.message[:response_code] == 51200
+         error = if e.message['response_code'] == 51200
                    error = 'Unfortunately we could not process your payment. Your bank has rejected the transaction.'
                 else
                   error = "An error occured while processing your payment. Please try again or contact the organizers."
