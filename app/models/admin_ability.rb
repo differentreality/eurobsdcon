@@ -228,7 +228,7 @@ class AdminAbility
     can :manage, Question do |question|
       !(question.conferences.pluck(:id) & conf_ids_for_info_desk).empty?
     end
-    can :manage, Payment, conference_id: conf_ids
+    can :manage, Payment, conference_id: conf_ids_for_info_desk
     can :create, TicketScanning do |ticket_scanning|
       conf_id = ticket_scanning.physical_ticket.ticket_purchase.conference_id
       conf_ids_for_info_desk.include? conf_id

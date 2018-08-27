@@ -18,8 +18,8 @@
     - options = { type: 'number', min: 0, max: ticket.event.try(:max_attendees) ? 1 : 99, class: "form-control quantity", 'data-id' => ticket.id }
     - if ticket.registration_ticket?
       - options[:max] = 1
-      - options[:disabled] = current_user.tickets.for_registration(ticket.conference).present?
-    = text_field_tag("tickets[][#{ticket.id}]", @selection.present? ? @selection[ticket.id] : 0 , options)
+      - options[:disabled] = user.tickets.for_registration(ticket.conference).present?
+    = text_field_tag "tickets[][#{ticket.id}]", @selection.present? ? @selection[ticket.id].to_i : 0 , options
   %td.col-sm-1.col-md-1.text-center
     = ticket.price.symbol
     %span{id: "price_#{ticket.id}"}

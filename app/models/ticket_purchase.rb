@@ -42,7 +42,7 @@ class TicketPurchase < ApplicationRecord
         conference.tickets.each do |ticket|
           quantity = purchases[ticket.id.to_s].to_i
           # if the user bought the ticket and is still unpaid, just update the quantity
-          purchase = if ticket.bought?(user) && ticket.unpaid?(user)
+          purchase = if ticket.bought?(user) && ticket.unpaid?(user, payment: nil)
                        update_quantity(conference, quantity, ticket, user)
                      else
                        purchase_ticket(conference, quantity, ticket, user)
@@ -102,6 +102,11 @@ class TicketPurchase < ApplicationRecord
   # Total amount
   def self.total
     sum('amount_paid * quantity')
+  end
+
+  def unpay(payment)
+    update_attributes(paid: false)
+    physical_tickets.destroy_all
   end
 
   def pay(payment)

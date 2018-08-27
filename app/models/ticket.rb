@@ -100,29 +100,30 @@ class Ticket < ApplicationRecord
     "#{paid_tickets}/#{paid_tickets + unpaid_tickets}"
   end
 
-  def quantity_bought_by(user, paid: false)
-    ticket_purchases.by_user(user).where(paid: paid).sum(:quantity)
+  def quantity_bought_by(user, paid: false, payment: nil)
+    ticket_purchases.by_user(user).where(paid: paid).where(payment: payment).sum(:quantity)
   end
 
   def paid?(user)
     ticket_purchases.paid.by_user(user).present?
   end
 
-  def unpaid?(user)
-    ticket_purchases.unpaid.by_user(user).present?
+  def unpaid?(user, payment: nil)
+    ticket_purchases.where(payment: payment).unpaid.by_user(user).present?
   end
 
-  def total_price(user, paid: false)
+  def total_price(user, paid: false, payment: nil)
     user_registration = user.registrations.for_conference conference
-    quantity_bought_by(user, paid: paid) * price - quantity_bought_by(user, paid: paid) * Money.new(discount_for_ticket(user_registration), price_currency)
+
+    quantity_bought_by(user, paid: paid, payment: payment) * price - quantity_bought_by(user, paid: paid, payment: payment) * Money.new(discount_for_ticket(user_registration), price_currency)
   end
 
-  def self.total_price(conference, user, paid: false)
+  def self.total_price(conference, user, paid: false, payment: nil)
     tickets = Ticket.where(conference_id: conference.id)
     result = nil
     begin
       tickets.each do |ticket|
-        price = ticket.total_price(user, paid: paid)
+        price = ticket.total_price(user, paid: paid, payment: payment)
         if result
           result += price unless price.zero?
         else

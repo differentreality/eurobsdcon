@@ -49,11 +49,10 @@ describe Ticket do
   end
 
   describe 'association' do
-    it { should belong_to(:conference) }
-    it { should have_many(:ticket_purchases).dependent(:destroy) }
-    it { should have_many(:buyers).through(:ticket_purchases).source(:user) }
-    it { is_expected.to have_many :events_tickets }
-    # it { is_expected.to have_many :events, through: :events_tickets }
+    it { is_expected.to belong_to(:conference) }
+    it { is_expected.to belong_to(:event) }
+    it { is_expected.to have_many(:ticket_purchases).dependent(:destroy) }
+    it { is_expected.to have_many(:buyers).through(:ticket_purchases).source(:user) }
   end
 
   describe '#bought?' do
@@ -155,7 +154,7 @@ describe Ticket do
   end
 
   describe '#unpaid?' do
-    let!(:ticket_purchase) { create(:ticket_purchase, user: user, ticket: ticket) }
+    let!(:ticket_purchase) { create(:ticket_purchase, user: user, ticket: ticket, payment_id: nil) }
 
     context 'user has not paid' do
 
@@ -165,7 +164,7 @@ describe Ticket do
     end
 
     context 'user has paid' do
-      before { ticket_purchase.update_attributes(paid: true) }
+      before { ticket_purchase.update_attributes(paid: true, payment: create(:payment, user: user, conference: conference)) }
 
       it 'returns false' do
         expect(ticket.unpaid?(user)).to eq(false)

@@ -6,7 +6,8 @@
           Tickets
           = link_to 'Edit Registration', edit_conference_conference_registration_path(@conference), class: 'btn btn-primary pull-right'
       = render partial: 'conference_registrations/coupons'
-      %hr
+      - if @conference.coupons.any?
+        %hr
 
       %p.lead
         Please choose your tickets for

@@ -1,0 +1,37 @@
+.container
+  .row
+    .col-md-12
+      .page-header
+        %h1 My Donations
+  .row
+    .col-md-12
+      %table.table.datatable
+        %thead
+          %th.text-center Date
+          %th.text-center Tickets
+          %th.text-center Amount
+          %th.text-center Payment Status
+          %th.text-center Actions
+        %tbody
+          - @payments.each do |payment|
+            %tr
+              %td= payment.created_at
+              %td
+                = payment.ticket_purchases.pluck(:id)
+                = simple_format(payment.ticket_purchases.map{ |tp| "#{tp.quantity} x #{tp.ticket.title}" }.join("\n"))
+              %td.text-right= payment.amount / 100.0
+              %td.text-center
+                - if payment.success?
+                  .fa.fa-check.text-success{ title: 'Success' }
+                  Successful
+                - elsif payment.unpaid?
+                  .fa.fa-angle-double-right.text-warning{ title: 'Pending' }
+                  Unpaid
+                - else
+                  .fa.fa-times.text-danger{ title: 'Failed' }
+                  Failed
+              %td.text-center
+                - if payment.unpaid? || payment.failure?
+                  = link_to 'Pay Now', edit_conference_payment_path(@conference, payment), class: 'btn btn-primary'
+      %br
+      = link_to 'Get more tickets', conference_tickets_path(@conference), class: 'btn btn-primary pull-right'
