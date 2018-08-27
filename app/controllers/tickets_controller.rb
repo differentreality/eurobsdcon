@@ -4,6 +4,7 @@ class TicketsController < ApplicationController
   before_action :authenticate_user!
   load_resource :conference, find_by: :short_title
   load_resource :ticket, through: :conference
+  load_resource :payment, only: :index
   authorize_resource :conference_registrations, class: Registration
   before_action :check_load_resource, only: :index
 

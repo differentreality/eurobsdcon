@@ -14,21 +14,21 @@
 
 .row
   .col-md-12
-    %table.table
+    %table.table.datatable
       %thead
-        %th ID
-        %th Status
-        %th.text-center.nowrap= Money.new(0, @conference.tickets&.first&.price_currency).currency.symbol || '$'
-        %th.col-md-1 Transaction Authorization Code
-        %th User
-        %th Tickets
-        %th.nowrap Created At
-        %th Actions
+        %th.text-center ID
+        %th.text-center Status
+        %th.text-center Amount
+        %th.text-center Authorization Code
+        %th.text-center User
+        %th.text-center Tickets
+        %th.text-center Created At
+        %th.text-center Actions
       %tbody
         - @payments.each.with_index do |payment, index|
           %tr
-            %td= link_to payment.id, admin_conference_payment_path(@conference, payment), class: 'btn btn-default'
-            %td
+            %td= payment.id
+            %td.text-center
               - if payment.success?
                 .fa.fa-check.text-success{ title: 'Success' }
               - elsif payment.unpaid?
@@ -36,8 +36,12 @@
               - else
                 .fa.fa-times.text-danger{ title: 'Failed' }
             %td.text-right= payment.amount/100.0
-            %td.col-md-1= payment.authorization_code
-            %td= link_to payment.user.name, user_path(payment.user)
+            %td= payment.authorization_code
+            %td
+              - if can? :show, payment.user
+                = link_to payment.user.name, admin_user_path(payment.user)
+              - else
+                = link_to payment.user.name, user_path(payment.user)
             %td
               - payment.ticket_purchases.group_by(&:ticket).each do |ticket, purchase|
                 .col-md-1
@@ -48,7 +52,9 @@
                   = link_to ticket.title, admin_conference_ticket_path(@conference, ticket)
 
             %td{ title: payment.created_at }= payment.created_at.to_date
-            %td
-              - if payment.ticket_purchases.select{ |tp| tp.invoices.any? }.any?
-                = link_to 'Invoices', admin_conference_invoices_path(@conference, payment_id: payment), class: 'btn btn-success'
-              = link_to 'Create Invoice', new_admin_conference_invoice_path(@conference.short_title, payment_id: payment, kind: 'ticket_purchases'), class: 'btn btn-warning'
+            %td.text-center
+              .btn-group
+                = link_to 'Edit', edit_admin_conference_payment_path(@conference, payment), class: 'btn btn-primary'
+                - if payment.ticket_purchases.select{ |tp| tp.invoices.any? }.any?
+                  = link_to 'Invoices', admin_conference_invoices_path(@conference, payment_id: payment), class: 'btn btn-success'
+                = link_to 'Create Invoice', new_admin_conference_invoice_path(@conference.short_title, payment_id: payment, kind: 'ticket_purchases'), class: 'btn btn-warning'

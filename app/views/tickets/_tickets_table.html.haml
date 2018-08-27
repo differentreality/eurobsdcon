@@ -1,5 +1,5 @@
 #buy-tickets-table
-  =form_tag(conference_ticket_purchases_path(overall_discount_percent: @overall_discount_percent, overall_discount_value: @overall_discount_value), method: :post) do |f|
+  = form_tag(conference_ticket_purchases_path(overall_discount_percent: @overall_discount_percent, overall_discount_value: @overall_discount_value), method: :post) do |f|
 
     %table.table.table-hover
       %thead
@@ -11,7 +11,7 @@
           %th Total
       %tbody
       - @conference.tickets.select(&:active?).each do |ticket|
-        = render partial: 'tickets/ticket', f: f, locals: { ticket: ticket }
+        = render partial: 'tickets/ticket', f: f, locals: { ticket: ticket, user: current_user }
 
       - if current_user.overall_discount_coupons?(@conference)
         %tr
@@ -42,6 +42,10 @@
         = button_tag(type: 'submit', class: 'btn btn-success btn-lg') do
           Continue
           %i.fa.fa-shopping-cart
+
+        = button_tag(name: 'offline', type: 'submit', class: 'btn btn-default', title: 'You are expected to complete your payment prior or during the event') do
+          Offline Payment
+
         - if current_user.ticket_purchases.by_conference(@conference).any?
           = link_to 'Back to registration', conference_conference_registration_path(@conference.short_title), class: 'btn btn-default btn-sm'
         - else

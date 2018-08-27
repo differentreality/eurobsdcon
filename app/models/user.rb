@@ -143,8 +143,8 @@ class User < ApplicationRecord
   end
 
   def overall_discount(conference, amount)
-    discount_percent = overall_discount_percent(conference)
-    discount_value = overall_discount_value(conference)
+    discount_percent = overall_discount_percent(conference) || 0
+    discount_value = overall_discount_value(conference) || 0
     total_discount = (amount*discount_percent/100).to_f + discount_value
     return Money.new(total_discount * 100, conference.tickets.first.price_currency || 'EUR')
   end
@@ -173,6 +173,10 @@ class User < ApplicationRecord
 
   def supports? conference
     ticket_purchases.find_by(conference_id: conference.id).present?
+  end
+
+  def purchased_quantity(ticket, payment)
+    ticket_purchases.find_by(ticket: ticket, payment: payment)&.quantity
   end
 
   def self.for_ichain_username(username, attributes)
