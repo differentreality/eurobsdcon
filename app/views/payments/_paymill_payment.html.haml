@@ -3,7 +3,7 @@
     %button.btn.btn-primary.pull-right{ 'data-toggle': 'modal', 'data-target': '#paymill_form' }
       Pay #{humanized_money_with_symbol @total_amount_to_pay}
 
-    = link_to 'Edit Purchase', conference_tickets_path(@conference.short_title, show_unpaid_ticket_purchases: true), class: 'btn btn-default'
+    = link_to 'Edit Purchase', conference_tickets_path(@conference.short_title, show_unpaid_ticket_purchases: true, payment_id: @payment), class: 'btn btn-default pull-left'
 
     .modal.fade#paymill_form{ tabindex: -1, role: 'dialog', 'aria-labelledby':'myModalLabel' }
       .modal-dialog.modal-default.modal-sm{ role: 'document' }
@@ -20,7 +20,7 @@
                 %br
                 = current_user.email
           .modal-body
-            = form_tag conference_payments_path, class: 'payment-form', id: 'payment-form' do
+            = semantic_form_for 'payment', url: @url, html: { class: 'payment-form', id: 'payment-form' } do
               = text_field_tag 'payment[amount]', @total_amount_to_pay.cents.to_s, hidden: true
               = text_field_tag 'payment[overall_discount]', overall_discount, hidden: true
               #credit-card-fields
