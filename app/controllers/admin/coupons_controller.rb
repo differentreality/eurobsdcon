@@ -6,7 +6,6 @@ module Admin
     # GET /coupons
     # GET /coupons.json
     def index
-      @coupons = Coupon.all
       # data for pie chart
       @data = @coupons.map{ |coupon| { coupon.name => coupon.registrations.count } }
       @data = Hash[*@data.collect{|h| h.to_a}.flatten]
