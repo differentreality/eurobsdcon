@@ -7,6 +7,11 @@
       .text-muted
         - if @payment
           = link_to "for payment", admin_conference_payment_path(@conference, @payment)
+          (status:
+          %span{ style: 'color: white', class: "#{@payment.success? ? 'label-success' : 'label-danger'}" }
+            = @payment.status
+          )
+
         - if @user && @user.invoices.for_conference(@conference).any?
           User has
           = link_to pluralize(@user.invoices.for_conference(@conference).length, 'invoice'), admin_user_path(@user)
@@ -91,7 +96,7 @@
       - hint = @invoice.recipient.try(:invoice_vat).present? ? '' : 'No VAT number was supplied!'
       = f.input :vat, hint: hint
     .col-md-2
-      = f.input :payable
+      = f.input :payable, input_html: { autofocus: true }
       - if @payment && (@payment.amount != (@invoice.payable * 100))
         %p The amount is different than the payment amount (#{@payment.amount / 100.0})!
   .row

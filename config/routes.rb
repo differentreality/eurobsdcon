@@ -25,6 +25,7 @@ Osem::Application.routes.draw do
 
   resources :users, except: [:new, :index, :create, :destroy] do
     resources :openids, only: :destroy
+    get 'request_invoice' => 'invoices#request_invoice'
     resources :invoices, only: [:show, :index]
   end
 
