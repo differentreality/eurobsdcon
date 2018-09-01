@@ -2,7 +2,13 @@
   .row
     .col-md-12
       .page-header
-        %h1 My Donations
+        %h1
+          My Donations
+          .btn-group.pull-right
+            = link_to 'Back to registration', conference_conference_registration_path(@conference), class: 'btn btn-success'
+            = link_to 'Request Invoice for all payments',
+            user_request_invoice_path(current_user, conference_id: @conference.short_title),
+            class: 'btn btn-warning'
   .row
     .col-md-12
       %table.table.datatable
@@ -17,7 +23,6 @@
             %tr
               %td= payment.created_at
               %td
-                = payment.ticket_purchases.pluck(:id)
                 = simple_format(payment.ticket_purchases.map{ |tp| "#{tp.quantity} x #{tp.ticket.title}" }.join("\n"))
               %td.text-right= payment.amount / 100.0
               %td.text-center
@@ -33,5 +38,8 @@
               %td.text-center
                 - if payment.unpaid? || payment.failure?
                   = link_to 'Pay Now', edit_conference_payment_path(@conference, payment), class: 'btn btn-primary'
+                = link_to 'Request Invoice',
+                user_request_invoice_path(current_user, conference_id: @conference.short_title, payment_id: payment.id),
+                class: 'btn btn-warning'
       %br
       = link_to 'Get more tickets', conference_tickets_path(@conference), class: 'btn btn-primary pull-right'

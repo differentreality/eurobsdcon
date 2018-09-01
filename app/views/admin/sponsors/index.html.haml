@@ -33,7 +33,11 @@
                 .btn-group
                   = link_to 'Edit', edit_admin_conference_sponsor_path(@conference.short_title, sponsor),
                   method: :get, class: 'btn btn-primary'
-                  = link_to 'Invoice', new_admin_conference_invoice_path(@conference.short_title, kind: 'sponsorship', recipient_type: 'Sponsor', recipient_id: sponsor.id), class: 'btn btn-warning'
+                  = link_to new_admin_conference_invoice_path(@conference.short_title, kind: 'sponsorship', recipient_type: 'Sponsor', recipient_id: sponsor.id), class: 'btn btn-warning' do
+                    .fa.fa-plus
+                    Invoice
+                  - if sponsor.invoices.any?
+                    = link_to 'Invoice', admin_conference_invoice_path(@conference, sponsor.invoices.first), class: 'btn btn-success'
                   = link_to 'Delete', admin_conference_sponsor_path(@conference.short_title, sponsor),
                   method: :delete, class: 'btn btn-danger', data: { confirm: "Do you really want to delete the sponsor #{sponsor.name}?" }
 .row

@@ -54,7 +54,7 @@ module Admin
         ticket_purchases = if @payment
                              @payment&.ticket_purchases
                            elsif @user
-                             @user&.ticket_purchases&.where(conference: @conference)&.where&.not(ticket: nil)
+                             @user&.ticket_purchases&.where(conference: @conference)&.where&.not(ticket: nil)&.paid
                            else
                              []
                            end

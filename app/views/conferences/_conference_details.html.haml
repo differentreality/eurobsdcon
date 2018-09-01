@@ -34,7 +34,6 @@
                 = link_to "Register", new_conference_conference_registration_path(conference.short_title), class: "btn btn-default", disabled: cannot?(:new, Registration.new(conference_id: conference.id))
                 - if cannot?(:new, Registration.new(conference_id: conference.id)) && conference.registration_limit_exceeded?
                   Sorry, no places left
-            = link_to 'Request Invoice', conference_request_invoice_path(conference.short_title), class: 'btn btn-default'
             - if current_user && current_user.tracks.where(program: conference.program).length > 0
               = link_to 'My Track Requests', conference_program_tracks_path(conference.short_title), class: 'btn btn-default'
             - elsif can? :new, conference.program.tracks.new

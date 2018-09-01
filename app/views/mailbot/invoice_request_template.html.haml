@@ -6,7 +6,7 @@ user
 requested an invoice for #{@conference.title}.
 %br
 %br
-= link_to 'Create Invoice', new_admin_conference_invoice_url(@conference.short_title, user_id: @user)
+= link_to 'Create Invoice', new_admin_conference_invoice_url(@conference.short_title, user_id: @user, payment_id: @payment)
 %br
 %br
 %i This is an automated email, and you are receiving it because you are part of the #{@conference.title} team.
