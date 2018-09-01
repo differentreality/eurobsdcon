@@ -4,7 +4,7 @@
       %h1
         Ticket purchase for #{@user.name}
 
-= semantic_form_for 'ticket_purchase', url: @url, method: (@payment.new_record? ? :post : :patch) do |f|
+= semantic_form_for 'payment', url: @url, method: (@payment.new_record? ? :post : :patch) do |f|
   .row
     .col-md-12
       %table.table.table-hover
@@ -44,18 +44,13 @@
 
       .row
         .col-md-2
-          = f.label 'Last 4 digits of card'
-          = text_field_tag 'payment[last4]', '', maxlength: 4, value: @payment.last4 || '0000', class: 'form-control', autofocus: true
+          = f.input :last4, input_html: { value: @payment.last4 || '0000', autofocus: true }
         .col-md-2
-          = f.label 'Amount paid'
-          = number_field_tag 'payment[amount]', '', value: @payment.amount, class: 'form-control', required: 'required', step: 0.01
+          = f.input :amount, label: 'Amount paid'
         .col-md-3
-          = f.label 'Payment authorization code'
-          = text_field_tag 'payment[authorization_code]', '', value: @payment.authorization_code, class: 'form-control'
+          = f.input :authorization_code, input_html: { value: @payment.authorization_code }, required: false, label: 'Payment authorization code'
         .col-md-3
-          = f.label 'Status'
-          = select_tag 'payment[status]', options_for_select([:success, :unpaid, :failure], :success), class: 'form-control'
-
+          = f.input :status, collection: [['Success', 'success'], ['Unpaid', 'unpaid'], ['Failure', 'failure']], selected: @payment.status || 'Success'
       %br
 
       .pull-right

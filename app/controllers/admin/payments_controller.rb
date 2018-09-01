@@ -10,6 +10,11 @@ module Admin
     end
 
     def new
+      unless @user.present?
+        redirect_to admin_conference_payments_path(@conference), alert: 'Please select a user first'
+        return
+      end
+
       @ticket_purchase = @conference.ticket_purchases.new
       @payment = @conference.payments.new(user: @user)
       @url = admin_conference_ticket_purchases_path(@conference)
@@ -26,6 +31,8 @@ module Admin
       @user = @payment.user
       @url = admin_conference_payment_path(@conference, @payment)
       @selection = @payment.ticket_purchases.map{ |tp| [tp.ticket_id, tp.quantity] }.compact.to_h
+      @overall_discount_percent = @user.overall_discount_percent(@conference)
+      @overall_discount_value = @user.overall_discount_value(@conference)
     end
 
     def update
@@ -53,10 +60,12 @@ module Admin
         flash[:error] = 'Could not update payment. ' + @payment.errors.full_messages.to_sentence
         render :edit
       end
+    end
+
     private
 
     def payment_params
-      params.require(:payment).permit(:amount, :user_id, :last4, :authorization_code, :status)
+      params.require(:payment).permit(:amount, :user_id, :last4, :authorization_code, :status, :amount)
     end
   end
 end
