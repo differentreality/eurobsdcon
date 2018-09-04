@@ -335,6 +335,7 @@ GEM
     paymill_ruby (2.0.2)
     pdf-core (0.2.5)
     pdfkit (0.8.2)
+    pg (1.1.2)
     phantomjs (2.1.1.0)
     piwik_analytics (1.0.2)
       actionpack
@@ -641,6 +642,7 @@ DEPENDENCIES
   paper_trail
   paymill_ruby
   pdfkit
+  pg
   phantomjs
   piwik_analytics (~> 1.0.1)
   poltergeist
