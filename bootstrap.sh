@@ -60,20 +60,8 @@ fi
 echo -e "\ninstalling your bundle...\n"
 su - vagrant -c "cd /vagrant/; bundle install --quiet"
 
-# Configure the database if it isn't
-if [ ! -f /vagrant/config/database.yml ] && [ -f /vagrant/config/database.yml.example ]; then
-  echo -e "\nSetting up your database from config/database.yml...\n"
-  cp config/database.yml.example config/database.yml
-  if [ ! -f db/development.sqlite3 ] && [ ! -f db/test.sqlite3 ]; then
-    su - vagrant -c "cd /vagrant/; bundle exec rake db:setup"
-  else
-    echo -e "\n\nWARNING: You have already have a development/test database."
-    echo -e "WARNING: Please make sure this database works in this vagrant box!\n\n"
-  fi
-else
-  echo -e "\n\nWARNING: You have already configured your database in config/database.yml."
-  echo -e "WARNING: Please make sure this configuration works in this vagrant box!\n\n"
-fi
+echo -e "\nConfiguring the app...\n"
+su - vagrant -c "cd /vagrant/; bundle exec rake db:bootstrap"
 
 echo -e "\nProvisioning of your OSEM rails app done!"
 echo -e "To start your development OSEM run: vagrant exec bundle exec rails server -b 0.0.0.0\n"

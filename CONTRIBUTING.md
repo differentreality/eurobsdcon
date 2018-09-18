@@ -17,7 +17,10 @@ We are using [Vagrant](https://www.vagrantup.com/) to create our development env
 
 1. Install [Vagrant](https://www.vagrantup.com/downloads.html) and [VirtualBox 5.0.10](https://www.virtualbox.org/wiki/Download_Old_Builds_5_0). Both tools support Linux, MacOS and Windows.
 
-2. Install [vagrant-exec](https://github.com/p0deje/vagrant-exec):
+1. Set up the development environment:
+    ```bash
+    docker-compose run --rm osem bundle exec rake db:bootstrap
+    ```
 
     ```
     vagrant plugin install vagrant-exec
