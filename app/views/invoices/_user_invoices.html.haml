@@ -11,7 +11,7 @@
           %th Vat
           %th Payable
           %th Paid
-          %th Actions
+          %th.text-center Actions
       %tbody
         - user.invoices.each do |invoice|
           %tr
@@ -21,8 +21,8 @@
                   = link_to invoice.conference.title, conference_path(invoice.conference.short_title)
                 - else
                   invoice.conference.title
-            %td= invoice.number
-            %td= invoice.ticket_purchases.map(&:ticket).pluck(:title).to_sentence
+            %td.nowrap= invoice.number
+            %td= simple_format invoice.ticket_purchases.map(&:ticket).pluck(:title).join("\n")
             %td.text-right= invoice.total_amount
             %td.text-right= invoice.vat
             %td.text-right= invoice.payable
@@ -31,7 +31,7 @@
                 .fa.fa-check.text-success
               - else
                 .fa.fa-times.text-danger
-            %td
+            %td.text-center.nowrap
               .btn-group
                 = link_to 'Show', user_invoice_path(current_user, invoice), class: 'btn btn-success'
                 = link_to 'Download PDF', user_invoice_path(current_user, invoice, format: 'pdf'), class: 'btn btn-success'

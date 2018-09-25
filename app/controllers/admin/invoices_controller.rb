@@ -45,6 +45,10 @@ module Admin
       paid = @payment && @payment.success? ? true : false
       total_amount = @payment.amount / 100.0 if @payment
 
+      if @payment && Invoice.where(payment: @payment).any?
+        flash[:alert] = 'Invoice for this payment already exists!'
+      end
+
       if params[:kind] == 'sponsorship'
         recipient = Sponsor.find(params[:recipient_id])
         description = [{ description: "Sponsorship #{@conference.title}", quantity: 1 }]

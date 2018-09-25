@@ -2,6 +2,7 @@ class InvoicesController < ApplicationController
   load_and_authorize_resource :conference, find_by: :short_title
   load_and_authorize_resource :user
   load_and_authorize_resource through: :user, except: :request_invoice
+  load_resource :payment
 
   # GET /invoices
   # GET /invoices.json
@@ -36,7 +37,7 @@ class InvoicesController < ApplicationController
 
     begin
       raise 'No invoice details' unless current_user.invoice_details
-      RequestInvoiceMailJob.perform_later(current_user, @conference)
+      RequestInvoiceMailJob.perform_later(current_user, @conference, @payment)
       redirect_back fallback_location: conference_conference_registration_path(@conference.short_title), notice: 'Invoice requested'
     rescue => e
       redirect_to :back, error: "An error occured while requesting your invoice. #{e.message}"
