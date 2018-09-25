@@ -27,10 +27,10 @@
               = link_to "Code of Conduct",
                 [:code_of_conduct, conference.organization],
                 class: 'btn btn-default'
-            - if conference.registration_open?
-              - if conference.user_registered?(current_user)
-                = link_to "My Registration", conference_conference_registration_path(conference.short_title), class: 'btn btn-default'
-              - else
+            - if conference.user_registered?(current_user)
+              = link_to "My Registration", conference_conference_registration_path(conference.short_title), class: 'btn btn-default'
+            - else
+              - if conference.registration_open?
                 = link_to "Register", new_conference_conference_registration_path(conference.short_title), class: "btn btn-default", disabled: cannot?(:new, Registration.new(conference_id: conference.id))
                 - if cannot?(:new, Registration.new(conference_id: conference.id)) && conference.registration_limit_exceeded?
                   Sorry, no places left

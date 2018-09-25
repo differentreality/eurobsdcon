@@ -310,7 +310,9 @@ ActiveRecord::Schema.define(version: 20181113195810) do
     t.integer  "kind"
     t.datetime "created_at",        null: false
     t.datetime "updated_at",        null: false
+    t.integer  "payment_id"
     t.index ["conference_id"], name: "index_invoices_on_conference_id"
+    t.index ["payment_id"], name: "index_invoices_on_payment_id"
     t.index ["recipient_type", "recipient_id"], name: "index_invoices_on_recipient_type_and_recipient_id"
   end
 

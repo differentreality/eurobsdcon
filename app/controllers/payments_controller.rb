@@ -8,7 +8,7 @@ class PaymentsController < ApplicationController
   authorize_resource :conference_registrations, class: Registration
 
   def index
-    @payments = @conference.payments.where(user: current_user)
+    @payments = @conference.payments.where(user: current_user).order(created_at: :desc)
   end
 
   def new

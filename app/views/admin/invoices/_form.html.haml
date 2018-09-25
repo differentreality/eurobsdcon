@@ -18,6 +18,8 @@
 
 
 = semantic_form_for @invoice, url: @url do |f|
+  - if @payment
+    = f.hidden_field :payment_id, value: @payment.id
   .row
     .col-md-3
       = f.input :kind, selected: @invoice.kind, input_html: { collection: Invoice::kinds }

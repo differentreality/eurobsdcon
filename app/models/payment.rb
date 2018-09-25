@@ -4,6 +4,7 @@ class Payment < ApplicationRecord
   has_many :ticket_purchases
   belongs_to :user
   belongs_to :conference
+  has_one :invoice
 
   attr_accessor :stripe_customer_email
   attr_accessor :stripe_customer_token
@@ -17,10 +18,6 @@ class Payment < ApplicationRecord
     success: 1,
     failure: 2
   }
-
-  def tickets
-
-  end
 
   def amount_to_pay
     Ticket.total_price(conference, user, paid: false, payment: nil).cents

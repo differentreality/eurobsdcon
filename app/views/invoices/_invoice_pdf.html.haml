@@ -13,12 +13,13 @@
             %dl.invoice
               %dt{ style: 'text-align: left'} Invoice number
               %dd
+                = ': '
                 = invoice.number
             %dl.invoice
               %dt{ style: 'text-align: left'}
                 Date
               %dd
-                = ':'
+                = ': '
                 = invoice.date.strftime('%Y-%m-%d')
           .col-xs-4
             = simple_format(invoice.recipient_details)
