@@ -3,6 +3,7 @@ class Invoice < ApplicationRecord
 
   belongs_to :recipient, polymorphic: true
   belongs_to :conference
+  belongs_to :payment
   serialize :description, Array
 
   has_and_belongs_to_many :ticket_purchases

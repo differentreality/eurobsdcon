@@ -3,12 +3,23 @@
     .col-md-12
       .page-header
         %h1
-          My Donations
+          My Payments
           .btn-group.pull-right
             = link_to 'Back to registration', conference_conference_registration_path(@conference), class: 'btn btn-success'
             = link_to 'Request Invoice for all payments',
             user_request_invoice_path(current_user, conference_id: @conference.short_title),
             class: 'btn btn-warning'
+            = link_to 'My invoices',
+            user_invoices_path(current_user, conference_id: @conference.short_title),
+            class: 'btn btn-success'
+        .text-muted
+          Your invoice details (can be changed from your
+          = link_to 'profile', edit_user_path(current_user)
+          )
+          %br
+          = simple_format(current_user.invoice_details)
+          %br
+          = current_user.invoice_vat
   .row
     .col-md-12
       %table.table.datatable
@@ -36,10 +47,16 @@
                   .fa.fa-times.text-danger{ title: 'Failed' }
                   Failed
               %td.text-center
-                - if payment.unpaid? || payment.failure?
-                  = link_to 'Pay Now', edit_conference_payment_path(@conference, payment), class: 'btn btn-primary'
-                = link_to 'Request Invoice',
-                user_request_invoice_path(current_user, conference_id: @conference.short_title, payment_id: payment.id),
-                class: 'btn btn-warning'
+                .btn-group
+                  - if payment.unpaid? || payment.failure?
+                    = link_to 'Pay Now', edit_conference_payment_path(@conference, payment), class: 'btn btn-primary'
+                  - if payment.invoice
+                    = link_to 'Invoice',
+                    user_invoice_path(current_user, payment.invoice),
+                    class: 'btn btn-success'
+                  - elsif !current_user.invoices.where(conference: @conference).any?
+                    = link_to 'Request Invoice',
+                    user_request_invoice_path(current_user, conference_id: @conference.short_title, payment_id: payment.id),
+                    class: 'btn btn-warning'
       %br
       = link_to 'Get more tickets', conference_tickets_path(@conference), class: 'btn btn-primary pull-right'
