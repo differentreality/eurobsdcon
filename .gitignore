@@ -41,3 +41,5 @@ docker-compose.yml
 .byebug_history
 .buildconfig
 config/initializers/pdfkit.rb
+osem_development
+osem_test
