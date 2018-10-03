@@ -98,7 +98,7 @@ class ApplicationController < ActionController::Base
   # * +Array+ * -> With ticket information
   def tickets_grouped(ticket_purchases)
     ticket_purchases.group_by(&:ticket).map{ |ticket, purchases|
-      [ticket, purchases.group_by(&:amount_paid).map{|amount, p| [amount, p.pluck(:quantity).sum, p.pluck(:id)] }  ]}
+      [ticket, purchases.group_by(&:final_amount).map{ |amount, p| [amount, p.pluck(:quantity).sum, p.pluck(:id)] }  ]}
       .to_h.map{ |ticket, p| p.map{ |x| { :ticket => ticket, :price => x.first, :quantity => x.second, :ticket_purchase_ids => x.last} } }.flatten
   end
 
@@ -124,7 +124,7 @@ class ApplicationController < ActionController::Base
   def tickets_collection(tickets_grouped)
     tickets_grouped.map.with_index(1){ |data, index|
       ["#{data[:ticket].title} (#{data[:quantity]} * #{data[:price]} #{data[:ticket].price_currency})",
-        data[:ticket_purchase_ids].split.join,
+        data[:ticket_purchase_ids].split.join(', '),
         id: "tickets_collection_option#{index}",
         data: { ticket_name: data[:ticket].title, quantity: data[:quantity], price: data[:price], index: index }
       ] }

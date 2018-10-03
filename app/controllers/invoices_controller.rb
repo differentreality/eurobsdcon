@@ -1,5 +1,5 @@
 class InvoicesController < ApplicationController
-  load_and_authorize_resource :conference, find_by: :short_title
+  load_resource :conference, find_by: :short_title
   load_and_authorize_resource :user
   load_and_authorize_resource through: :user, except: :request_invoice
   load_resource :payment

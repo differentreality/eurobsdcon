@@ -19,6 +19,18 @@ class Payment < ApplicationRecord
     failure: 2
   }
 
+  def self.successful
+    where(status: 1)
+  end
+
+  def not_invoiced?
+    ticket_purchases.any?{ |ticket_purchase| !ticket_purchase.invoices.any? }
+  end
+
+  def invoiced?
+    ticket_purchases.all?{ |ticket_purchase| ticket_purchase.invoices.any? }
+  end
+
   def amount_to_pay
     Ticket.total_price(conference, user, paid: false, payment: nil).cents
   end

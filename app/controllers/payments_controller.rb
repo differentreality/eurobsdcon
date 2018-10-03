@@ -13,13 +13,27 @@ class PaymentsController < ApplicationController
 
   def new
     @total_amount_to_pay = Ticket.total_price(@conference, current_user, paid: false, payment: nil)
-    @total_amount_to_pay = @total_amount_to_pay - current_user.overall_discount(@conference, @total_amount_to_pay)
+    overall_discount = current_user.overall_discount(@conference, @total_amount_to_pay)
+    @total_amount_to_pay = @total_amount_to_pay - overall_discount
+
+    @unpaid_ticket_purchases = current_user.ticket_purchases.unpaid.by_conference(@conference).where(payment: nil)
+    # if @total_amount_to_pay.zero? and ticket purchases exist, mark them as paid
 
     if @total_amount_to_pay.zero?
-      raise CanCan::AccessDenied.new('Nothing to pay for!', :new, Payment)
+      if @unpaid_ticket_purchases.any?
+        # Create payment with 0 amount
+        payment = @conference.payments.create(user: current_user, amount: 0, status: 'success', overall_discount: overall_discount)
+        @unpaid_ticket_purchases.each do |purchase|
+          purchase.pay(payment)
+        end
+        flash[:notice] = 'Ticket(s) successfully booked!'
+        redirect_to conference_conference_registration_path(@conference)
+      else
+        raise CanCan::AccessDenied.new('Nothing to pay for!', :new, Payment)
+      end
     end
     @user_registration = current_user.registrations.for_conference @conference
-    @unpaid_ticket_purchases = current_user.ticket_purchases.unpaid.by_conference(@conference).where(payment: nil)
+
     @overall_discount_percent = params[:overall_discount_percent]
     @overall_discount_value = params[:overall_discount_value]
     @url = conference_payments_path(@conference)

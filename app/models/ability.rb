@@ -86,7 +86,7 @@ class Ability
     can :index, Organization
     can :index, Ticket
     can :manage, TicketPurchase, user_id: user.id
-    can [:new, :create], Payment, user_id: user.id
+    can :manage, Payment, user_id: user.id
     can [:index, :show], Invoice, recipient: user
     can [:request_invoice], Invoice
     can [:index, :show], PhysicalTicket, user: user

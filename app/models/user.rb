@@ -147,7 +147,13 @@ class User < ApplicationRecord
     discount_percent = overall_discount_percent(conference) || 0
     discount_value = overall_discount_value(conference) || 0
     total_discount = (amount*discount_percent/100).to_f + discount_value
-    return Money.new(total_discount * 100, conference.tickets.first.price_currency || 'EUR')
+    discount_result = Money.new(total_discount * 100, conference.tickets.first.price_currency || 'EUR')
+    result = if discount_result > amount
+               amount
+             else
+               discount_result
+             end
+    return result
   end
 
   def mark_attendance_for_conference conference

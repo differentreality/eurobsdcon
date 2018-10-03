@@ -37,7 +37,7 @@
     = f.inputs 'Invoice Details' do
       .col-md-6
         - if @invoice.kind == 'ticket_purchase'
-          = f.input :ticket_purchases, as: :select, label: 'Tickets', collection: @tickets_collection || [], input_html: { multiple: true, size: @tickets_collection&.length }, selected: @tickets_selected&.map{ |x| x[:ticket_purchase_ids].split.join }
+          = f.input :ticket_purchases, as: :select, label: 'Tickets', collection: @tickets_collection || [], input_html: { multiple: true, size: @tickets_collection&.length }, selected: @tickets_selected&.map{ |x| x[:ticket_purchase_ids].split.join(', ') }
 
         #description
           %table.table
@@ -47,21 +47,25 @@
               %th.text-center.col-md-2 Price
               %th.col-md-3
 
-          - if @invoice.description.present?
+          - if @invoice.persisted? && @invoice.description.present?
             - @invoice.description.each do |item|
               - item_match = @tickets_collection.select{ |data| data.third[:data][:ticket_name] == item[:description] && data.third[:data][:quantity].to_s == item[:quantity] && data.third[:data][:price].to_s == item[:price] } if @tickets_collection&.any?
 
               - index = item_match.first.third[:data][:index] if item_match&.any?
               = render partial: 'invoice_items', locals: { item: item, index: index }
-          - elsif @tickets_grouped
-            - @tickets_grouped.each.with_index(1) do |item, index|
-              - item[:description] = item[:ticket].title
-              - item[:ticket_id] = item[:ticket].id
-              = render partial: 'invoice_items', locals: { item: item, index: index }
           - else
-            = render partial: 'invoice_items', locals: { item: nil }
-          - if @payment && @payment.overall_discount && @payment.overall_discount > 0
-            = render partial: 'invoice_items', locals: { item: { description: 'Discount', quantity: '1', price: -@payment.overall_discount } }
+            - if @tickets_grouped
+              - @tickets_grouped.each.with_index(1) do |item, index|
+                - item[:description] = item[:ticket].title
+                - item[:ticket_id] = item[:ticket].id
+                = render partial: 'invoice_items', locals: { item: item, index: index }
+            - else
+              = render partial: 'invoice_items', locals: { item: nil }
+
+            -# - if @payment && @payment.overall_discount && @payment.overall_discount > 0
+            - if @overall_discount > 0
+              = render partial: 'invoice_items', locals: { item: { description: 'Discount', quantity: '1', price: -@overall_discount } }
+
 
         %br
         = link_to 'Add item', admin_conference_invoices_add_item_path(@conference), remote: true
