@@ -1,0 +1,12 @@
+Dear #{@recipient.name},
+%br
+%br
+your invoice is ready, find it
+= link_to 'here', user_invoices_url(@recipient)
+
+%br
+%br
+Best wishes,
+%br
+= @conference.title
+Team
