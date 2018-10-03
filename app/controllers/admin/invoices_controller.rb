@@ -56,9 +56,9 @@ module Admin
       else # params[:kind] == 'ticket_purchases'
         kind = 1
         ticket_purchases = if @payment
-                             @payment&.ticket_purchases
+                             @payment&.ticket_purchases.not_invoiced
                            elsif @user
-                             @user&.ticket_purchases&.where(conference: @conference)&.where&.not(ticket: nil)&.paid
+                             @user&.ticket_purchases&.where(conference: @conference)&.where&.not(ticket: nil)&.paid&.not_invoiced
                            else
                              []
                            end
@@ -67,8 +67,13 @@ module Admin
         @tickets_collection = tickets_collection(@tickets_grouped)
         @tickets_selected = @tickets_grouped
 
-        total_amount = total_amount || @tickets_grouped.sum{ |p| p[:price] * p[:quantity] }.to_f
+        total_amount = @tickets_grouped.sum{ |p| p[:price] * p[:quantity] }.to_f unless total_amount > 0
       end
+
+      @overall_discount = Payment.where(id: ticket_purchases.pluck(:payment_id)).sum(&:overall_discount)
+
+
+      @overall_discount = total_amount if @overall_discount > total_amount
 
       recipient = if params[:recipient_type]
                     params[:recipient_type].camelize.constantize.find(params[:recipient_id])
@@ -96,9 +101,6 @@ module Admin
                                           recipient: recipient,
                                           recipient_details: recipient_details,
                                           recipient_vat: recipient_vat)
-
-      # .map(&:ticket).map{ |purchase| ["#{purchase.ticket.title} (#{purchase.quantity})", purchase.id] }
-      # @ticket_purchases_collection = @conference.ticket_purchases.where(user: @physical_ticket.user).group_by(&:ticket).map{ |ticket, purchases| [ticket, quantity: purchases.sum(&:quantity), total_price: purchases.sum(&:amount_paid)] }.map{|ticket, data| [ticket.title, ticket.id, data: { ticket_name: ticket.title, quantity: data[:quantity], total_price: data[:total_price]} ]}
     end
 
     # GET /invoices/1/edit
@@ -124,15 +126,11 @@ module Admin
       @user = @payment.try(:user)
 
       if params[:invoice][:ticket_purchase_ids].present?
-        ticket_purchase_ids = params[:invoice][:ticket_purchase_ids].split.first.map(&:to_i)
+        ticket_purchase_ids = params[:invoice][:ticket_purchase_ids].map{ |x| x.split(',') }.flatten.map(&:to_i)
         ticket_purchases = TicketPurchase.where(id: ticket_purchase_ids)
 
         @invoice.ticket_purchase_ids = ticket_purchases.pluck(:id)
       end
-
-      # Only 1 recipient is selected
-      # @invoice.recipient_id = invoice_params[:recipient_id]&.join&.to_i
-      # @invoice.recipient_type = 'User'
 
       respond_to do |format|
         if @invoice.save
@@ -143,6 +141,7 @@ module Admin
           @tickets_grouped = tickets_grouped(ticket_purchases)
           @tickets_collection = tickets_collection(@tickets_grouped)
           @tickets_selected = tickets_selected(@tickets_grouped)
+          @overall_discount = Payment.where(id: ticket_purchases.pluck(:payment_id)).sum(&:overall_discount)
 
           @url = admin_conference_invoices_path(@conference.short_title)
 

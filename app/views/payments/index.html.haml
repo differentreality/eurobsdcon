@@ -8,7 +8,9 @@
             = link_to 'Back to registration', conference_conference_registration_path(@conference), class: 'btn btn-success'
             = link_to 'Request Invoice for all payments',
             user_request_invoice_path(current_user, conference_id: @conference.short_title),
-            class: 'btn btn-warning'
+            class: 'btn btn-warning',
+            disabled: !current_user.payments.where(conference: @conference).successful.any?(&:not_invoiced?)
+
             = link_to 'My invoices',
             user_invoices_path(current_user, conference_id: @conference.short_title),
             class: 'btn btn-success'
@@ -28,11 +30,12 @@
           %th.text-center Tickets
           %th.text-center Amount
           %th.text-center Payment Status
+          %th.text-center Invoiced
           %th.text-center Actions
         %tbody
           - @payments.each do |payment|
             %tr
-              %td= payment.created_at
+              %td= payment.updated_at
               %td
                 = simple_format(payment.ticket_purchases.map{ |tp| "#{tp.quantity} x #{tp.ticket.title}" }.join("\n"))
               %td.text-right= payment.amount / 100.0
@@ -46,15 +49,17 @@
                 - else
                   .fa.fa-times.text-danger{ title: 'Failed' }
                   Failed
+              %td.text-center{ 'data-order' => payment.invoiced?.to_s }
+                -# = payment.ticket_purchases.all?{ |ticket_purchase| ticket_purchase.invoices.any? }
+                - if payment.invoiced?
+                  .fa.fa-check.text-success
+                - else
+                  .fa.fa-times.text-danger
               %td.text-center
                 .btn-group
-                  - if payment.unpaid? || payment.failure?
-                    = link_to 'Pay Now', edit_conference_payment_path(@conference, payment), class: 'btn btn-primary'
-                  - if payment.invoice
-                    = link_to 'Invoice',
-                    user_invoice_path(current_user, payment.invoice),
-                    class: 'btn btn-success'
-                  - elsif !current_user.invoices.where(conference: @conference).any?
+                  = link_to 'Pay Now', edit_conference_payment_path(@conference, payment), class: 'btn btn-primary', disabled: !(payment.unpaid? || payment.failure?)
+
+                  - if !current_user.invoices.where(conference: @conference).any?
                     = link_to 'Request Invoice',
                     user_request_invoice_path(current_user, conference_id: @conference.short_title, payment_id: payment.id),
                     class: 'btn btn-warning'

@@ -28,7 +28,11 @@ class TicketPurchase < ApplicationRecord
   after_create :set_week
 
   def invoiced?
-    joins(:payments)
+    joins(:invoices)
+  end
+
+  def self.not_invoiced
+    select{ |ticket_purchase| !ticket_purchase.invoices.any? }
   end
 
   def self.purchase(conference, user, purchases)

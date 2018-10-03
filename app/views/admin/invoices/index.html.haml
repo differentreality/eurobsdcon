@@ -40,7 +40,7 @@
         %tbody
           - @invoices.each do |invoice|
             %tr
-              %td= invoice.number
+              %td.nowrap= invoice.number
               %td
                 - if invoice.recipient_type == 'User'
                   = link_to invoice.recipient&.email, admin_user_path(invoice.recipient) if invoice.recipient

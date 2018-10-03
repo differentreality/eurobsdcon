@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180930184642) do
+ActiveRecord::Schema.define(version: 20181001141410) do
 
   create_table "ahoy_events", force: :cascade do |t|
     t.integer  "visit_id"
@@ -316,9 +316,7 @@ ActiveRecord::Schema.define(version: 20180930184642) do
     t.integer  "kind"
     t.datetime "created_at",        null: false
     t.datetime "updated_at",        null: false
-    t.integer  "payment_id"
     t.index ["conference_id"], name: "index_invoices_on_conference_id"
-    t.index ["payment_id"], name: "index_invoices_on_payment_id"
     t.index ["recipient_type", "recipient_id"], name: "index_invoices_on_recipient_type_and_recipient_id"
   end
 
@@ -367,12 +365,12 @@ ActiveRecord::Schema.define(version: 20180930184642) do
     t.string   "last4"
     t.integer  "amount"
     t.string   "authorization_code"
-    t.integer  "status",             default: 0, null: false
-    t.integer  "user_id",                        null: false
-    t.integer  "conference_id",                  null: false
-    t.datetime "created_at",                     null: false
-    t.datetime "updated_at",                     null: false
-    t.float    "overall_discount"
+    t.integer  "status",             default: 0,   null: false
+    t.integer  "user_id",                          null: false
+    t.integer  "conference_id",                    null: false
+    t.datetime "created_at",                       null: false
+    t.datetime "updated_at",                       null: false
+    t.float    "overall_discount",   default: 0.0, null: false
   end
 
   create_table "physical_tickets", force: :cascade do |t|
