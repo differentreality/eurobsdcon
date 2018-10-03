@@ -134,7 +134,11 @@ module Admin
 
       respond_to do |format|
         if @invoice.save
-          format.html { redirect_to admin_conference_invoice_path(@conference.short_title, @invoice), notice: 'Invoice was successfully created.' }
+          format.html {
+            EmailInvoiceJob.perform_later(current_user, @conference)
+
+            redirect_to admin_conference_invoice_path(@conference.short_title, @invoice), notice: 'Invoice was successfully created.'
+          }
           format.json { render json: @invoice, status: :created }
         else
           ticket_purchases = @invoice.recipient&.ticket_purchases&.where(conference: @conference)&.where&.not(ticket: nil) || []
@@ -144,6 +148,8 @@ module Admin
           @overall_discount = Payment.where(id: ticket_purchases.pluck(:payment_id)).sum(&:overall_discount)
 
           @url = admin_conference_invoices_path(@conference.short_title)
+
+          flash[:error] = 'Could not create invoice. ' + @invoice.errors.full_messages.to_sentence
 
           format.html { render action: 'new' }
           format.json { render json: @invoice.errors, status: :unprocessable_entity }
