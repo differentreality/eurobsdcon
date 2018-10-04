@@ -135,7 +135,7 @@ module Admin
       respond_to do |format|
         if @invoice.save
           format.html {
-            EmailInvoiceJob.perform_later(current_user, @conference)
+            EmailInvoiceJob.perform_later(@invoice.recipient, @conference)
 
             redirect_to admin_conference_invoice_path(@conference.short_title, @invoice), notice: 'Invoice was successfully created.'
           }
