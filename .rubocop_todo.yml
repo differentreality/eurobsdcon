@@ -351,10 +351,7 @@ Metrics/PerceivedComplexity:
 # Offense count: 18
 Naming/AccessorMethodName:
   Exclude:
-    - 'app/controllers/application_controller.rb'
-    - 'app/models/campaign.rb'
     - 'app/models/conference.rb'
-    - 'app/models/target.rb'
     - 'app/models/user.rb'
 
 # Offense count: 2
@@ -411,7 +408,6 @@ RSpec/AnyInstance:
   Exclude:
     - 'spec/controllers/admin/rooms_controller_spec.rb'
     - 'spec/controllers/admin/sponsorship_levels_controller_spec.rb'
-    - 'spec/controllers/admin/targets_controller_spec.rb'
     - 'spec/controllers/admin/tracks_controller_spec.rb'
     - 'spec/controllers/admin/users_controller_spec.rb'
     - 'spec/controllers/conference_registration_controller_spec.rb'
@@ -444,7 +440,6 @@ RSpec/DescribedClass:
     - 'spec/models/role_spec.rb'
     - 'spec/models/sponsorship_level_spec.rb'
     - 'spec/models/survey_question_spec.rb'
-    - 'spec/models/target_spec.rb'
     - 'spec/models/ticket_purchase_spec.rb'
     - 'spec/models/ticket_spec.rb'
     - 'spec/models/user_spec.rb'
@@ -571,14 +566,12 @@ RSpec/ImplicitSubject:
     - 'spec/ability/ability_spec.rb'
     - 'spec/models/admin_ability_spec.rb'
     - 'spec/models/booth_spec.rb'
-    - 'spec/models/campaign_spec.rb'
     - 'spec/models/conference_spec.rb'
     - 'spec/models/event_type_spec.rb'
     - 'spec/models/organization_spec.rb'
     - 'spec/models/registration_period_spec.rb'
     - 'spec/models/sponsor_spec.rb'
     - 'spec/models/sponsorship_level_spec.rb'
-    - 'spec/models/target_spec.rb'
     - 'spec/models/ticket_purchase_spec.rb'
     - 'spec/models/ticket_spec.rb'
 
@@ -665,7 +658,6 @@ RSpec/RepeatedExample:
 RSpec/ReturnFromStub:
   Exclude:
     - 'spec/helpers/events_helper_spec.rb'
-    - 'spec/models/target_spec.rb'
 
 # Offense count: 49
 RSpec/ScatteredLet:
@@ -805,7 +797,6 @@ Rails/HasManyOrHasOneDependent:
     - 'app/models/track.rb'
     - 'app/models/user.rb'
     - 'app/models/vday.rb'
-    - 'app/models/visit.rb'
     - 'app/models/vposition.rb'
 
 # Offense count: 254
@@ -873,7 +864,6 @@ Rails/Presence:
 Rails/Present:
   Exclude:
     - 'app/helpers/users_helper.rb'
-    - 'app/models/campaign.rb'
     - 'app/models/cfp.rb'
     - 'app/models/email_settings.rb'
     - 'app/models/event.rb'
@@ -926,7 +916,6 @@ Rails/TimeZone:
     - 'spec/controllers/admin/comments_controller_spec.rb'
     - 'spec/controllers/admin/programs_controller_spec.rb'
     - 'spec/factories/users.rb'
-    - 'spec/models/campaign_spec.rb'
     - 'spec/models/conference_spec.rb'
 
 # Offense count: 2
