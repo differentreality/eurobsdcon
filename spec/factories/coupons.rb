@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :coupon do
     name { Faker::Hipster.sentence }
     discount_amount 10
