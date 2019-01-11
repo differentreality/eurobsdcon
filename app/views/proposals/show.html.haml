@@ -3,9 +3,6 @@
   %meta{ property: "og:url", content: conference_program_proposal_url(@conference.short_title, @event) }
   %meta{ property: "og:description", content: @event.abstract }
   %meta{ property: "og:site_name", content: (ENV['OSEM_NAME'] || 'OSEM') }
-  - if @speakers_ordered.any?
-    %meta{ property: "og:image", content: @speakers_ordered.first.gravatar_url }
-    %meta{ property: "og:image:secure_url", content: @speakers_ordered.first.gravatar_url }
 
 .container
   .row
@@ -31,9 +28,7 @@
       - @speakers_ordered.each do |speaker|
         .speakerinfo
           .row
-            .col-md-4
-              = image_tag speaker.gravatar_url(:size => 120), class: 'img-responsive img-rounded'
-            .col-md-8
+            .col-md-12
               %h4
                 = link_to speaker.name, user_path(speaker.id)
                 %br

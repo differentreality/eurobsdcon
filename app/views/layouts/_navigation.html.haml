@@ -26,7 +26,6 @@
             %li.dropdown
               %a.dropdown-toggle{"data-toggle" => "dropdown", href: '#', id: "current-user-detail"}
                 = current_user.name
-                = image_tag(current_user.gravatar_url(size: '18'), title: "Yo #{current_user.name}!", alt: '')
                 %b.caret
               %ul.dropdown-menu
                 = render 'layouts/user_menu'
