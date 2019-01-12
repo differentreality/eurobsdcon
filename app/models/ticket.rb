@@ -9,7 +9,7 @@ class Ticket < ApplicationRecord
   belongs_to :event
   has_many :buyers, -> { distinct }, through: :ticket_purchases, source: :user
 
-  has_paper_trail meta: { conference_id: :conference_id },
+  has_paper_trail meta:   { conference_id: :conference_id },
                   ignore: %i[updated_at]
 
   monetize :price_cents, with_model_currency: :price_currency
@@ -158,6 +158,7 @@ class Ticket < ApplicationRecord
   def tickets_of_conference_have_same_currency
     tickets = Ticket.where(conference_id: conference_id)
     return if tickets.count.zero? || (tickets.count == 1 && self == tickets.first)
+
     unless tickets.all?{|t| t.price_currency == price_currency }
       errors.add(:price_currency, 'is different from the existing tickets of this conference.')
     end

@@ -85,6 +85,7 @@ feature Event do
       fill_in 'event_abstract', with: 'Lorem ipsum abstract'
 
       click_button 'Create Proposal'
+      page.find('#flash')
       expect(page).to have_content 'Proposal was successfully submitted.'
 
       expect(Event.count).to eq(expected_count_event)
@@ -93,6 +94,7 @@ feature Event do
 
     scenario 'update a proposal' do
       conference = create(:conference)
+      create(:cfp, program: conference.program)
       proposal = create(:event, program: conference.program)
 
       sign_in proposal.submitter
@@ -103,26 +105,29 @@ feature Event do
       select('Easy', from: 'event[difficulty_level_id]')
 
       click_button 'Update Proposal'
+      page.find('#flash')
       expect(page).to have_content 'Proposal was successfully updated.'
     end
 
     scenario 'signed_in user submits a valid proposal', feature: true, js: true do
       sign_in participant_without_bio
       expected_count = Event.count + 1
+
       visit conference_program_proposals_path(conference.short_title)
       click_link 'New Proposal'
 
       fill_in 'event_title', with: 'Example Proposal'
-
       select('Example Event Type', from: 'event[event_type_id]')
-
       fill_in 'event_abstract', with: 'Lorem ipsum abstract'
-      click_link 'description_link'
+      click_link 'Do you require something special?'
+
+      page.find('#event_description')
       fill_in 'event_description', with: 'Lorem ipsum description'
-
       click_button 'Create Proposal'
-      expect(page).to have_content 'Proposal was successfully submitted.'
 
+      page.find('#flash')
+      expect(page).to have_content 'Proposal was successfully submitted.'
+      TransactionalCapybara::AjaxHelpers.wait_for_ajax(page)
       expect(current_path).to eq(conference_program_proposals_path(conference.short_title))
       expect(Event.count).to eq(expected_count)
     end
@@ -145,6 +150,8 @@ feature Event do
       visit conference_program_proposals_path(conference.short_title)
       expect(page).to have_content 'Example Proposal'
       click_link "delete_proposal_#{@event.id}"
+      page.accept_alert
+      page.find('#flash')
       expect(page).to have_content 'Proposal was successfully withdrawn.'
       @event.reload
       expect(@event.state).to eq('withdrawn')

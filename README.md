@@ -2,11 +2,12 @@
 [![Code Climate](https://codeclimate.com/github/openSUSE/osem.png)](https://codeclimate.com/github/openSUSE/osem)
 [![codecov](https://codecov.io/gh/opensuse/osem/branch/master/graph/badge.svg)](https://codecov.io/gh/opensuse/osem)
 [![Security Status](https://hakiri.io/github/openSUSE/osem/master.svg)](https://hakiri.io/github/openSUSE/osem/master)
+[![Dependencies](https://badges.depfu.com/badges/8fcd630367d20f5b48d393774c00c5fd/overview.svg)](https://depfu.com/repos/openSUSE/osem)
 <a href="https://heroku.com/deploy?template=https://github.com/openSUSE/osem/tree/v1.0">
   <img src="https://www.herokucdn.com/deploy/button.svg" height="20px" alt="Deploy">
 </a>
 # Open Source Event Manager
-![OSEM Logo](https://cdn.brandisty.com/img?id=570f6dc39c992b6b6700000a&format=png&w=300&h=89)
+![OSEM Logo](doc/osem-logo.png)
 
 An event management tool tailored to Free and Open Source Software conferences.
 

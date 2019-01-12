@@ -2,13 +2,15 @@
 
 source 'https://rubygems.org'
 
+ruby ENV['OSEM_RUBY_VERSION'] || '2.5.0'
+
 # rails-assets requires >= 1.8.4
 if Gem::Version.new(Bundler::VERSION) < Gem::Version.new('1.8.4')
   abort "Bundler version >= 1.8.4 is required"
 end
 
 # as web framework
-gem 'rails', '~> 5.0.5'
+gem 'rails', '~> 5.0.7'
 
 # Use Puma as the app server
 gem 'puma', '~> 3.0'
@@ -22,10 +24,9 @@ gem 'rails_12factor', group: :production
 # http://edgeguides.rubyonrails.org/upgrading_ruby_on_rails.html#responders
 gem 'responders', '~> 2.0'
 
-# as the database for Active Record
-# choose only one
+# as supported databases
 gem 'mysql2'
-# gem 'pg'
+gem 'pg'
 
 # for tracking data changes
 gem 'paper_trail'
@@ -79,7 +80,7 @@ gem 'uglifier', '>= 1.3.0'
 
 # as the front-end framework
 gem 'autoprefixer-rails'
-gem 'bootstrap-sass', '~> 3.3.4.1'
+gem 'bootstrap-sass', '~> 3.4.0'
 gem 'cocoon'
 gem 'formtastic', '~> 3.1.5'
 gem 'formtastic-bootstrap'
@@ -121,10 +122,12 @@ end
 
 # as date picker
 gem 'bootstrap3-datetimepicker-rails', '~> 3.0.2'
-gem 'jquery-datatables-rails', '~> 2.2.1'
+
+# data tables
+gem 'ajax-datatables-rails'
+gem 'jquery-datatables-rails'
 
 # for charts
-gem 'chart-js-rails'
 gem 'chartkick'
 
 # for displaying maps
@@ -137,7 +140,7 @@ gem 'gravtastic'
 gem 'country_select'
 
 # as PDF generator
-gem 'prawn-qrcode', '~> 0.2.2.1'
+gem 'prawn-qrcode', '~> 0.3.0'
 gem 'prawn_rails'
 
 # Use PDFKit as PDF generator
@@ -170,7 +173,6 @@ gem 'redcarpet'
 gem 'rdoc-generator-fivefish'
 
 # for visitor tracking
-gem 'ahoy_matey'
 gem 'piwik_analytics', '~> 1.0.1'
 
 # for recurring jobs
@@ -209,7 +211,7 @@ gem "countable-rails", "~> 0.0.1"
 # for fake data
 gem 'faker'
 # for seeds
-gem 'factory_girl_rails'
+gem 'factory_bot_rails'
 
 # for integrating Stripe payment gateway
 gem 'paymill_ruby'
@@ -236,12 +238,11 @@ gem 'dalli'
 group :development do
   # to launch specs when files are modified
   gem 'guard-rspec'
-  gem 'haml_lint', '~> 0.24.0'
+  gem 'haml_lint'
   gem 'spring-commands-rspec'
   # for static code analisys
   gem 'rubocop', require: false
-  # as database
-  gem 'sqlite3'
+  gem 'rubocop-rspec'
   # to open mails
   gem 'letter_opener'
   # to open mails in browser
@@ -250,15 +251,19 @@ group :development do
   gem 'mina'
   # as debugger on error pages
   gem 'web-console', '~> 2.0'
+  # as development database
+  gem 'sqlite3'
 end
 
 group :test do
   # as test framework
   gem 'capybara'
+  gem 'chromedriver-helper'
   gem 'database_cleaner'
-  gem 'phantomjs', :require => 'phantomjs/poltergeist'
-  gem 'poltergeist'
-  gem 'rspec-rails', '~> 3.5', '>= 3.5.2'
+  gem 'geckodriver-helper'
+  gem 'rspec-rails'
+  gem 'selenium-webdriver'
+  gem 'transactional_capybara'
   # for measuring test coverage
   gem 'codecov', require: false
   # for describing models
@@ -277,8 +282,8 @@ group :test do
   gem 'rails-controller-testing'
   # For managing the environment
   gem 'climate_control'
-  # parallel tests
-  gem 'knapsack'
+  # For PDFs
+  gem 'pdf-inspector', require: "pdf/inspector"
 end
 
 group :development, :test do

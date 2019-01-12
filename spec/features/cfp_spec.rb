@@ -18,6 +18,7 @@ feature Conference do
 
       click_button 'Create Cfp'
 
+      page.find('#flash')
       expect(flash)
           .to eq('Creating the call for papers failed. ' +
           "Start date can't be blank. End date can't be blank.")
@@ -35,8 +36,8 @@ feature Conference do
           .to eq('Call for papers successfully created.')
 
       visit admin_conference_program_cfp_path(conference.short_title, conference.program.cfp)
-      expect(find('#start_date').text).to eq(today.strftime('%A, %B %-d. %Y'))
-      expect(find('#end_date').text).to eq((today + 6).strftime('%A, %B %-d. %Y'))
+      expect(find('#start-date').text).to eq(today.strftime('%A, %B %-d. %Y'))
+      expect(find('#end-date').text).to eq((today + 6).strftime('%A, %B %-d. %Y'))
 
       expect(Cfp.count).to eq(expected_count)
     end
@@ -53,6 +54,7 @@ feature Conference do
       page.execute_script(
           "$('#registration-period-start-datepicker').val('')")
       click_button 'Update Cfp'
+      page.find('#flash')
       expect(flash)
           .to eq('Updating call for papers failed. ' +
                     "Start date can't be blank.")
@@ -67,12 +69,13 @@ feature Conference do
       click_button 'Update Cfp'
 
       # Validations
+      page.find('#flash')
       expect(flash)
           .to eq('Call for papers successfully updated.')
 
       visit admin_conference_program_cfp_path(conference.short_title, conference.program.cfp)
-      expect(find('#start_date').text).to eq(today.strftime('%A, %B %-d. %Y'))
-      expect(find('#end_date').text).to eq((today + 14).strftime('%A, %B %-d. %Y'))
+      expect(find('#start-date').text).to eq(today.strftime('%A, %B %-d. %Y'))
+      expect(find('#end-date').text).to eq((today + 14).strftime('%A, %B %-d. %Y'))
       expect(Cfp.count).to eq(expected_count)
     end
   end

@@ -4,6 +4,7 @@ require 'spec_helper'
 
 feature 'Version' do
   let!(:conference) { create(:conference) }
+  let!(:cfp) { create(:cfp, program: conference.program) }
   let!(:organizer_role) { Role.find_by(name: 'organizer', resource: conference) }
   let!(:organizer) { create(:user, role_ids: [organizer_role.id]) }
   let(:event_with_commercial) { create(:event, program: conference.program) }
@@ -35,7 +36,6 @@ feature 'Version' do
   end
 
   scenario 'display changes in cfp', feature: true, versioning: true, js: true do
-    cfp = create(:cfp, program: conference.program)
     cfp.update_attributes(start_date: (Time.zone.today + 1).strftime('%d/%m/%Y'), end_date: (Time.zone.today + 3).strftime('%d/%m/%Y'))
     cfp_id = cfp.id
     cfp.destroy
@@ -250,10 +250,11 @@ feature 'Version' do
     splashpage_id = conference.splashpage.id
 
     click_link 'Delete'
+    page.accept_alert
+
     visit admin_revision_history_path
     expect(page).to have_text("#{organizer.name} created new splashpage with ID #{splashpage_id} in conference #{conference.short_title}")
-    expect(page).to have_text("#{organizer.name} updated public, include program, include cfp, include venue, include tickets, include lodgings,
-      include sponsors and include social media of splashpage with ID #{splashpage_id} in conference #{conference.short_title}")
+    expect(page).to have_text("#{organizer.name} updated public, include program, include cfp, include venue, include tickets, include lodgings, include sponsors and include social media of splashpage with ID #{splashpage_id} in conference #{conference.short_title}")
     expect(page).to have_text("#{organizer.name} deleted splashpage with ID #{splashpage_id} in conference #{conference.short_title}")
   end
 
@@ -317,16 +318,28 @@ feature 'Version' do
     expect(page).to have_text('created new organization New org')
   end
 
-  scenario 'display changes in users_role for organization role', feature: true, versioning: true, js: true do
-    user = create(:user)
-    role = Role.find_by(resource_id: conference.organization.id, resource_type: 'Organization')
-    user.add_role :organization_admin, conference.organization
-    user_role = UsersRole.find_by(user_id: user.id, role_id: role.id)
-    user.remove_role :organization_admin, conference.organization
+  context 'organization role', feature: true, versioning: true, js: true do
+    let!(:user) { create(:user) }
+    let!(:role) do
+      Role.find_by(
+        resource_id:   conference.organization.id,
+        resource_type: 'Organization'
+      )
+    end
 
-    visit admin_revision_history_path
-    expect(page).to have_text("added role organization_admin with ID #{user_role.id} to user #{user.name} in organization #{conference.organization.name}")
-    expect(page).to have_text("removed role organization_admin with ID #{user_role.id} from user #{user.name} in organization #{conference.organization.name}")
+    setup do
+      user.add_role :organization_admin, conference.organization
+      user.remove_role :organization_admin, conference.organization
+      visit admin_revision_history_path
+    end
+
+    it 'is recorded to history when user is added' do
+      expect(page).to have_text(/added role organization_admin with ID \d+ to user #{user.name} in organization #{conference.organization.name}/)
+    end
+
+    it 'is recorded to history when user is removed' do
+      expect(page).to have_text(/removed role organization_admin with ID \d+ from user #{user.name} in organization #{conference.organization.name}/)
+    end
   end
 
   scenario 'display changes in users_role for conference role', feature: true, versioning: true, js: true do
@@ -345,8 +358,7 @@ feature 'Version' do
     conference.email_settings.update_attributes(registration_subject: 'xxxxx', registration_body: 'yyyyy', accepted_subject: 'zzzzz')
 
     visit admin_revision_history_path
-    expect(page).to have_text("Someone (probably via the console) updated registration body, registration subject and accepted subject
-    of email settings in conference #{conference.short_title}")
+    expect(page).to have_text("Someone (probably via the console) updated registration body, registration subject and accepted subject of email settings in conference #{conference.short_title}")
   end
 
   scenario 'display changes in conference registrations', feature: true, versioning: true, js: true do
@@ -374,18 +386,6 @@ feature 'Version' do
     expect(page).to have_text("Someone (probably via the console) unregistered #{organizer.name} from event #{event.title} in conference #{conference.short_title}")
   end
 
-  scenario 'display changes in target', feature: true, versioning: true, js: true do
-    target = create(:target, conference: conference)
-    target.update_attributes(due_date: Date.today, target_count: 1000)
-    target_id = target.id
-    target.destroy
-
-    visit admin_revision_history_path
-    expect(page).to have_text("Someone (probably via the console) created new target 1000 Submissions by #{Date.today} with ID #{target_id} in conference #{conference.short_title}")
-    expect(page).to have_text("Someone (probably via the console) updated due date and target count of target 1000 Submissions by #{Date.today} with ID #{target_id} in conference #{conference.short_title}")
-    expect(page).to have_text("Someone (probably via the console) deleted target 1000 Submissions by #{Date.today} with ID #{target_id} in conference #{conference.short_title}")
-  end
-
   scenario 'display changes in comment', feature: true, versioning: true, js: true do
     create(:event, program: conference.program, title: 'My first event')
     event = create(:event, program: conference.program, title: 'My second event')
@@ -393,13 +393,14 @@ feature 'Version' do
     click_link 'Comments (0)'
     fill_in 'comment_body', with: 'Sample comment'
     click_button 'Add Comment'
+    TransactionalCapybara::AjaxHelpers.wait_for_ajax(page)
     Comment.last.destroy
     PaperTrail::Version.last.reify.save
 
     visit admin_revision_history_path
     expect(page).to have_text("#{organizer.name} commented on event My second event in conference #{conference.short_title}")
     expect(page).to have_text("Someone (probably via the console) deleted #{organizer.name}'s comment on event #{event.title} in conference #{conference.short_title}")
-    expect(page).to have_text("Someone (probably via the console) re-added #{organizer.name}'s comment on event #{event.title}  in conference #{conference.short_title}")
+    expect(page).to have_text("Someone (probably via the console) re-added #{organizer.name}'s comment on event #{event.title} in conference #{conference.short_title}")
   end
 
   scenario 'display changes in vote', feature: true, versioning: true, js: true do
@@ -413,19 +414,7 @@ feature 'Version' do
     visit admin_revision_history_path
     expect(page).to have_text("Someone (probably via the console) voted on event My second event in conference #{conference.short_title}")
     expect(page).to have_text("Someone (probably via the console) deleted #{organizer.name}'s vote on event #{event.title} in conference #{conference.short_title}")
-    expect(page).to have_text("Someone (probably via the console) re-added #{organizer.name}'s vote on event #{event.title}  in conference #{conference.short_title}")
-  end
-
-  scenario 'display changes in campaign', feature: true, versioning: true, js: true do
-    campaign = create(:campaign, conference: conference, name: 'Test Campaign', utm_campaign: 'campaign')
-    campaign.update_attributes(utm_source: 'source', utm_medium: 'medium', utm_term: 'term', utm_content: 'content')
-    campaign_id = campaign.id
-    campaign.destroy
-
-    visit admin_revision_history_path
-    expect(page).to have_text("Someone (probably via the console) created new campaign Test Campaign with ID #{campaign_id} in conference #{conference.short_title}")
-    expect(page).to have_text("Someone (probably via the console) updated utm source, utm medium, utm term and utm content of campaign Test Campaign with ID #{campaign_id} in conference #{conference.short_title}")
-    expect(page).to have_text("Someone (probably via the console) deleted campaign Test Campaign with ID #{campaign_id} in conference #{conference.short_title}")
+    expect(page).to have_text("Someone (probably via the console) re-added #{organizer.name}'s vote on event #{event.title} in conference #{conference.short_title}")
   end
 
   scenario 'display password reset requests', feature: true, versioning: true, js: true do
@@ -448,6 +437,6 @@ feature 'Version' do
     user.update_attributes(nickname: 'testnick', affiliation: 'openSUSE')
 
     visit admin_revision_history_path
-    expect(page).to have_text("Someone (probably via the console) updated  nickname and affiliation of user #{user.name}")
+    expect(page).to have_text("Someone (probably via the console) updated nickname and affiliation of user #{user.name}")
   end
 end

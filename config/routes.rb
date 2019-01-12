@@ -11,10 +11,8 @@ Osem::Application.routes.draw do
                controllers: {
                    registrations: :registrations, confirmations: :confirmations,
                    omniauth_callbacks: 'users/omniauth_callbacks' },
-               path: 'accounts'
+               path:        'accounts'
   end
-
-  mount Ahoy::Engine => '/ahoy'
 
   # Use letter_opener_web to open mails in browser (e.g. necessary for Vagrant)
   if Rails.env.development?
@@ -130,8 +128,6 @@ Osem::Application.routes.draw do
       resources :tickets
       resources :sponsors, except: [:show]
       resources :lodgings, except: [:show]
-      resources :targets, except: [:show]
-      resources :campaigns, except: [:show]
       resources :emails, only: [:show, :update, :index]
       resources :physical_tickets, only: [:index]
       resources :ticket_purchases
