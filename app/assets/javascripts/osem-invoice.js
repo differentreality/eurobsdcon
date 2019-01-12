@@ -28,11 +28,12 @@ function payable_change(total_amount) {
       quantity = parseFloat($(this).find('#invoice_description__quantity').val()) || 0;
 
       total_amount = (parseFloat(total_amount) + parseFloat(price) * parseFloat(quantity)).toFixed(2);
+      vat = (parseFloat(total_amount) + parseFloat(price) * parseFloat(quantity)).toFixed(2);
     });
   }
 
-  var vat_percent = parseFloat($("#invoice_vat_percent").val());
-  var vat = (total_amount * vat_percent / 100).toFixed(2);
+  // var vat_percent = parseFloat($("#invoice_vat_percent").val());
+  // var vat = (total_amount * vat_percent / 100).toFixed(2);
 
   $("#invoice_total_amount").val(total_amount);
   $("#invoice_vat").val(vat);
@@ -72,9 +73,7 @@ $(function () {
     payable_change(0);
   });
 
-  $("#invoice_vat_percent").change(function () {
-    $("#invoice_vat").val(($("#invoice_total_amount").val() * parseFloat($("#invoice_vat_percent").val()) / 100).toFixed(2));
-
+  $("#invoice_vat").change(function () {
     calculatePayable();
   });
 

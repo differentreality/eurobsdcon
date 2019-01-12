@@ -42,34 +42,36 @@
         #description
           %table.table
             %tr
-              %th.text-center.col-md-7 Description
+              %th.text-center.col-md-3 Description
               %th.text-center.col-md-2 Quantity
+              %th.text-center.col-md-2 VAT %
+              %th.text-center.col-md-2 VAT
               %th.text-center.col-md-2 Price
               %th.col-md-3
 
-          - if @invoice.persisted? && @invoice.description.present?
-            - @invoice.description.each do |item|
-              - item_match = @tickets_collection.select{ |data| data.third[:data][:ticket_name] == item[:description] && data.third[:data][:quantity].to_s == item[:quantity] && data.third[:data][:price].to_s == item[:price] } if @tickets_collection&.any?
+          - if @invoice.persisted? && @invoice.invoice_items.any?
+            - @invoice.invoice_items.each do |item|
+              - item_match = @tickets_collection.select{ |data| data.third[:data][:ticket_name] == item.description && data.third[:data][:quantity].to_s == item.quantity && data.third[:data][:price].to_s == item.price } if @tickets_collection&.any?
 
               - index = item_match.first.third[:data][:index] if item_match&.any?
-              = render partial: 'invoice_items', locals: { item: item, index: index }
+
           - else
+            = 'YES'
             - if @tickets_grouped
-              - @tickets_grouped.each.with_index(1) do |item, index|
-                - item[:description] = item[:ticket].title
-                - item[:ticket_id] = item[:ticket].id
-                = render partial: 'invoice_items', locals: { item: item, index: index }
-            - else
-              = render partial: 'invoice_items', locals: { item: nil }
+              - @tickets_grouped.each do |item|
+                = f.semantic_fields_for :invoice_items do |association_form|
+                  = render 'invoice_item_fields', f: association_form
 
-            -# - if @payment && @payment.overall_discount && @payment.overall_discount > 0
-            - if @overall_discount > 0
-              = render partial: 'invoice_items', locals: { item: { description: 'Discount', quantity: '1', price: -@overall_discount } }
+                -# = render partial: 'invoice_item_fields', locals: { invoice_item: InvoiceItem.new(description: item[:ticket].title), f: f }
 
+            - if @overall_discount && @overall_discount > 0
+              -# = render partial: 'invoice_item_fields', locals: { invoice_item: InvoiceItem.new(description: 'Discount',
+                                                                                               quantity: 1,
+                                                                                               vat_percent: 0,
+                                                                                               vat: 0,
+                                                                                               price: -@overall_discount) }
+          -# = dynamic_association :invoice_items, '', f, alt_association_name: 'Items'
 
-        %br
-        = link_to 'Add item', admin_conference_invoices_add_item_path(@conference), remote: true
-        %br
       .col-md-5.col-md-offset-1
         - collection_items = []
 
@@ -97,7 +99,7 @@
     .col-md-2
       = f.input :total_amount, value: @invoice.total_amount
     .col-md-2
-      = f.input :vat_percent, label: 'VAT percent (%)'
+
     .col-md-2
       - hint = @invoice.recipient.try(:invoice_vat).present? ? '' : 'No VAT number was supplied!'
       = f.input :vat, hint: hint

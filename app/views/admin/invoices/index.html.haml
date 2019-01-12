@@ -48,18 +48,18 @@
                   = link_to invoice.recipient&.email || invoice.recipient&.name, admin_conference_sponsors_path(@conference)
               %td
                 %table.table{ style: 'background-color: inherit'}
-                  - invoice.description.each do |item|
+                  - invoice.invoice_items.each do |item|
                     %tr
                       %td.col-md-7
-                        - if ticket = @conference.tickets.find_by(title: item[:description])
-                          = link_to item[:description], admin_conference_ticket_path(@conference, ticket)
+                        - if ticket = @conference.tickets.find_by(title: item.description)
+                          = link_to item.description, admin_conference_ticket_path(@conference, ticket)
                         - else
-                          = item[:description]
-                      %td.col-md-1.text-right= item[:quantity]
+                          = item.description
+                      %td.col-md-1.text-right= item.quantity
                       %td.col-md-1.text-center
                         x
                       %td.col-md-2.text-right
-                        = number_to_currency(item[:price], currency: invoice.currency)
+                        = number_to_currency(item.price, currency: invoice.currency)
               %td.nowrap.text-right= number_with_precision(invoice.total_amount, precision: 2, delimiter: ',')
               %td.nowrap.text-right= number_with_precision(invoice.vat, precision: 2, delimiter: ',')
               %td.nowrap.text-right= number_with_precision(invoice.payable, precision: 2, delimiter: ',')

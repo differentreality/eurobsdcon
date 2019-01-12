@@ -94,10 +94,8 @@ module Admin
       @invoice = @conference.invoices.new(no: no, date: Date.current,
                                           kind: kind, paid: paid,
                                           total_amount: total_amount,
-                                          vat_percent: vat_percent,
                                           vat: vat,
                                           payable: payable,
-                                          description: description,
                                           recipient: recipient,
                                           recipient_details: recipient_details,
                                           recipient_vat: recipient_vat)
@@ -165,10 +163,12 @@ module Admin
           format.html { redirect_to admin_conference_invoice_path(@conference.short_title, @invoice), notice: 'Invoice was successfully updated.' }
           format.json { head :no_content }
         else
-          ticket_purchases = @invoice.recipient&.ticket_purchases&.where(conference: @conference)&.where&.not(ticket: nil) || []
-          @tickets_grouped = tickets_grouped(ticket_purchases)
-          @tickets_collection = tickets_collection(@tickets_grouped)
-          @tickets_selected = tickets_selected(@tickets_grouped)
+          unless @invoice.sponsorship?
+            ticket_purchases = @invoice.recipient&.ticket_purchases&.where(conference: @conference)&.where&.not(ticket: nil) || []
+            @tickets_grouped = tickets_grouped(ticket_purchases)
+            @tickets_collection = tickets_collection(@tickets_grouped)
+            @tickets_selected = tickets_selected(@tickets_grouped)
+          end
 
           format.html {
             flash[:error] = 'Could not update invoice. ' + @invoice.errors.full_messages.to_sentence
@@ -204,10 +204,16 @@ module Admin
                                         :recipient_type,
                                         :quantity, :total_quantity,
                                         :item_price, :total_price,
-                                        :total_amount, :vat_percent, :vat,
+                                        :total_amount, :vat,
                                         :payable, :paid, :kind,
                                         :payment_id, :recipient_id, ticket_purchase_ids: [],
-                                        description: [:description, :quantity, :price] )
+                                        invoice_items_attributes: [:description,
+                                                                   :quantity,
+                                                                   :price,
+                                                                   :vat_percent,
+                                                                   :vat,
+                                                                   :_destroy,
+                                                                   :id])
       end
   end
 end

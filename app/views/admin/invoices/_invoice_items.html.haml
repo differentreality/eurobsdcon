@@ -1,8 +1,8 @@
 - index = index || nil
 - if item
-  - description = item[:description]
-  - quantity = item[:quantity]
-  - price = item[:price]
+  - description = item.description
+  - quantity = item.quantity
+  - price = item.price
 
 .row{ id: index.nil? ? 'noindex' : index }
   .col-md-7

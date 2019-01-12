@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20181113195810) do
+ActiveRecord::Schema.define(version: 20190112145833) do
 
   create_table "answers", force: :cascade do |t|
     t.string   "title"
@@ -281,17 +281,35 @@ ActiveRecord::Schema.define(version: 20181113195810) do
     t.datetime "created_at"
   end
 
+  create_table "events_tickets", force: :cascade do |t|
+    t.integer "ticket_id"
+    t.integer "event_id"
+  end
+
+  create_table "invoice_items", force: :cascade do |t|
+    t.string   "description"
+    t.integer  "quantity",      default: 1
+    t.float    "price",         default: 0.0
+    t.float    "vat",           default: 0.0
+    t.float    "vat_percent",   default: 0.0
+    t.integer  "position"
+    t.integer  "invoice_id"
+    t.integer  "conference_id"
+    t.datetime "created_at",                  null: false
+    t.datetime "updated_at",                  null: false
+    t.index ["conference_id"], name: "index_invoice_items_on_conference_id"
+    t.index ["invoice_id"], name: "index_invoice_items_on_invoice_id"
+  end
+
   create_table "invoices", force: :cascade do |t|
     t.integer  "no"
     t.date     "date"
     t.string   "recipient_type"
     t.integer  "recipient_id"
     t.integer  "conference_id"
-    t.text     "description"
     t.text     "recipient_details"
     t.string   "recipient_vat"
     t.float    "total_amount"
-    t.float    "vat_percent"
     t.float    "vat"
     t.float    "payable"
     t.string   "currency"
@@ -488,7 +506,6 @@ ActiveRecord::Schema.define(version: 20181113195810) do
     t.datetime "updated_at"
     t.boolean  "include_cfp",               default: false
     t.boolean  "include_booths"
-    t.boolean  "shuffle_highlights",        default: false, null: false
   end
 
   create_table "sponsors", force: :cascade do |t|
@@ -501,8 +518,21 @@ ActiveRecord::Schema.define(version: 20181113195810) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.string   "picture"
+    t.float    "amount"
+    t.boolean  "paid"
+    t.boolean  "has_swag"
+    t.boolean  "swag_delivered"
+    t.boolean  "swag_available"
+    t.boolean  "has_banner"
+    t.text     "swag"
+    t.text     "shipments"
+    t.date     "invoice_sent_at"
+    t.string   "state",                default: "unconfirmed"
+    t.text     "address"
+    t.text     "invoice_address"
     t.text     "invoice_details"
     t.string   "invoice_vat"
+    t.string   "email"
   end
 
   create_table "sponsorship_levels", force: :cascade do |t|
@@ -556,16 +586,6 @@ ActiveRecord::Schema.define(version: 20181113195810) do
     t.datetime "updated_at",                  null: false
     t.integer  "target",          default: 0
     t.index ["surveyable_type", "surveyable_id"], name: "index_surveys_on_surveyable_type_and_surveyable_id"
-  end
-
-  create_table "targets", force: :cascade do |t|
-    t.integer  "conference_id"
-    t.integer  "campaign_id"
-    t.date     "due_date"
-    t.integer  "target_count"
-    t.string   "unit"
-    t.datetime "created_at"
-    t.datetime "updated_at"
   end
 
   create_table "ticket_purchases", force: :cascade do |t|
@@ -658,7 +678,8 @@ ActiveRecord::Schema.define(version: 20181113195810) do
     t.boolean  "is_admin",               default: false
     t.string   "username"
     t.boolean  "is_disabled",            default: false
-    t.text     "invoice_details"
+    t.string   "address",                default: ""
+    t.text     "invoice_details",        default: ""
     t.string   "invoice_vat",            default: ""
     t.index ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true
     t.index ["email"], name: "index_users_on_email", unique: true
