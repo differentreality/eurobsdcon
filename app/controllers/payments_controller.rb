@@ -43,7 +43,22 @@ class PaymentsController < ApplicationController
     @total_amount_to_pay = Money.new(@payment.amount, @conference.tickets.first.price_currency)
     @unpaid_ticket_purchases = @payment.ticket_purchases
     @user_registration = current_user.registrations.for_conference @conference
-    @url = update_paymill_conference_payment_path(@conference, @payment)
+    @url = ENV['PAYMILL_PRIVATE_API_KEY'].present? ? update_paymill_conference_payment_path(@conference, @payment) : conference_payment_path(@conference, @payment)
+    @method = 'patch'
+  end
+
+  def update
+    if @payment.purchase && @payment.save
+      puts "success purchase"
+      update_purchased_ticket_purchases
+      redirect_to conference_physical_tickets_path,
+                  notice: 'Thanks! Your ticket is booked successfully.'
+    else
+      @total_amount_to_pay = Ticket.total_price(@conference, current_user, paid: false, payment: nil)
+      @unpaid_ticket_purchases = current_user.ticket_purchases.unpaid.by_conference(@conference)
+      flash.now[:error] = @payment.errors.full_messages.to_sentence + ' Please try again with correct credentials.'
+      render :new
+    end
   end
 
   def update_paymill
@@ -134,6 +149,7 @@ class PaymentsController < ApplicationController
     end
 
     if @payment.purchase && @payment.save
+      puts "success purchase"
       update_purchased_ticket_purchases
       redirect_to conference_physical_tickets_path,
                   notice: 'Thanks! Your ticket is booked successfully.'
@@ -206,6 +222,7 @@ class PaymentsController < ApplicationController
       params.require(:payment).permit(:amount, :overall_discount).merge(conference: @conference,
                                                      user: current_user)
     else
+      puts 'NOT IN PAYMILL!!!!'
       params.permit(:stripe_customer_email, :stripe_customer_token)
             .merge(stripe_customer_email: params[:stripeEmail],
                    stripe_customer_token: params[:stripeToken],

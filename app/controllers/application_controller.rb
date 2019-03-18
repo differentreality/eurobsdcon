@@ -102,7 +102,10 @@ class ApplicationController < ActionController::Base
   end
 
   def tickets_selected(tickets_grouped)
-    tickets_grouped.select{ |data| @invoice.description.any?{ |invoice_item| invoice_item[:description] == data[:ticket].title && invoice_item[:quantity] == data[:quantity].to_s && invoice_item[:price] == data[:price].to_s} }
+    result = tickets_grouped.select{ |data| @invoice.description.any?{ |invoice_item| invoice_item[:description] == data[:ticket].title &&
+                                                                                      invoice_item[:quantity] == data[:quantity].to_s && invoice_item[:price] == data[:price].to_s} }
+    puts "tickets selected are: \n #{result}"
+    return result
   end
 
   ##

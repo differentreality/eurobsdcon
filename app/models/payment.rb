@@ -32,7 +32,10 @@ class Payment < ApplicationRecord
   end
 
   def amount_to_pay
-    Ticket.total_price(conference, user, paid: false, payment: nil).cents
+    puts "\n\n\n\n payment is: #{self.inspect}\n\n\n\n"
+    result = Ticket.total_price(conference, user, paid: false, payment: self).cents
+    puts "\n\n\n\n\n\n\n\n\nprice to pay is: #{result}\n\n\n"
+    return result
   end
 
   def purchase
@@ -49,6 +52,7 @@ class Payment < ApplicationRecord
     true
 
   rescue Stripe::StripeError => error
+    puts "error w stripe:\n #{error}"
     errors.add(:base, error.message)
     self.status = 'failure'
     false

@@ -39,16 +39,21 @@
         - if @invoice.kind == 'ticket_purchase'
           = f.input :ticket_purchases, as: :select, label: 'Tickets', collection: @tickets_collection || [], input_html: { multiple: true, size: @tickets_collection&.length }, selected: @tickets_selected&.map{ |x| x[:ticket_purchase_ids].split.join(', ') }
 
+          = @tickets_selected
         #description
           %table.table
             %tr
-              %th.text-center.col-md-7 Description
+              %th.text-center.col-md-3 Description
               %th.text-center.col-md-2 Quantity
               %th.text-center.col-md-2 Price
+              %th.text-center.col-md-2 Vat %
+              %th.text-center.col-md-2 Vat
               %th.col-md-3
 
           - if @invoice.persisted? && @invoice.description.present?
             - @invoice.description.each do |item|
+              'item is here'
+              = item
               - item_match = @tickets_collection.select{ |data| data.third[:data][:ticket_name] == item[:description] && data.third[:data][:quantity].to_s == item[:quantity] && data.third[:data][:price].to_s == item[:price] } if @tickets_collection&.any?
 
               - index = item_match.first.third[:data][:index] if item_match&.any?
@@ -63,8 +68,8 @@
               = render partial: 'invoice_items', locals: { item: nil }
 
             -# - if @payment && @payment.overall_discount && @payment.overall_discount > 0
-            - if @overall_discount > 0
-              = render partial: 'invoice_items', locals: { item: { description: 'Discount', quantity: '1', price: -@overall_discount } }
+            -# - if @overall_discount && @overall_discount > 0
+            -#   = render partial: 'invoice_items', locals: { item: { description: 'Discount', quantity: '1', price: -@overall_discount } }
 
 
         %br
@@ -96,8 +101,7 @@
     %hr
     .col-md-2
       = f.input :total_amount, value: @invoice.total_amount
-    .col-md-2
-      = f.input :vat_percent, label: 'VAT percent (%)'
+
     .col-md-2
       - hint = @invoice.recipient.try(:invoice_vat).present? ? '' : 'No VAT number was supplied!'
       = f.input :vat, hint: hint

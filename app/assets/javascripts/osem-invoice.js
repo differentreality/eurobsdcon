@@ -19,20 +19,22 @@ function calculatePayable() {
   $("#invoice_payable").val(payable);
 }
 
-function payable_change(total_amount) {
+function payable_change(total_amount, vat) {
   if (!total_amount > 0) {
     var total_amount = parseFloat(0);
+    var vat = parseFloat(0);
 
     $('#description .row').each( function() {
       price = parseFloat($(this).find('#invoice_description__price').val() || 0).toFixed(2);
       quantity = parseFloat($(this).find('#invoice_description__quantity').val()) || 0;
+      item_vat_percent = parseFloat($(this).find('#invoice_description__vat_percent').val()) || 0;
+      item_vat = (parseFloat(item_vat_percent) * parseFloat(price) * parseFloat(quantity) /100.0).toFixed(2) || 0;
+      $(this).find('#invoice_description__vat').val(item_vat);
 
       total_amount = (parseFloat(total_amount) + parseFloat(price) * parseFloat(quantity)).toFixed(2);
+      vat = (parseFloat(vat) + parseFloat(item_vat));
     });
   }
-
-  var vat_percent = parseFloat($("#invoice_vat_percent").val());
-  var vat = (total_amount * vat_percent / 100).toFixed(2);
 
   $("#invoice_total_amount").val(total_amount);
   $("#invoice_vat").val(vat);
@@ -64,7 +66,7 @@ $(function () {
       }else{
         $('.row#' + next_index).before('<div class=row id=' + row_id + '>');
       }
-      $('.row#' + row_id).append('<div class=col-md-7><input type="text" name="invoice[description][][description]" id="invoice_description__description" value="' + $(this).data('ticket-name') + '" autofocus="autofocus" class="form-control"></div> <div class=col-md-2><input type="number" name="invoice[description][][quantity]" id="invoice_description__quantity" value="' + parseFloat($(this).data('quantity')) + '" min="1" class="form-control" onchange="payable_change()"></div> <div class=col-md-2 style="padding: 0 0 0 0"> <input type="number" name="invoice[description][][price]" id="invoice_description__price" value=' +parseFloat($(this).data('price')).toFixed(1) + ' min="0" class="form-control" onchange="payable_change()"> </div><div class=col-md-1> <a onclick="remove_field($(this))" title="Remove field" href="javascript: void(0)"><i class="fa fa-times btn btn-danger"></i></a></div><input type="hidden" name="invoice[description][][ticket_id]" id="invoice_description__ticket_id" value=' + parseFloat($(this).data('ticket_id')) + '>');
+      $('.row#' + row_id).append('<div class=col-md-3><input type="text" name="invoice[description][][description]" id="invoice_description__description" value="' + $(this).data('ticket-name') + '" autofocus="autofocus" class="form-control"></div> <div class=col-md-2><input type="number" name="invoice[description][][quantity]" id="invoice_description__quantity" value="' + parseFloat($(this).data('quantity')) + '" min="1" class="form-control" onchange="payable_change()"></div> <div class=col-md-2 style="padding: 0 0 0 0"> <input type="number" name="invoice[description][][price]" id="invoice_description__price" value=' +parseFloat($(this).data('price')).toFixed(1) + ' min="0" class="form-control" onchange="payable_change()"> </div><div class=col-md-1> <a onclick="remove_field($(this))" title="Remove field" href="javascript: void(0)"><i class="fa fa-times btn btn-danger"></i></a></div><input type="hidden" name="invoice[description][][ticket_id]" id="invoice_description__ticket_id" value=' + parseFloat($(this).data('ticket_id')) + '>');
     }
     else {
       $('.row#' + row_id).remove();

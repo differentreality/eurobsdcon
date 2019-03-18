@@ -85,8 +85,8 @@ module Admin
       recipient_vat = recipient&.invoice_vat
 
 
-      vat_percent = 0 #ENV['VAT_PERCENT'].to_f
-      vat = total_amount * vat_percent / 100
+      # vat_percent = 0 #ENV['VAT_PERCENT'].to_f
+      vat = 0
       payable =  '%.2f' % ((total_amount + vat).to_f)
 
       no = (Invoice.order(no: :asc).last.try(:no) || 0) + 1
@@ -94,7 +94,6 @@ module Admin
       @invoice = @conference.invoices.new(no: no, date: Date.current,
                                           kind: kind, paid: paid,
                                           total_amount: total_amount,
-                                          vat_percent: vat_percent,
                                           vat: vat,
                                           payable: payable,
                                           description: description,
@@ -204,10 +203,10 @@ module Admin
                                         :recipient_type,
                                         :quantity, :total_quantity,
                                         :item_price, :total_price,
-                                        :total_amount, :vat_percent, :vat,
+                                        :total_amount, :vat,
                                         :payable, :paid, :kind,
                                         :payment_id, :recipient_id, ticket_purchase_ids: [],
-                                        description: [:description, :quantity, :price] )
+                                        description: [:description, :quantity, :price, :vat_percent, :vat] )
       end
   end
 end

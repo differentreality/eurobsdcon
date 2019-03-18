@@ -101,6 +101,7 @@ class Ticket < ApplicationRecord
   end
 
   def quantity_bought_by(user, paid: false, payment: nil)
+    puts "quantity bought: \n\npaid: #{paid}\npayment:#{payment.inspect}\n\nticket purchases: #{ticket_purchases.by_user(user).where(paid: paid).inspect}"
     ticket_purchases.by_user(user).where(paid: paid).where(payment: payment).sum(:quantity)
   end
 
@@ -113,17 +114,21 @@ class Ticket < ApplicationRecord
   end
 
   def total_price(user, paid: false, payment: nil)
+    puts "\n\n\n\n\nTOTAL PRICE PAYMENT: #{payment.inspect}\n\n\n"
     user_registration = user.registrations.for_conference conference
 
     quantity_bought_by(user, paid: paid, payment: payment) * price - quantity_bought_by(user, paid: paid, payment: payment) * Money.new(discount_for_ticket(user_registration), price_currency)
   end
 
   def self.total_price(conference, user, paid: false, payment: nil)
+    puts "\n\n\n\n\nTOTAL PRICE PAYMENT (self): #{payment.inspect}\n\n\n"
+
     tickets = Ticket.where(conference_id: conference.id)
     result = nil
     begin
       tickets.each do |ticket|
         price = ticket.total_price(user, paid: paid, payment: payment)
+        puts "\n\n\nTICKET: #{ticket.inspect}\nprice returned for user: #{price}"
         if result
           result += price unless price.zero?
         else
