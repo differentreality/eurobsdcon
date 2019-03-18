@@ -89,9 +89,7 @@ module Admin
       recipient_details = recipient&.invoice_details
       recipient_vat = recipient&.invoice_vat
 
-
-      vat_percent = 0 #ENV['VAT_PERCENT'].to_f
-      vat = total_amount * vat_percent / 100
+      vat = 0
       payable =  '%.2f' % ((total_amount + vat).to_f)
 
       no = (Invoice.order(no: :asc).last.try(:no) || 0) + 1
@@ -100,7 +98,6 @@ module Admin
                                           kind: kind, paid: paid,
                                           exchange_rate: '%.2f' % (Invoice.exchange_rate || 0),
                                           total_amount: total_amount,
-                                          vat_percent: vat_percent,
                                           vat: vat,
                                           payable: payable,
                                           description: description,
@@ -211,7 +208,7 @@ module Admin
                                         :recipient_type,
                                         :quantity, :total_quantity,
                                         :item_price, :total_price,
-                                        :total_amount, :vat_percent, :vat,
+                                        :total_amount, :vat,
                                         :payable, :paid, :kind,
                                         :recipient_id, ticket_purchase_ids: [],
                                         description: [:description, :quantity, :price, :vat_percent, :vat] )

@@ -3,9 +3,11 @@
   - description = item[:description]
   - quantity = item[:quantity]
   - price = item[:price]
+  - vat_percent = item[:vat_percent] || 0
+  - vat = item[:vat] || 0
 
 .row{ id: index.nil? ? 'noindex' : index }
-  .col-md-7
+  .col-md-3
     = text_field_tag 'invoice[description][][description]', description, autofocus: true, class: 'form-control'
 
   .col-md-1

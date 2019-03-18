@@ -41,6 +41,7 @@
         - if @invoice.kind == 'ticket_purchase'
           = f.input :ticket_purchases, as: :select, label: 'Tickets', collection: @tickets_collection || [], input_html: { multiple: true, size: @tickets_collection&.length }, selected: @tickets_selected&.map{ |x| x[:ticket_purchase_ids].split.join(', ') }
 
+          = @tickets_selected
         #description
           %table.table
             %tr
@@ -69,8 +70,8 @@
               = render partial: 'invoice_items', locals: { item: nil }
 
             -# - if @payment && @payment.overall_discount && @payment.overall_discount > 0
-            - if @overall_discount > 0
-              = render partial: 'invoice_items', locals: { item: { description: 'Discount', quantity: '1', price: -@overall_discount } }
+            -# - if @overall_discount && @overall_discount > 0
+            -#   = render partial: 'invoice_items', locals: { item: { description: 'Discount', quantity: '1', price: -@overall_discount } }
 
 
         %br
@@ -102,8 +103,7 @@
     %hr
     .col-md-2
       = f.input :total_amount, value: @invoice.total_amount
-    .col-md-2
-      = f.input :vat_percent, label: 'VAT percent (%)'
+
     .col-md-2
       - hint = @invoice.recipient.try(:invoice_vat).present? ? '' : 'No VAT number was supplied!'
       = f.input :vat, hint: hint

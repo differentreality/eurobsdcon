@@ -19,7 +19,7 @@ function calculatePayable() {
   $("#invoice_payable").val(payable);
 }
 
-function payable_change(total_amount) {
+function payable_change(total_amount, vat) {
   if (!total_amount > 0) {
     var total_amount = parseFloat(0);
     var vat = parseFloat(0);
@@ -28,6 +28,9 @@ function payable_change(total_amount) {
     $('#description .row').each( function() {
       price = parseFloat($(this).find('#invoice_description__price').val() || 0).toFixed(2);
       quantity = parseFloat($(this).find('#invoice_description__quantity').val()) || 0;
+      item_vat_percent = parseFloat($(this).find('#invoice_description__vat_percent').val()) || 0;
+      item_vat = (parseFloat(item_vat_percent) * parseFloat(price) * parseFloat(quantity) /100.0).toFixed(2) || 0;
+      $(this).find('#invoice_description__vat').val(item_vat);
 
       total_amount = (parseFloat(total_amount) + parseFloat(price) * parseFloat(quantity)).toFixed(2);
       vat = (parseFloat(vat) + parseFloat(item_vat));
@@ -38,9 +41,6 @@ function payable_change(total_amount) {
       vat_nok = (parseFloat(vat_nok) + parseFloat(item_vat_NOK));
     });
   }
-
-  var vat_percent = parseFloat($("#invoice_vat_percent").val());
-  var vat = (total_amount * vat_percent / 100).toFixed(2);
 
   $("#invoice_total_amount").val(total_amount);
   $("#invoice_vat").val(vat);
