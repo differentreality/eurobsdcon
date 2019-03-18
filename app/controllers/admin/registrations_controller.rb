@@ -16,6 +16,13 @@ module Admin
       @affiliation_distribution = @conference.affiliation_distribution
       @coupon_distribution = @conference.coupon_distribution
       @code_of_conduct = @conference.code_of_conduct.present?
+
+      respond_to do |format|
+        format.html
+        format.json do
+          render json: RegistrationDatatable.new(view_context, conference: @conference)
+        end
+      end
     end
 
     def edit; end
