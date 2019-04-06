@@ -15,11 +15,6 @@ gem 'rails', '~> 5.0.7'
 # Use Puma as the app server
 gem 'puma', '~> 3.0'
 
-# enables serving assets in production and setting your logger to standard out
-# both of which are required to run an application on a twelve-factor provider
-# like heroku.com
-gem 'rails_12factor', group: :production
-
 # respond_to methods have been extracted to the responders gem
 # http://edgeguides.rubyonrails.org/upgrading_ruby_on_rails.html#responders
 gem 'responders', '~> 2.0'
@@ -117,18 +112,17 @@ source 'https://rails-assets.org' do
   # for select with icon
   gem 'rails-assets-bootstrap-select'
   gem 'rails-assets-markdown'
-  gem 'rails-assets-to-markdown'
+  gem 'rails-assets-to-markdown', '~> 3'
 end
 
 # as date picker
-gem 'bootstrap3-datetimepicker-rails', '~> 3.0.2'
+gem 'bootstrap3-datetimepicker-rails', '~> 4.17.47'
 
 # data tables
 gem 'ajax-datatables-rails'
 gem 'jquery-datatables-rails'
 
 # for charts
-gem 'chart-js-rails'
 gem 'chartkick'
 
 # for displaying maps
@@ -246,8 +240,6 @@ group :development do
   gem 'rubocop-rspec'
   # to open mails
   gem 'letter_opener'
-  # to open mails in browser
-  gem 'letter_opener_web'
   # as deployment system
   gem 'mina'
   # as debugger on error pages

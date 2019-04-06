@@ -8,6 +8,7 @@ We need your input and contributions to OSEM. In particular we seek the followin
 * **code**: contribute your expertise in an area by helping us expand OSEM with features/bugfixes/UX
 * **code editing**: fix typos, clarify language, and generally improve the quality of the content of OSEM
 * **ideas**: participate in an issues thread or start your own to have your voice heard
+* **translations**: translate OSEM into other languages than English
 
 Read this guide on how to do that.
 
@@ -50,7 +51,7 @@ sed "s/13042/`id -u`/" docker-compose.override.yml.example > docker-compose.over
 
 1. Check out your OSEM rails app. You can access the app at http://localhost:3000. Whatever you change in your cloned repository will have effect in the development environment. Sign up, the first user will be automatically assigned the admin role.
 
-1. Changed something? Test your changes!
+1. Changed something? Run the tests to verify your changes!
     ```bash
     docker-compose run --rm osem bundle exec rspec spec
     ```
@@ -62,50 +63,11 @@ sed "s/13042/`id -u`/" docker-compose.override.yml.example > docker-compose.over
 
 1. Or explore the development environment:
     ```bash
-    docker-compose exec osem_1 /bin/bash -l
+    docker-compose exec osem /bin/bash -l
     ```
 
-### with Vagrant
-Another option is using [Vagrant](https://www.vagrantup.com/) and [VirtualBox 5.0.10](https://www.virtualbox.org/wiki/Download_Old_Builds_5_0) to create your development environment.
-
-1. Install [vagrant-exec](https://github.com/p0deje/vagrant-exec):
-
-    ```bash
-    vagrant plugin install vagrant-exec
-    ```
-
-1. Start the development environment
-
-    ```
-    vagrant up
-    ```
-
-1. Start OSEM inside the development environment
-
-    ```
-    vagrant exec /vagrant/bin/rails server -b 0.0.0.0
-    ```
-
-6. Check out your OSEM rails app:
-You can access the app [localhost:3000](http://localhost:3000). Whatever you change in your cloned repository will have effect in the development environment. Sign up, the first user will be automatically assigned the admin role.
-
-7. Changed something? Test your changes!:
-
-    ```
-    vagrant exec bundle exec rspec spec
-    ```
-
-9. Issue any standard `rails`/`rake`/`bundler` command
-
-    ```
-    vagrant exec bundle exec rake db:migrate
-    ```
-
-8. Or explore the development environment:
-
-    ```
-    vagrant ssh
-    ```
+## How to contribute translations
+Please refer to our [translation guide](https://github.com/openSUSE/osem/wiki/Translation) in the wiki.
 
 ## Want to know more?
 In our wiki you can find more information about what is possible in our development environment,
