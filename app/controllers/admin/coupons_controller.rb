@@ -63,6 +63,8 @@ module Admin
           format.html { redirect_to admin_conference_coupons_path, notice: 'Coupon was successfully updated.' }
           format.json { head :no_content }
         else
+          @tickets = @conference.tickets
+
           format.html {
             flash[:error] = "Could not update coupon #{@coupon.try(:name)}. #{@coupon.errors.full_messages.to_sentence}"
             render action: 'edit'
@@ -91,10 +93,10 @@ module Admin
       # Never trust parameters from the scary internet, only allow the white list through.
       def coupon_params
         params.require(:coupon).permit(:ticket_id,
-                                       :discount_type,
-                                       :discount_amount,
-                                       :name,
-                                       :description)
+                                       :discount_type, :discount_amount,
+                                       :name, :description,
+                                       :max_times,
+                                       :start_time, :end_time)
       end
   end
 end
