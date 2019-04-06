@@ -25,11 +25,7 @@
           %ul.nav.navbar-nav.navbar-right
             %li.dropdown
               %a.dropdown-toggle{"data-toggle" => "dropdown", href: '#', id: "current-user-detail"}
-                - if not current_user.name.blank?
-                  #{current_user.name}
-                -else
-                  #{current_user.email}
-                = image_tag(current_user.gravatar_url(size: '18'), title: "Yo #{current_user.name}!", alt: '')
+                = current_user.name
                 %b.caret
               %ul.dropdown-menu
                 = render 'layouts/user_menu'

@@ -10,18 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20181001141410) do
-
-  create_table "ahoy_events", force: :cascade do |t|
-    t.integer  "visit_id"
-    t.integer  "user_id"
-    t.string   "name"
-    t.text     "properties"
-    t.datetime "time"
-    t.index ["time"], name: "index_ahoy_events_on_time"
-    t.index ["user_id"], name: "index_ahoy_events_on_user_id"
-    t.index ["visit_id"], name: "index_ahoy_events_on_visit_id"
-  end
+ActiveRecord::Schema.define(version: 20190318172050) do
 
   create_table "answers", force: :cascade do |t|
     t.string   "title"
@@ -52,26 +41,15 @@ ActiveRecord::Schema.define(version: 20181001141410) do
     t.datetime "updated_at",             null: false
   end
 
-  create_table "campaigns", force: :cascade do |t|
-    t.integer  "conference_id"
-    t.string   "name"
-    t.string   "utm_source"
-    t.string   "utm_medium"
-    t.string   "utm_term"
-    t.string   "utm_content"
-    t.string   "utm_campaign"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
-
   create_table "cfps", force: :cascade do |t|
-    t.date     "start_date",  null: false
-    t.date     "end_date",    null: false
+    t.date     "start_date",                           null: false
+    t.date     "end_date",                             null: false
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "program_id"
     t.string   "cfp_type"
     t.text     "description"
+    t.boolean  "enable_registrations", default: false
   end
 
   create_table "comments", force: :cascade do |t|
@@ -146,6 +124,30 @@ ActiveRecord::Schema.define(version: 20181001141410) do
     t.datetime "updated_at"
     t.string   "sponsor_email"
     t.string   "mastodon"
+    t.string   "youtube"
+    t.string   "blog"
+  end
+
+  create_table "coupons", force: :cascade do |t|
+    t.string   "name"
+    t.text     "description"
+    t.integer  "discount_type",   default: 0
+    t.float    "discount_amount", default: 0.0
+    t.integer  "conference_id"
+    t.integer  "ticket_id"
+    t.datetime "created_at",                    null: false
+    t.datetime "updated_at",                    null: false
+    t.integer  "max_times",       default: 0
+    t.datetime "start_time"
+    t.datetime "end_time"
+    t.index ["conference_id"], name: "index_coupons_on_conference_id"
+    t.index ["ticket_id"], name: "index_coupons_on_ticket_id"
+  end
+
+  create_table "coupons_registrations", force: :cascade do |t|
+    t.integer  "coupon_id"
+    t.integer  "registration_id"
+    t.datetime "applied_at"
   end
 
   create_table "coupons", force: :cascade do |t|
@@ -228,6 +230,9 @@ ActiveRecord::Schema.define(version: 20181001141410) do
     t.boolean  "send_on_booths_rejection",                      default: false
     t.string   "booths_rejection_subject"
     t.text     "booths_rejection_body"
+    t.boolean  "send_on_submitted_proposal",                    default: false
+    t.string   "submitted_proposal_subject"
+    t.text     "submitted_proposal_body"
   end
 
   create_table "event_schedules", force: :cascade do |t|
@@ -505,6 +510,7 @@ ActiveRecord::Schema.define(version: 20181001141410) do
     t.datetime "updated_at"
     t.boolean  "include_cfp",               default: false
     t.boolean  "include_booths"
+    t.boolean  "shuffle_highlights",        default: false, null: false
   end
 
   create_table "sponsors", force: :cascade do |t|
@@ -659,7 +665,7 @@ ActiveRecord::Schema.define(version: 20181001141410) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.string   "name"
-    t.boolean  "email_public",           default: true
+    t.boolean  "email_public",           default: false
     t.text     "biography"
     t.string   "nickname"
     t.string   "affiliation"
@@ -729,33 +735,6 @@ ActiveRecord::Schema.define(version: 20181001141410) do
     t.datetime "created_at"
     t.integer  "conference_id"
     t.index ["item_type", "item_id"], name: "index_versions_on_item_type_and_item_id"
-  end
-
-  create_table "visits", force: :cascade do |t|
-    t.binary   "visitor_id",       limit: 16
-    t.string   "ip"
-    t.text     "user_agent"
-    t.text     "referrer"
-    t.text     "landing_page"
-    t.integer  "user_id"
-    t.string   "referring_domain"
-    t.string   "search_keyword"
-    t.string   "browser"
-    t.string   "os"
-    t.string   "device_type"
-    t.string   "country"
-    t.string   "region"
-    t.string   "city"
-    t.string   "utm_source"
-    t.string   "utm_medium"
-    t.string   "utm_term"
-    t.string   "utm_content"
-    t.string   "utm_campaign"
-    t.datetime "started_at"
-    t.string   "visit_token"
-    t.string   "visitor_token"
-    t.index ["user_id"], name: "index_visits_on_user_id"
-    t.index ["visit_token"], name: "index_visits_on_visit_token", unique: true
   end
 
   create_table "votes", force: :cascade do |t|

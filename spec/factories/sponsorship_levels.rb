@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-# Read about factories at https://github.com/thoughtbot/factory_girl
+# Read about factories at https://github.com/thoughtbot/factory_bot
 
-FactoryGirl.define do
+FactoryBot.define do
   factory :sponsorship_level do
     title { Faker::Lorem.word }
 

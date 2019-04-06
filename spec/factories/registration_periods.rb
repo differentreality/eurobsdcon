@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-# Read about factories at https://github.com/thoughtbot/factory_girl
+# Read about factories at https://github.com/thoughtbot/factory_bot
 
-FactoryGirl.define do
+FactoryBot.define do
   factory :registration_period do
     start_date { 3.days.ago }
     end_date { 5.days.from_now }

@@ -1,0 +1,6 @@
+version: '2'
+services:
+  osem:
+    build:
+      args:
+        CONTAINER_USERID: 13042

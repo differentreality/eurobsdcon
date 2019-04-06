@@ -99,6 +99,7 @@ module ApplicationHelper
 
   def concurrent_events(event)
     return nil unless event.scheduled? && event.program.selected_event_schedules
+
     event_schedule = event.program.selected_event_schedules.find { |es| es.event == event }
     other_event_schedules = event.program.selected_event_schedules.reject { |other_event_schedule| other_event_schedule == event_schedule }
     concurrent_events = []
@@ -106,6 +107,7 @@ module ApplicationHelper
     event_time_range = (event_schedule.start_time.strftime '%Y-%m-%d %H:%M')...(event_schedule.end_time.strftime '%Y-%m-%d %H:%M')
     other_event_schedules.each do |other_event_schedule|
       next unless other_event_schedule.event.confirmed?
+
       other_event_time_range = (other_event_schedule.start_time.strftime '%Y-%m-%d %H:%M')...(other_event_schedule.end_time.strftime '%Y-%m-%d %H:%M')
       if (event_time_range.to_a & other_event_time_range.to_a).present?
         concurrent_events << other_event_schedule.event
@@ -119,18 +121,42 @@ module ApplicationHelper
   end
 
   def speaker_selector_input(form)
-    users = User.active.pluck(:id, :name, :username, :email).map { |user| [user[0], user[1].blank? ? user[2] : user[1], user[2], user[3]] }.sort_by { |user| user[1].downcase }
-    form.input :speakers, as: :select,
-                          collection: options_for_select(users.map {|user| ["#{user[1]} (#{user[2]}) #{user[3]}", user[0]]}, @event.speakers.map(&:id)),
-                          include_blank: false, label: 'Speakers', input_html: { class: 'select-help-toggle', multiple: 'true' }
+    user_selector_input(:speakers, form, '', true)
   end
 
   def responsibles_selector_input(form)
+    user_selector_input(
+      :responsibles,
+      form,
+      'The people responsible for the booth. You can only select existing users.'
+    )
+  end
+
+  def user_selector_input(field, form, hint = '', multiple = true)
     users = User.active.pluck(:id, :name, :username, :email).map { |user| [user[0], user[1].blank? ? user[2] : user[1], user[2], user[3]] }.sort_by { |user| user[1].downcase }
-    form.input :responsibles, as: :select,
-                              collection: options_for_select(users.map {|user| ["#{user[1]} (#{user[2]}) #{user[3]}", user[0]]}, @booth.responsibles.map(&:id)),
-                              include_blank: false, label: 'Responsibles', input_html: { class: 'select-help-toggle', multiple: 'true' },
-                              hint: 'The people responsible for the booth. You can only select existing users.'
+    form.input(
+      field,
+      as:            :select,
+      include_blank: true,
+      label:         field.to_s.titleize,
+      hint:          hint,
+      collection:    options_for_select(
+        users.map { |user| ["#{user[1]} (#{user[2]}) #{user[3]}", user[0]] },
+        (form.object.send(field)&.map(&:id) || form.object.send(field)&.id)
+      ),
+      input_html:    {
+        class:       'select-help-toggle',
+        multiple:    multiple,
+        placeholder: (multiple ? 'Select users...' : 'Select a user...')
+      }
+    )
+  end
+
+  def event_selector_input(form)
+    events = @conference.program.events.pluck(:id, :title).map { |user| [user[0], user[1]] }
+    form.input :event, as: :select,
+                          collection: options_for_select(events.map {|event| ["#{event[1]} ", event[0]]}, [@ticket.event.try(:id)].compact),
+                          include_blank: false, label: 'Events', input_html: { class: 'select-help-toggle', multiple: 'false' }
   end
 
   def event_selector_input(form)
