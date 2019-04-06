@@ -10,18 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20181113195810) do
-
-  create_table "ahoy_events", force: :cascade do |t|
-    t.integer  "visit_id"
-    t.integer  "user_id"
-    t.string   "name"
-    t.text     "properties"
-    t.datetime "time"
-    t.index ["time"], name: "index_ahoy_events_on_time"
-    t.index ["user_id"], name: "index_ahoy_events_on_user_id"
-    t.index ["visit_id"], name: "index_ahoy_events_on_visit_id"
-  end
+ActiveRecord::Schema.define(version: 20190318172050) do
 
   create_table "answers", force: :cascade do |t|
     t.string   "title"
@@ -148,6 +137,9 @@ ActiveRecord::Schema.define(version: 20181113195810) do
     t.integer  "ticket_id"
     t.datetime "created_at",                    null: false
     t.datetime "updated_at",                    null: false
+    t.integer  "max_times",       default: 0
+    t.datetime "start_time"
+    t.datetime "end_time"
     t.index ["conference_id"], name: "index_coupons_on_conference_id"
     t.index ["ticket_id"], name: "index_coupons_on_ticket_id"
   end
