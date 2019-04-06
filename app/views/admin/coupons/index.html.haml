@@ -21,12 +21,16 @@
           %th Discount
           %th # of registrations
           %th Ticket
+          %th Duration period
+          %th Max Use
           %th.text-center Actions
 
         %tbody
           - @coupons.each do |coupon|
             %tr
-              %td= coupon.name
+              %td{ class: "#{coupon.available? ? 'label-success' : 'label-danger'}" }
+                %span{ title: "#{coupon.available? ? 'Code is available for use' : 'Code cannot be used any more times'}" }
+                  = coupon.name
               %td= coupon.description
               %td
                 = number_to_human(coupon.discount_amount, strip_insignificant_zeros: true)
@@ -38,6 +42,11 @@
               %td
                 - if coupon.ticket
                   = link_to coupon.ticket.title, admin_conference_ticket_path(@conference, coupon.ticket)
+              %td
+                = coupon.start_time
+                = '-'
+                = coupon.end_time
+              %td= coupon.max_times
               %td
                 .btn-group
                   = link_to 'Show', admin_conference_coupon_path(@conference, coupon), class: 'btn btn-success'
