@@ -137,6 +137,9 @@ ActiveRecord::Schema.define(version: 20190519190735) do
     t.integer  "ticket_id"
     t.datetime "created_at",                    null: false
     t.datetime "updated_at",                    null: false
+    t.integer  "max_times",       default: 0
+    t.datetime "start_time"
+    t.datetime "end_time"
     t.index ["conference_id"], name: "index_coupons_on_conference_id"
     t.index ["ticket_id"], name: "index_coupons_on_ticket_id"
   end
