@@ -347,7 +347,6 @@ GEM
       ast (~> 2.4.0)
     paymill_ruby (2.0.2)
     pdf-core (0.7.0)
-    pdfkit (0.8.2)
     pdf-inspector (1.3.0)
       pdf-reader (>= 1.0, < 3.0.a)
     pdf-reader (2.2.0)
@@ -356,6 +355,7 @@ GEM
       hashery (~> 2.0)
       ruby-rc4
       ttfunk
+    pdfkit (0.8.2)
     pg (1.1.4)
     piwik_analytics (1.0.2)
       actionpack
@@ -672,8 +672,8 @@ DEPENDENCIES
   omniauth-openid
   paper_trail
   paymill_ruby
-  pdfkit
   pdf-inspector
+  pdfkit
   pg
   piwik_analytics (~> 1.0.1)
   prawn-qrcode (~> 0.3.0)
@@ -728,8 +728,5 @@ DEPENDENCIES
   wicked_pdf (~> 1.1)
   wkhtmltopdf-binary (~> 0.12.3.1)
 
-RUBY VERSION
-   ruby 2.5.0p0
-
 BUNDLED WITH
-   1.17.1
+   1.17.2
