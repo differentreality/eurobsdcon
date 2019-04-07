@@ -31,6 +31,10 @@ class Ability
       event.state == 'confirmed'
     end
 
+    can [:show, :events], Schedule do |schedule|
+      schedule.program.schedule_public
+    end
+
     # can view Commercials of confirmed Events
     can :show, Commercial, commercialable_type: 'Event', commercialable_id: Event.where(state: 'confirmed').pluck(:id)
     can [:create], User
@@ -55,12 +59,6 @@ class Ability
       can [:new, :create], Event do |event|
         event.program.cfp_open? && event.new_record?
       end
-
-      can [:show, :events], Schedule do |schedule|
-        schedule.program.schedule_public
-      end
-
-      can [:index, :show], Survey, surveyable_type: 'Conference'
     end
   end
 
@@ -156,13 +154,13 @@ class Ability
       can :manage, Event, program: { conference_id: conf_ids_for_organizer }
       # To access comment link in menu bar
       can :index, Comment, commentable_type: 'Event',
-                           commentable_id: Event.where(program_id: Program.where(conference_id: conf_ids_for_organizer).pluck(:id)).pluck(:id)
+                           commentable_id:   Event.where(program_id: Program.where(conference_id: conf_ids_for_organizer).pluck(:id)).pluck(:id)
     end
 
     if conf_ids_for_cfp
       # To access comment link in menu bar
       can :index, Comment, commentable_type: 'Event',
-                           commentable_id: Event.where(program_id: Program.where(conference_id: conf_ids_for_cfp).pluck(:id)).pluck(:id)
+                           commentable_id:   Event.where(program_id: Program.where(conference_id: conf_ids_for_cfp).pluck(:id)).pluck(:id)
       # To access conference/proposals
       can :manage, Event, program: { conference_id: conf_ids_for_cfp }
     end

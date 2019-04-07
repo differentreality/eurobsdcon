@@ -16,6 +16,7 @@ module Admin
       @event_types = @program.event_types
       @tracks_distribution_confirmed = @conference.tracks_distribution(:confirmed)
       @event_distribution = @conference.event_distribution
+      @event_distribution_colors = Event::COLORS.values
       @scheduled_event_distribution = @conference.scheduled_event_distribution
       @file_name = "events_for_#{@conference.short_title}"
       @event_export_option = params[:event_export_option]
@@ -92,7 +93,6 @@ module Admin
       @event.submitter = current_user
 
       if @event.save
-        ahoy.track 'Event submission', title: 'New submission'
         redirect_to admin_conference_program_events_path(@conference.short_title), notice: 'Event was successfully submitted.'
       else
         flash.now[:error] = "Could not submit proposal: #{@event.errors.full_messages.join(', ')}"

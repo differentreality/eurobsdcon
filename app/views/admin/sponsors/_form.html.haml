@@ -12,7 +12,7 @@
       = f.input :name, input_html: { autofocus: true }
       = f.input :email
       = f.input :description, input_html: { rows: 5, data: { provide: 'markdown-editable' } }, hint: markdown_hint
-      = f.input :invoice_details, input_html: { rows: 5, data: { provide: 'markdown-editable' } }, hint: markdown_hint
+      = f.input :invoice_details, input_html: { rows: 5, cols: 20, data: { provide: 'markdown-editable' } }, hint: markdown_hint
       = f.input :invoice_vat
       = image_tag f.object.picture.thumb.url if f.object.picture?
       = f.input :picture

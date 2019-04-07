@@ -49,10 +49,6 @@ class Registration < ApplicationRecord
     (conference.program.events.with_registration_open - events) + events
   end
 
-  def week
-    created_at.strftime('%W').to_i
-  end
-
   private
 
   def registered_to_non_intersecting_events
@@ -89,10 +85,7 @@ class Registration < ApplicationRecord
   end
 
   def set_week
-    self.week = created_at.strftime('%W')
-    paper_trail.without_versioning do
-      save!
-    end
+    update!(week: created_at.strftime('%W'))
   end
 
   def registration_limit_not_exceed
