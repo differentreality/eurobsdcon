@@ -45,9 +45,14 @@ module Admin
       paid = @payment && @payment.success? ? true : false
       total_amount = @payment.amount / 100.0 if @payment
 
-      if @payment && Invoice.where(payment: @payment).any?
-        flash[:alert] = 'Invoice for this payment already exists!'
-      end
+      # TODO: change me, the invoice no longer has payment_id field!
+      # Payment has ticket_purchases
+      # Ticket purchases, if all have invoice
+      # Then show alert
+      # if @payment && @payment.ticket_purchases.all?{ |purchase| purchase.invoice }
+      # if @payment && Invoice.where(payment: @payment).any?
+      #   flash[:alert] = 'Invoice for this payment already exists!'
+      # end
 
       if params[:kind] == 'sponsorship'
         recipient = Sponsor.find(params[:recipient_id])
@@ -93,6 +98,7 @@ module Admin
 
       @invoice = @conference.invoices.new(no: no, date: Date.current,
                                           kind: kind, paid: paid,
+                                          exchange_rate: '%.2f' % (Invoice.exchange_rate || 0),
                                           total_amount: total_amount,
                                           vat_percent: vat_percent,
                                           vat: vat,
@@ -199,15 +205,16 @@ module Admin
 
       # Never trust parameters from the scary internet, only allow the white list through.
       def invoice_params
-        params.require(:invoice).permit(:no, :date, :conference_id, :currency,
+        params.require(:invoice).permit(:no, :date, :conference_id,
+                                        :currency, :exchange_rate,
                                         :recipient_details, :recipient_vat,
                                         :recipient_type,
                                         :quantity, :total_quantity,
                                         :item_price, :total_price,
                                         :total_amount, :vat_percent, :vat,
                                         :payable, :paid, :kind,
-                                        :payment_id, :recipient_id, ticket_purchase_ids: [],
-                                        description: [:description, :quantity, :price] )
+                                        :recipient_id, ticket_purchase_ids: [],
+                                        description: [:description, :quantity, :price, :vat_percent, :vat] )
       end
   end
 end

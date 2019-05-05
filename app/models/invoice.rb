@@ -19,4 +19,21 @@ class Invoice < ApplicationRecord
   def number
     "#{date.strftime('%Y')}-#{no.to_s.rjust(3, '0')}"
   end
+
+  ##
+  # Run script for EUR-NOK exchange
+  # Script returns the latest exchange rates
+  # Get the latest exchange rate
+  # ==== Returns
+  # * +Float+ -> exchange rate for EUR->NOK
+  def self.exchange_rate
+    begin
+      nok_rate_results = `./euro-nok-conversion.perl`
+      nok_rate_results.lines.last&.split(',').last.to_f
+    rescue => e
+      Rails.logger.debug "Failed to calculate exchange rate: #{e.message}"
+      puts "nok rate results: \n#{nok_rate_results}"
+      # return 1
+    end
+  end
 end
