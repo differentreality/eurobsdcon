@@ -8,7 +8,7 @@ class ApplicationController < ActionController::Base
   before_action :store_location
   # Ensure every controller authorizes resource or skips authorization (skip_authorization_check)
   check_authorization unless: :devise_controller?
-  skip_authorization_check only: :invoice_info
+  skip_authorization_check only: [:invoice_info, :euro_to_nok]
 
   def store_location
     # store last url - this is needed for post-login redirect to whatever the user last visited.
@@ -81,6 +81,15 @@ class ApplicationController < ActionController::Base
     end
 
     render 'shared/invoice_info'
+  end
+
+  def euro_to_nok
+    vat_value = params['vat_value']
+    result = ApplicationController.helpers.euro_to_nok(vat_value)
+
+    respond_to do |format|
+      format.js { render text: result }
+    end
   end
 
   def not_found

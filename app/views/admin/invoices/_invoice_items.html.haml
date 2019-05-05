@@ -8,11 +8,21 @@
   .col-md-7
     = text_field_tag 'invoice[description][][description]', description, autofocus: true, class: 'form-control'
 
-  .col-md-2
+  .col-md-1
     = number_field_tag 'invoice[description][][quantity]', quantity, min: 1, class: 'form-control', onchange: 'payable_change()'
 
   .col-md-2{ style: 'padding: 0 0 0 0'}
     = number_field_tag 'invoice[description][][price]', price, min: -999999, step: 0.01, class: 'form-control', onchange: 'payable_change()'
+
+  .col-md-2
+    = number_field_tag 'invoice[description][][vat_percent]', vat_percent, min: 0, class: 'form-control', onchange: 'payable_change()'
+
+  .col-md-2
+    = number_field_tag 'invoice[description][][vat]', vat, min: 0, step: 0.01, class: 'form-control', onchange: 'payable_change()'
+
+  .col-md-1
+    #item_vat_nok
+      = number_with_precision(vat || 0 * (@invoice&.exchange_rate || Invoice.exchange_rate), precision: 2)
 
   .col-md-1
     = link_to 'javascript: void(0)', onclick: 'remove_field($(this))', title: 'Remove field' do
