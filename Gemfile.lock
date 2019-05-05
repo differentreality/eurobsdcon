@@ -366,12 +366,9 @@ GEM
     prawn-qrcode (0.3.1)
       prawn (>= 1)
       rqrcode (>= 0.4.1)
-    prawn-rails (1.2.0)
-      prawn
-      prawn-table
-      rails (>= 3.1.0)
-    prawn-table (0.2.2)
-      prawn (>= 1.3.0, < 3.0.0)
+    prawn_rails (0.0.11)
+      prawn (>= 0.11.1)
+      railties (>= 3.0.0)
     pry (0.10.4)
       coderay (~> 1.1.0)
       method_source (~> 0.8.1)
@@ -673,12 +670,12 @@ DEPENDENCIES
   omniauth-openid
   paper_trail
   paymill_ruby
-  pdfkit
   pdf-inspector
+  pdfkit
   pg
   piwik_analytics (~> 1.0.1)
   prawn-qrcode
-  prawn-rails
+  prawn_rails
   puma (~> 3.0)
   rails (~> 5.0.7)
   rails-assets-bootstrap-markdown!
@@ -727,9 +724,6 @@ DEPENDENCIES
   whenever
   wicked_pdf (~> 1.1)
   wkhtmltopdf-binary (~> 0.12.3.1)
-
-RUBY VERSION
-   ruby 2.5.0p0
 
 BUNDLED WITH
    1.17.3
