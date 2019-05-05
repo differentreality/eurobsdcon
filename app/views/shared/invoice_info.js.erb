@@ -6,10 +6,9 @@ $('#invoice_recipient_details').text(details);
 $('#invoice_tickets').children('option').remove();
 var collection_size = <%= @tickets_collection.length %>;
 $('#invoice_tickets').attr('size', collection_size);
-$('#description').children('.row').remove();
 
 <% @tickets_collection.each.with_index(1) do |ticket_option, index| %>
-  $('#invoice_tickets').append( $('<option id = "<%= ticket_option.third[:id] %>" data-ticket-name="<%= ticket_option.third[:data][:ticket_name] %>" data-ticket-id="<%= ticket_option.second %>" data-quantity="<%= ticket_option.third[:data][:quantity]%>" data-price="<%= ticket_option.third[:data][:price]%>" data-index="<%= ticket_option.third[:data][:index]%>" value = "<%= ticket_option.second%>"> <%= ticket_option.first%> </option>') );
+  $('#invoice_ticket_purchase_ids').append( $('<option id = "<%= ticket_option.third[:id] %>" data-ticket-name="<%= ticket_option.third[:data][:ticket_name] %>" data-ticket-id="<%= ticket_option.second %>" data-quantity="<%= ticket_option.third[:data][:quantity]%>" data-price="<%= ticket_option.third[:data][:price]%>" data-index="<%= ticket_option.third[:data][:index]%>" value = "<%= ticket_option.second%>"> <%= ticket_option.first%> </option>') );
 <% end %>
 
 $("[id^='tickets_collection_option']").click(function () {
@@ -28,7 +27,7 @@ $("[id^='tickets_collection_option']").click(function () {
     }else{
       $('.row#' + next_index).before('<div class=row id=' + row_id + '>');
     }
-    $('.row#' + row_id).append('<div class=col-md-7><input type="text" name="invoice[description][][description]" id="invoice_description__description" value="' + $(this).data('ticket-name') + '" autofocus="autofocus" class="form-control"></div> <div class=col-md-2><input type="number" name="invoice[description][][quantity]" id="invoice_description__quantity" value="' + parseFloat($(this).data('quantity')) + '" min="1" class="form-control" onchange="payable_change()"></div> <div class=col-md-2 style="padding: 0 0 0 0"> <input type="number" name="invoice[description][][price]" id="invoice_description__price" value=' +parseFloat($(this).data('price')).toFixed(1) + ' min="0" class="form-control" onchange="payable_change()"> </div><div class=col-md-1> <a onclick="remove_field($(this))" title="Remove field" href="javascript: void(0)"><i class="fa fa-times btn btn-danger"></i></a></div><input type="hidden" name="invoice[description][][ticket_id]" id="invoice_description__ticket_id" value=' + parseFloat($(this).data('ticket_id')) + '>');
+    $('.row#' + row_id).append('<div class=col-md-7><input type="text" name="invoice[description][][description]" id="invoice_description__description" value="' + $(this).data('ticket-name') + '" autofocus="autofocus" class="form-control"></div> <div class=col-md-2><input type="number" name="invoice[description][][quantity]" id="invoice_description__quantity" value="' + parseFloat($(this).data('quantity')) + '" min="1" class="form-control" onchange="payable_change()"></div> <div class=col-md-2 style="padding: 0 0 0 0"> <input type="number" name="invoice[description][][price]" id="invoice_description__price" value=' +parseFloat($(this).data('price')).toFixed(1) + ' min="0" class="form-control" onchange="payable_change()"> </div> <div class=col-md-1> <a onclick="remove_field($(this))" title="Remove field" href="javascript: void(0)"><i class="fa fa-times btn btn-danger"></i></a></div><input type="hidden" name="invoice[description][][ticket_id]" id="invoice_description__ticket_id" value=' + parseFloat($(this).data('ticket_id')) + '>');
   }
   else {
     $('.row#' + row_id).remove();

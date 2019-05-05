@@ -121,6 +121,7 @@ class Ticket < ApplicationRecord
   end
 
   def self.total_price(conference, user, paid: false, payment: nil)
+
     tickets = Ticket.where(conference_id: conference.id)
     result = nil
     begin

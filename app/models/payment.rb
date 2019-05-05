@@ -32,7 +32,8 @@ class Payment < ApplicationRecord
   end
 
   def amount_to_pay
-    Ticket.total_price(conference, user, paid: false, payment: nil).cents
+    result = Ticket.total_price(conference, user, paid: false, payment: self).cents
+    return result
   end
 
   def purchase

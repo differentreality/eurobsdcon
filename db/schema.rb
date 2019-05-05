@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20181113195810) do
+ActiveRecord::Schema.define(version: 20190513070557) do
 
   create_table "answers", force: :cascade do |t|
     t.string "title"
@@ -299,6 +299,7 @@ ActiveRecord::Schema.define(version: 20181113195810) do
     t.integer  "kind"
     t.datetime "created_at",        null: false
     t.datetime "updated_at",        null: false
+    t.float    "exchange_rate",     default: 0.0
     t.index ["conference_id"], name: "index_invoices_on_conference_id"
     t.index ["recipient_type", "recipient_id"], name: "index_invoices_on_recipient_type_and_recipient_id"
   end
