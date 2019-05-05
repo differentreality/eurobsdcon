@@ -104,6 +104,7 @@ class PaymentsController < ApplicationController
       end
     end
 
+    @unpaid_ticket_purchases = current_user.ticket_purchases.unpaid.by_conference(@conference)
   end
 
   def create

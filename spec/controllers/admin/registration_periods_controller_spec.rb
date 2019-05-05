@@ -6,10 +6,9 @@ describe Admin::RegistrationPeriodsController do
 
   # It is necessary to use bang version of let to build roles before user
   let(:conference) { create(:conference) }
-  let!(:organizer_role) { Role.find_by(name: 'organizer', resource: conference) }
   let!(:registration_ticket) { create(:registration_ticket, conference: conference) }
-  let(:organizer) { create(:user, role_ids: organizer_role.id) }
-  let(:organizer2) { create(:user, email: 'organizer2@email.osem', role_ids: organizer_role.id) }
+  let!(:organizer) { create(:organizer, resource: conference) }
+  let!(:organizer2) { create(:organizer, email: 'organizer2@email.osem', resource: conference) }
   let(:participant) { create(:user) }
 
   shared_examples 'access as administration or organizer' do
@@ -50,12 +49,12 @@ describe Admin::RegistrationPeriodsController do
           conference.email_settings = create(:email_settings)
           conference.registration_period = create(:registration_period,
                                                   start_date: Date.today,
-                                                  end_date: Date.today + 2.days)
+                                                  end_date:   Date.today + 2.days)
 
           patch :update, conference_id: conference.short_title, registration_period:
               attributes_for(:registration_period,
                              start_date: Date.today + 2.days,
-                             end_date: Date.today + 4.days)
+                             end_date:   Date.today + 4.days)
           conference.reload
           allow(Mailbot).to receive(:conference_registration_date_update_mail).and_return(mailer)
         end
@@ -67,7 +66,7 @@ describe Admin::RegistrationPeriodsController do
         it 'saves the registration period to the database' do
           expected = expect do
             post :create,
-                 conference_id: conference.short_title,
+                 conference_id:       conference.short_title,
                  registration_period: attributes_for(:registration_period)
           end
           expected.to change { RegistrationPeriod.count }.by 1
@@ -75,7 +74,7 @@ describe Admin::RegistrationPeriodsController do
 
         it 'redirects to registration_periods#show' do
           post :create,
-               conference_id: conference.short_title,
+               conference_id:       conference.short_title,
                registration_period: attributes_for(:registration_period)
 
           expect(response).to redirect_to admin_conference_registration_period_path(
@@ -87,20 +86,20 @@ describe Admin::RegistrationPeriodsController do
         it 'does not save the registration period to the database' do
           expected = expect do
             post :create,
-                 conference_id: conference.short_title,
+                 conference_id:       conference.short_title,
                  registration_period: attributes_for(:registration_period,
                                                      start_date: nil,
-                                                     end_date: nil)
+                                                     end_date:   nil)
           end
           expected.to_not change { Conference.count }
         end
 
         it 're-renders the new template' do
           post :create,
-               conference_id: conference.short_title,
+               conference_id:       conference.short_title,
                registration_period: attributes_for(:registration_period,
                                                    start_date: nil,
-                                                   end_date: nil)
+                                                   end_date:   nil)
           expect(response).to be_success
         end
       end

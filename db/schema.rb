@@ -42,13 +42,14 @@ ActiveRecord::Schema.define(version: 20190318172050) do
   end
 
   create_table "cfps", force: :cascade do |t|
-    t.date     "start_date",  null: false
-    t.date     "end_date",    null: false
+    t.date     "start_date",                           null: false
+    t.date     "end_date",                             null: false
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "program_id"
     t.string   "cfp_type"
     t.text     "description"
+    t.boolean  "enable_registrations", default: false
   end
 
   create_table "comments", force: :cascade do |t|
@@ -123,6 +124,8 @@ ActiveRecord::Schema.define(version: 20190318172050) do
     t.datetime "updated_at"
     t.string   "sponsor_email"
     t.string   "mastodon"
+    t.string   "youtube"
+    t.string   "blog"
   end
 
   create_table "coupons", force: :cascade do |t|
@@ -208,6 +211,9 @@ ActiveRecord::Schema.define(version: 20190318172050) do
     t.boolean  "send_on_booths_rejection",                      default: false
     t.string   "booths_rejection_subject"
     t.text     "booths_rejection_body"
+    t.boolean  "send_on_submitted_proposal",                    default: false
+    t.string   "submitted_proposal_subject"
+    t.text     "submitted_proposal_body"
   end
 
   create_table "event_schedules", force: :cascade do |t|
@@ -485,6 +491,7 @@ ActiveRecord::Schema.define(version: 20190318172050) do
     t.datetime "updated_at"
     t.boolean  "include_cfp",               default: false
     t.boolean  "include_booths"
+    t.boolean  "shuffle_highlights",        default: false, null: false
   end
 
   create_table "sponsors", force: :cascade do |t|
@@ -629,7 +636,7 @@ ActiveRecord::Schema.define(version: 20190318172050) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.string   "name"
-    t.boolean  "email_public",           default: true
+    t.boolean  "email_public",           default: false
     t.text     "biography"
     t.string   "nickname"
     t.string   "affiliation"

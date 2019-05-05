@@ -4,8 +4,7 @@ require 'spec_helper'
 
 feature SponsorshipLevel do
   let!(:conference) { create(:conference) }
-  let!(:organizer_role) { Role.find_by(name: 'organizer', resource: conference) }
-  let!(:organizer) { create(:user, role_ids: [organizer_role.id]) }
+  let!(:organizer) { create(:organizer, resource: conference) }
 
   shared_examples 'sponsorship_levels' do
     scenario 'adds a sponsorship level', feature: true, js: true do
@@ -21,7 +20,7 @@ feature SponsorshipLevel do
       fill_in 'sponsorship_level_title', with: 'Platin'
 
       click_button 'Create Sponsorship level'
-
+      page.find('#flash')
       # Validations
       expect(flash).to eq('Sponsorship level successfully created.')
       within('table#sponsorship_levels') do
@@ -39,7 +38,7 @@ feature SponsorshipLevel do
       fill_in 'sponsorship_level_title', with: 'Gold'
 
       click_button 'Update Sponsorship level'
-
+      page.find('#flash')
       # Validations
       expect(flash).to eq('Sponsorship level successfully updated.')
       within('table#sponsorship_levels') do

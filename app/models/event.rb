@@ -85,6 +85,15 @@ class Event < ApplicationRecord
     end
   end
 
+  COLORS = {
+    new:         '#0000FF', # blue
+    withdrawn:   '#FF8000', # orange
+    unconfirmed: '#FFFF00', # yellow
+    confirmed:   '#00FF00', # green
+    canceled:    '#848484', # grey
+    rejected:    '#FF0000'  # red
+  }.freeze
+
   ##
   # Checkes if the event has a start_time and a room for the selected schedule if there is any
   # ====Returns
@@ -96,6 +105,7 @@ class Event < ApplicationRecord
   def registration_possible?
     return false unless require_registration && state == 'confirmed'
     return true if max_attendees.nil?
+
     registrations.count < max_attendees
   end
 
@@ -177,16 +187,7 @@ class Event < ApplicationRecord
   end
 
   def self.get_state_color(state)
-    color = {
-      new:         '#0000FF', # blue
-      withdrawn:   '#FF8000', # orange
-      confirmed:   '#00FF00', # green
-      unconfirmed: '#FFFF00', # yellow
-      rejected:    '#FF0000', # red
-      canceled:    '#848484'  # grey
-    }[state.to_sym]
-
-    color || '#00FFFF' # azure
+    COLORS[state.to_sym] || '#00FFFF' # azure
   end
 
   def update_state(transition, mail = false, subject = false, send_mail = false, send_mail_param)
@@ -230,14 +231,14 @@ class Event < ApplicationRecord
   # Returns +Hash+
   def progress_status
     {
-      registered: speakers.all? { |speaker| program.conference.user_registered? speaker },
-      commercials: commercials.any?,
-      biographies: speakers.all? { |speaker| !speaker.biography.blank? },
-      subtitle: !subtitle.blank?,
-      track: (!track.blank? unless program.tracks.empty?),
+      registered:       speakers.all? { |speaker| program.conference.user_registered? speaker },
+      commercials:      commercials.any?,
+      biographies:      speakers.all? { |speaker| !speaker.biography.blank? },
+      subtitle:         !subtitle.blank?,
+      track:            (!track.blank? unless program.tracks.empty?),
       difficulty_level: !difficulty_level.blank?,
-      title: true,
-      abstract: true
+      title:            true,
+      abstract:         true
     }.with_indifferent_access
   end
 
@@ -280,6 +281,7 @@ class Event < ApplicationRecord
   def ended?
     event_schedule = event_schedules.find_by(schedule_id: selected_schedule_id)
     return false unless event_schedule
+
     event_schedule.end_time < Time.current
   end
 
@@ -293,12 +295,14 @@ class Event < ApplicationRecord
   # Do not allow, for the event, more attendees than the size of the room
   def max_attendees_no_more_than_room_size
     return unless room && max_attendees_changed?
+
     errors.add(:max_attendees, "cannot be more than the room's capacity (#{room.size})") if max_attendees && (max_attendees > room.size)
   end
 
   def abstract_limit
     # If we don't have an event type, there is no need to count anything
     return unless event_type && abstract
+
     len = abstract.split.size
     max_words = event_type.maximum_abstract_length
     min_words = event_type.minimum_abstract_length
@@ -319,10 +323,7 @@ class Event < ApplicationRecord
   end
 
   def set_week
-    self.week = created_at.strftime('%W')
-    paper_trail.without_versioning do
-      save!
-    end
+    update!(week: created_at.strftime('%W'))
   end
 
   def before_end_of_conference
@@ -340,6 +341,7 @@ class Event < ApplicationRecord
   #
   def valid_track
     return unless track&.program && program
+
     errors.add(:track, 'is invalid') unless track.confirmed? && track.program == program
   end
 

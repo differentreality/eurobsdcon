@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-# Read about factories at https://github.com/thoughtbot/factory_girl
+# Read about factories at https://github.com/thoughtbot/factory_bot
 
-FactoryGirl.define do
+FactoryBot.define do
   factory :comment do
-    body 'Most interresting comment ever, created by a girl.'
+    body { 'Most interresting comment ever, created by a girl.' }
     user
     association :commentable, factory: :event
   end

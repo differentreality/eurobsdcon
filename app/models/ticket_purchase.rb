@@ -88,16 +88,16 @@ class TicketPurchase < ApplicationRecord
                      amount_paid: ticket.price,
                      discount_percent: ticket.discount_percent(registration),
                      discount_value: ticket.discount_value(registration))
-      purchase.pay(nil) if purchase.final_amount_sum.zero? #ticket.price_cents.zero?
+      purchase.pay(nil) if purchase.final_amount_sum.zero? 
     end
     purchase
   end
 
   def self.update_quantity(conference, quantity, ticket, user)
-    purchase = TicketPurchase.where(ticket_id: ticket.id,
+    purchase = TicketPurchase.where(ticket_id:     ticket.id,
                                     conference_id: conference.id,
-                                    user_id: user.id,
-                                    paid: false).first
+                                    user_id:       user.id,
+                                    paid:          false).first
 
     purchase.quantity = quantity if quantity > 0
     purchase

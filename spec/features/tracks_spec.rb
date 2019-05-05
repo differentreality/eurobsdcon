@@ -4,8 +4,7 @@ require 'spec_helper'
 
 feature Track do
   let!(:conference) { create(:conference) }
-  let!(:organizer_role) { Role.find_by(name: 'organizer', resource: conference) }
-  let!(:organizer) { create(:user, role_ids: [organizer_role.id]) }
+  let!(:organizer) { create(:organizer, resource: conference) }
   let(:user) { create(:user) }
 
   shared_examples 'admin tracks' do
@@ -22,6 +21,7 @@ feature Track do
         page.find('#track_color').set('#B94D4D')
         fill_in 'track_description', with: 'Events about our Linux distribution'
         click_button 'Create Track'
+        page.find('#flash')
       end
 
       expected.to change { Track.count }.by 1
@@ -36,20 +36,17 @@ feature Track do
       track = create(:track, program_id: conference.program.id)
       sign_in organizer
 
-      expected = expect do
-        visit admin_conference_program_tracks_path(conference_id: conference.short_title)
-        within('#tracks', visible: true) do
-          page.accept_confirm do
-            find_link('Delete').click
-          end
-        end
+      visit admin_conference_program_tracks_path(conference_id: conference.short_title)
+      within('#tracks', visible: true) do
+        click_link 'Delete'
       end
-
-      expected.to change { Track.count }.by(-1)
+      page.accept_alert
+      page.find('#flash')
       expect(flash).to eq('Track successfully deleted.')
       expect(page.has_css?('table#tracks')).to be false
       expect(page.has_content?(track.name)).to be false
       expect(page.has_content?(track.description)).to be false
+      expect(Track.count).to eq(0)
     end
 
     scenario 'updates a track', feature: true, js: true do
@@ -59,7 +56,7 @@ feature Track do
       expected = expect do
         visit admin_conference_program_tracks_path(conference_id: conference.short_title)
         within('#tracks', visible: true) do
-          find_link('Edit').trigger('click')
+          click_link 'Edit'
         end
 
         fill_in 'track_name', with: 'Distribution'
@@ -67,8 +64,8 @@ feature Track do
         page.find('#track_color').set('#B94D4D')
         fill_in 'track_description', with: 'Events about our Linux distribution'
         click_button 'Update Track'
+        page.find('#flash')
       end
-
       expected.to_not(change { Track.count })
       expect(flash).to eq('Track successfully updated.')
       within('table#tracks') do
@@ -93,6 +90,7 @@ feature Track do
         fill_in 'track_description', with: 'Events about our Linux distribution'
         fill_in 'track_relevance', with: 'Maintainer of super awesome distribution'
         click_button 'Create Track'
+        page.find('#flash')
       end
 
       expected.to change { Track.count }.by 1
@@ -113,6 +111,7 @@ feature Track do
         accept_confirm do
           click_link 'Withdraw'
         end
+        page.find('#flash')
       end
 
       expected.to_not(change { Track.count })
@@ -136,6 +135,7 @@ feature Track do
         page.find('#track_color').set('#B94D4D')
         fill_in 'track_description', with: 'Events about our Linux distribution'
         click_button 'Update Track'
+        page.find('#flash')
       end
 
       expected.to_not(change { Track.count })

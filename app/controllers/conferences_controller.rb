@@ -6,9 +6,8 @@ class ConferencesController < ApplicationController
   load_and_authorize_resource find_by: :short_title, except: :show
 
   def index
-    @current, @antiquated = Conference.reorder(start_date: :asc).all.partition do |conference|
-      conference.end_date >= Date.current
-    end
+    @current    = Conference.where('end_date >= ?', Date.current).reorder(start_date: :asc)
+    @antiquated = Conference.where('end_date < ?', Date.current)
   end
 
   def show
@@ -19,7 +18,7 @@ class ConferencesController < ApplicationController
       :registration_period,
       :contact,
       venue: :commercial
-    ).find_by(conference_finder_conditions)
+    ).find_by!(conference_finder_conditions)
     authorize! :show, @conference # TODO: reduce the 10 queries performed here
 
     splashpage = @conference.splashpage

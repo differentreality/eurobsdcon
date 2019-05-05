@@ -76,7 +76,7 @@
   - if @conference.tickets.any?
     .row
       .col-md-12
-        -if @tickets.any?
+        - if @tickets.any?
           %h4
             %span.fa-stack
               %i.fa.fa-square-o.fa-stack-2x
@@ -109,7 +109,7 @@
 
   .row
     .col-md-12
-      -if @registration
+      - if @registration
         .btn-group-vertical.pull-right
           = link_to 'Edit your Registration', edit_conference_conference_registration_path(@conference.short_title), class: 'btn btn-success', disabled: @conference.end_date < Date.today
           - if @tickets.any?

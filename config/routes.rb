@@ -11,12 +11,7 @@ Osem::Application.routes.draw do
                controllers: {
                    registrations: :registrations, confirmations: :confirmations,
                    omniauth_callbacks: 'users/omniauth_callbacks' },
-               path: 'accounts'
-  end
-
-  # Use letter_opener_web to open mails in browser (e.g. necessary for Vagrant)
-  if Rails.env.development?
-    mount LetterOpenerWeb::Engine, at: "/letter_opener"
+               path:        'accounts'
   end
 
   get 'invoice_info' => 'application#invoice_info'
@@ -181,6 +176,7 @@ Osem::Application.routes.draw do
       end
     end
     resource :program, only: [] do
+      get 'proposal/:id', to: 'proposals#show' # For backward compatibility
       resources :proposals, except: :destroy do
         get 'commercials/render_commercial' => 'commercials#render_commercial'
         resources :commercials, only: [:create, :update, :destroy]

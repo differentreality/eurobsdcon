@@ -14,12 +14,12 @@ module Admin
         format.json { render json: Booth.where(state: :confirmed, program: @program).to_json }
         format.xlsx do
           response.headers['Content-Disposition'] = "attachment; filename=\"#{@file_name}.xlsx\""
-          render 'booths'
+          render 'booths', layout: false
         end
-        format.pdf { render 'booths' }
+        format.pdf { render 'booths', layout: false }
         format.csv do
           response.headers['Content-Disposition'] = "attachment; filename=\"#{@file_name}.csv\""
-          render 'booths'
+          render 'booths', layout: false
         end
       end
     end
@@ -70,7 +70,7 @@ module Admin
 
       if @booth.save
         if @conference.email_settings.send_on_booths_acceptance
-          Mailbot.conference_booths_acceptance_mail(@booth).deliver
+          Mailbot.conference_booths_acceptance_mail(@booth).deliver_later
         end
         redirect_to admin_conference_booths_path(conference_id: @conference.short_title),
                     notice: 'Booth successfully accepted!'
@@ -92,7 +92,7 @@ module Admin
       @booth.reject!
 
       if @booth.save
-        Mailbot.conference_booths_rejection_mail(@booth).deliver
+        Mailbot.conference_booths_rejection_mail(@booth).deliver_later
         redirect_to admin_conference_booths_path(conference_id: @conference.short_title),
                     notice: 'Booth successfully rejected.'
       else

@@ -32,10 +32,11 @@ class TicketPurchasesController < ApplicationController
         flash[:notice] = 'Ticket(s) successfully booked!'
         redirect_to redirect_path
         return
-      else
+      elsif @conference.tickets.for_registration.any?
         redirect_to conference_tickets_path(@conference.short_title),
                     error: 'Please get at least one ticket to continue.'
-        return
+      else
+        redirect_to conference_conference_registration_path(@conference.short_title)
       end
     else
       redirect_to conference_tickets_path(@conference.short_title, tickets: params[:tickets].try(:first)),

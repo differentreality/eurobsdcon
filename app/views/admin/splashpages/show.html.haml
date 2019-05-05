@@ -3,9 +3,13 @@
     .page-header
       %h1 Splashpage
       %p.text-muted
-        Build a
-        = link_to "splash page", conference_path(@conference.short_title)
-        with all the information for your conference
+        - if @splashpage
+          View the
+          = link_to "splash page", conference_path(@conference.short_title)
+
+        - else
+          Build a splashpage with all the information for your conference
+
 - if @splashpage
   .row
     .col-md-12
@@ -41,7 +45,13 @@
         %li
           %i{ class: "fa-li #{icon_for_todo @splashpage.include_social_media?}" }
           Display social media links
-
+        %li
+          - if @conference.splashpage && @conference.splashpage.public
+            %i{ class: "fa-li #{icon_for_todo @splashpage.public?}" }
+            %text-muted.publicorprivate  Public
+          - else
+            %i{ class: "fa-li #{icon_for_todo !@splashpage.public?}" }
+            %text-muted.publicorprivate  Private
   .row
     .col-md-12
       - if can? :update, @splashpage

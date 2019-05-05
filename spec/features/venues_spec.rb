@@ -4,8 +4,7 @@ require 'spec_helper'
 
 feature Conference do
   let!(:conference) { create(:conference) }
-  let!(:organizer_role) { Role.find_by(name: 'organizer', resource: conference) }
-  let!(:organizer) { create(:user, role_ids: [organizer_role.id]) }
+  let!(:organizer) { create(:organizer, resource: conference) }
 
   shared_examples 'venue' do
     scenario 'adds and updates venue' do
@@ -26,6 +25,7 @@ feature Conference do
               with: 'Lorem ipsum dolor sit amet, consetetur' \
               'sadipscing elitr, sed diam nonumy eirmod tempor'
       click_button 'Create Venue'
+      page.find('#flash')
       expect(flash)
           .to eq('Venue was successfully created.')
       venue = Conference.find(conference.id).venue
@@ -43,6 +43,7 @@ feature Conference do
       fill_in 'venue_website', with: 'www.example.com new'
       fill_in 'venue_description', with: 'new'
       click_button 'Update Venue'
+      page.find('#flash')
       expect(flash)
           .to eq('Venue was successfully updated.')
       venue.reload

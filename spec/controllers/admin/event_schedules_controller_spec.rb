@@ -8,8 +8,7 @@ describe Admin::EventSchedulesController do
   let(:room) { create(:room, venue: venue) }
   let(:schedule) { create(:schedule, program: conference.program)}
   let(:event_schedule) { create(:event_schedule, schedule: schedule)}
-  let!(:organizer_role) { Role.find_by(name: 'organizer', resource: conference) }
-  let(:organizer) { create(:user, role_ids: organizer_role.id) }
+  let!(:organizer) { create(:organizer, resource: conference) }
 
   context 'logged in as an organizer' do
     before :each do
@@ -23,9 +22,9 @@ describe Admin::EventSchedulesController do
           post :create, conference_id: conference.short_title, event_schedule:
                attributes_for(:event_schedule,
                               schedule_id: schedule.id,
-                              event_id: create(:event, program: conference.program).id,
-                              room_id: create(:room, venue: venue).id,
-                              start_time: conference.start_date + conference.start_hour.hours)
+                              event_id:    create(:event, program: conference.program).id,
+                              room_id:     create(:room, venue: venue).id,
+                              start_time:  conference.start_date + conference.start_hour.hours)
         end
 
         it 'saves the event schedule to the database' do
@@ -44,9 +43,9 @@ describe Admin::EventSchedulesController do
           post :create, conference_id: conference.short_title, event_schedule:
                attributes_for(:event_schedule,
                               schedule_id: schedule.id,
-                              event_id: nil,
-                              room_id: nil,
-                              start_time: nil)
+                              event_id:    nil,
+                              room_id:     nil,
+                              start_time:  nil)
         end
 
         it 'does not save the event schedule to the database' do
@@ -66,9 +65,9 @@ describe Admin::EventSchedulesController do
           patch :update, id: event_schedule.id, conference_id: conference.short_title, event_schedule:
                  attributes_for(:event_schedule,
                                 schedule_id: schedule.id,
-                                event_id: create(:event, program: conference.program).id,
-                                room_id: room.id,
-                                start_time: conference.start_date + conference.start_hour.hours)
+                                event_id:    create(:event, program: conference.program).id,
+                                room_id:     room.id,
+                                start_time:  conference.start_date + conference.start_hour.hours)
           event_schedule.reload
         end
 
@@ -90,9 +89,9 @@ describe Admin::EventSchedulesController do
           patch :update, id: event_schedule.id, conference_id: conference.short_title, event_schedule:
                attributes_for(:event_schedule,
                               schedule_id: schedule.id,
-                              event_id: nil,
-                              room_id: nil,
-                              start_time: nil)
+                              event_id:    nil,
+                              room_id:     nil,
+                              start_time:  nil)
         end
         it 'does not save the event schedule to the database' do
           expect{ update_action }.to_not change { event_schedule }
