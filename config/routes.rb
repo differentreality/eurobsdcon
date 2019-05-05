@@ -15,6 +15,7 @@ Osem::Application.routes.draw do
   end
 
   get 'invoice_info' => 'application#invoice_info'
+  get 'euro_to_nok' => 'application#euro_to_nok'
 
   resources :users, except: [:new, :index, :create, :destroy] do
     resources :openids, only: :destroy
