@@ -38,11 +38,11 @@ class Coupon < ApplicationRecord
     return true unless start_time || end_time
 
     if start_time && end_time
-      (start_time..end_time).cover? Date.current
+      (start_time..end_time).cover? Time.current
     elsif start_time
-      Date.current >= start_time
+      Time.current >= start_time
     elsif end_time
-      Date.current <= end_time
+      Time.current <= end_time
     end
   end
 
