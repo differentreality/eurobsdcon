@@ -12,6 +12,9 @@
     .col-xs-6.col-sm-4.col-md-4.col-lg-3
       = f.input :name, required: true, input_html: { autofocus: true }
       = f.input :description, input_html: { rows: 3 }
+      = f.input :max_times
+      = f.input :start_time, as: :string, input_html: { id: 'datetimepicker-coupon-start-time' }
+      = f.input :end_time, as: :string, input_html: { id: 'datetimepicker-coupon-end-time' }
 
     .col-xs-6.col-sm-4.col-sm-offset-2.col-md-4.col-lg-3
       %b
@@ -27,7 +30,7 @@
             = '%'
       %br
       = f.input :discount_type, required: true
-      = f.input :ticket, label: 'Select ticket', hint: 'If this code is for ticket discount (optional)', collection: @tickets.map{ |ticket| ["#{ticket.title} (#{ticket.price} #{ticket.price_currency})", ticket.id]}, include_blank: '(Please select)'
+      = f.input :ticket, label: 'Select ticket', hint: 'If this code is for ticket discount (optional)', collection: @tickets&.map{ |ticket| ["#{ticket.title} (#{ticket.price} #{ticket.price_currency})", ticket.id]}, include_blank: '(Please select)'
 
     .col-md-12
       = f.submit 'Save', class: 'btn btn-primary'
@@ -40,7 +43,6 @@
         var selected_ticket_id = parseInt($('#coupon_ticket_id').val());
         if (selected_ticket_id) {
           var currencies = "#{@currencies}";
-          var currency = '';
 
           var selected_ticket_currency = $.grep(currencies, function(obj){
             return obj['id'] === selected_ticket_id;

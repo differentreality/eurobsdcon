@@ -90,12 +90,13 @@ class ConferenceRegistrationsController < ApplicationController
   def apply_coupon
     @coupon = @conference.coupons.find_by(name: params[:coupon_id])
     respond_to do |format|
-      if @coupon && @conference.coupons.include?(@coupon)
+      if @coupon && @coupon.available? && @conference.coupons.include?(@coupon)
         begin
           @registration.coupons << @coupon
           CouponsRegistration.find_by(registration: @registration, coupon: @coupon).update_attribute(:applied_at, Time.current)
           RegistrationChangeNotificationMailJob.perform_later(@conference, @registration.user, 'apply_coupon', @coupon)
           @user_registration = @registration
+
           flash.now[:notice] ='Successfully added registration code!'
           format.js {
             @overall_discount_percent = current_user.overall_discount_percent(@conference)
