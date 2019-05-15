@@ -1,3 +1,8 @@
+dl.invoice {
+  // Use this class instead, to properly render with wkhtmltopdf
+  display: -webkit-box !important;
+}
+
 table.invoice-table {
     border-style: hidden;
 }

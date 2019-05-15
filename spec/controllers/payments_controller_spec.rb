@@ -90,7 +90,11 @@ describe PaymentsController do
 
   describe 'GET #offline_payment' do
     before { sign_in user }
-    before { get :offline_payment, params: { conference_id: conference.short_title, tickets: [ {ticket1.id => 3, ticket2.id => 5} ] } }
+    before {
+      @tickets = {}
+      @tickets.merge! ticket1.id.to_s => '3'
+      @tickets.merge! ticket2.id.to_s => '5'
+      get :offline_payment, params: { conference_id: conference.short_title, ticket_purchases: { tickets: @tickets } } }
 
     it 'redirects to payments#index' do
       expect(flash[:alert]).to eq nil
@@ -99,9 +103,18 @@ describe PaymentsController do
 
     it 'does not create physical tickets' do
       expected = expect do
-                   get :offline_payment, params: { conference_id: conference.short_title, tickets: [ {ticket1.id => 3, ticket2.id => 5} ] }
+                   get :offline_payment, params: { conference_id: conference.short_title, tickets: @tickets }
                  end
       expected.to change { PhysicalTicket.count }.by(0)
+    end
+
+    it 'fails to save purchase' do
+      allow_any_instance_of(TicketPurchase).to receive(:save).and_return(false)
+
+      expected = expect do
+                   get :offline_payment, params: { conference_id: conference.short_title, tickets: {} }
+                 end
+      expected.to change { Payment.count }.by(0)
     end
   end
 

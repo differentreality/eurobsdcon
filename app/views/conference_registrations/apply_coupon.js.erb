@@ -1,7 +1,15 @@
 $('#coupons-table').replaceWith("<%= escape_javascript(render partial: 'coupons_table' ).html_safe %>");
 $('#registration_coupon_input').val('Have a registration code?');
-table = "<%= escape_javascript(render partial: 'tickets/tickets_table') %>";
-$('#buy-tickets-table').replaceWith(table);
+
+var overall_percent = "<%= @overall_discount_percent %>";
+var overall_value = "<%= @overall_discount_value %>";
+
+$('#overall_discount').data('percent', overall_percent);
+$('#overall_discount').data('value', overall_value);
+
 $('.quantity').change(function() {
+    update_price($(this));
+});
+$('.quantity').each(function() {
     update_price($(this));
 });
