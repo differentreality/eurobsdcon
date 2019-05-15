@@ -13,6 +13,7 @@ class Coupon < ApplicationRecord
   validates :name, uniqueness: { scope: :conference_id }
   validate :start_time_before_end_time
   validate :reduce_max_times_if_no_more_registrations
+  validate :discount_value_only_with_ticket
 
   def available?
     remaining? && within_time_period?
@@ -62,5 +63,15 @@ class Coupon < ApplicationRecord
   # only if there aren't more registration than the new lower value
   def reduce_max_times_if_no_more_registrations
     errors.add(:max_times, 'already has more registrations') if max_times_changed? && max_times < registrations.count && max_times != 0
+  end
+
+  ##
+  # Having a discount with value, not percent,
+  # is only possible when a ticket is selected
+  # Overall value discount, is not possible due to different VAT per item,
+  # as we cannot currently calculate how much of the overall amount corresponds
+  # to which invoice item
+  def discount_value_only_with_ticket
+    errors.add(:discount_type, 'value is only possible if you select a ticket') if value? && !ticket
   end
 end
