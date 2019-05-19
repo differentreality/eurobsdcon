@@ -7,6 +7,7 @@ class Ticket < ApplicationRecord
   belongs_to :dependent, class_name: 'Ticket'
   has_many :ticket_purchases, dependent: :destroy
   belongs_to :event
+  belongs_to :ticket_group
   has_many :buyers, -> { distinct }, through: :ticket_purchases, source: :user
 
   has_paper_trail meta: { conference_id: :conference_id },
@@ -154,6 +155,10 @@ class Ticket < ApplicationRecord
 
   def tickets_sold
     ticket_purchases.paid.sum(:quantity)
+  end
+
+  def vat
+    ticket_group&.vat
   end
 
   private

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20190513070557) do
+ActiveRecord::Schema.define(version: 20190519190735) do
 
   create_table "answers", force: :cascade do |t|
     t.string "title"
@@ -562,6 +562,13 @@ ActiveRecord::Schema.define(version: 20190513070557) do
     t.index ["surveyable_type", "surveyable_id"], name: "index_surveys_on_surveyable_type_and_surveyable_id"
   end
 
+  create_table "ticket_groups", force: :cascade do |t|
+    t.string  "name"
+    t.float   "vat_percent"
+    t.integer "conference_id"
+    t.index ["conference_id"], name: "index_ticket_groups_on_conference_id"
+  end
+
   create_table "ticket_purchases", force: :cascade do |t|
     t.integer  "ticket_id"
     t.integer  "conference_id"
@@ -595,6 +602,7 @@ ActiveRecord::Schema.define(version: 20190513070557) do
     t.datetime "end_date"
     t.integer  "dependent_id"
     t.integer  "event_id"
+    t.integer  "ticket_group_id"
   end
 
   create_table "tracks", force: :cascade do |t|
