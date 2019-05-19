@@ -122,6 +122,7 @@ Osem::Application.routes.draw do
 
       resources :resources
       resources :tickets
+      resources :ticket_groups
       resources :sponsors, except: [:show]
       resources :lodgings, except: [:show]
       resources :emails, only: [:show, :update, :index]

@@ -1,0 +1,5 @@
+= semantic_form_for(@ticket_group, url: (@ticket_group.new_record? ? admin_conference_ticket_groups_path : admin_conference_ticket_group_path(@conference.short_title, @ticket_group))) do |f|
+  = f.input :name, input_html: { autofocus: true }
+  = f.input :vat_percent
+
+  = f.submit 'Save', class: 'btn btn-primary'
