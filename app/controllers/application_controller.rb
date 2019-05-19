@@ -107,8 +107,13 @@ class ApplicationController < ActionController::Base
   # * +Array+ * -> With ticket information
   def tickets_grouped(ticket_purchases)
     ticket_purchases.group_by(&:ticket).map{ |ticket, purchases|
-      [ticket, purchases.group_by(&:final_amount).map{ |amount, p| [amount, p.pluck(:quantity).sum, p.pluck(:id)] }  ]}
-      .to_h.map{ |ticket, p| p.map{ |x| { :ticket => ticket, :price => x.first, :quantity => x.second, :ticket_purchase_ids => x.last} } }.flatten
+      [ticket, purchases.group_by(&:final_amount)
+      .map{ |amount, p| [amount, p.pluck(:quantity).sum, p.pluck(:id)] }  ]}
+      .to_h.map{ |ticket, p| p.map{ |x| { :ticket => ticket,
+                                          :price => x.first,
+                                          :quantity => x.second,
+                                          :vat_percent => ticket&.ticket_group&.vat_percent,
+                                          :ticket_purchase_ids => x.last} } }.flatten
   end
 
   def tickets_selected(tickets_grouped)

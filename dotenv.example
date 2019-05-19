@@ -109,6 +109,13 @@
 # The Conference#short_title to redirect the root URL to
 # OSEM_ROOT_CONFERENCE=osc18
 
+OSEM_REGISTRATION_NOTIFICATION=false
+VAT_PERCENT=24
+INVOICE_DETAILS = ""
+BANK_DETAILS = ""
+TICKET_GROUP_VAT_PERCENT = 25
+TICKET_GROUP_VAT_PERCENT_SECONDARY=15
+
 # log level in production environment
 # OSEM_LOG_LEVEL=info
 

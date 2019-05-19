@@ -1,7 +1,9 @@
 .row
   .col-md-12
     .page-header
-      %h1 Tickets
+      %h1
+        Tickets
+        = link_to 'Ticket Groups', admin_conference_ticket_groups_path(@conference), class: 'btn btn-warning pull-right'
       %p.text-muted
         Tickets to get during registration
 %br
@@ -20,6 +22,7 @@
           %th End Date
           %th Related Event(s)
           %th Requires ticket
+          %th Ticket Group
           %th Actions
         %tbody
           - @conference.tickets.each do |ticket|
@@ -49,6 +52,9 @@
               %td
                 - if ticket.dependent
                   = link_to ticket.dependent.title, admin_conference_ticket_path(@conference, ticket.dependent)
+              %td
+                - if ticket.ticket_group
+                  = link_to ticket.ticket_group.name, admin_conference_ticket_group_path(@conference, ticket.ticket_group)
               %td
                 .btn-group
                   = link_to 'Edit', edit_admin_conference_ticket_path(@conference.short_title, ticket.id),

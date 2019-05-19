@@ -61,7 +61,14 @@ module Admin
     private
 
     def ticket_params
-      params.require(:ticket).permit(:conference, :title, :url, :description, :conference_id, :start_date, :end_date, :dependent_id, :price_cents, :price_currency, :price, :registration_ticket, :event_id)
+      params.require(:ticket).permit(:title, :url, :description,
+                                     :start_date, :end_date,
+                                     :price, :price_cents, :price_currency,
+                                     :registration_ticket,
+                                     :ticket_group_id,
+                                     :dependent_id,
+                                     :event_id,
+                                     :conference_id)
     end
   end
 end
