@@ -8,6 +8,7 @@ class Payment < ApplicationRecord
 
   attr_accessor :stripe_customer_email
   attr_accessor :stripe_customer_token
+  attr_accessor :cardholder_name
 
   validates :status, presence: true
   validates :user_id, presence: true
@@ -28,7 +29,8 @@ class Payment < ApplicationRecord
   end
 
   def invoiced?
-    ticket_purchases.all?{ |ticket_purchase| ticket_purchase.invoices.any? }
+    # if ticket_purchases.any? is needed because otherwise .all? returns true
+    ticket_purchases.all?{ |ticket_purchase| ticket_purchase.invoices.any? } if ticket_purchases.any?
   end
 
   def amount_to_pay
@@ -36,22 +38,18 @@ class Payment < ApplicationRecord
     return result
   end
 
-  def purchase
-    gateway_response = Stripe::Charge.create source:        stripe_customer_token,
-                                             receipt_email: stripe_customer_email,
-                                             description:   "ticket purchases(#{user.username})",
-                                             amount:        amount_to_pay,
-                                             currency:      conference.tickets.first.price_currency
+  def stripe_payment_details
+    return nil unless authorization_code.present?
+    return Stripe::PaymentIntent.retrieve(authorization_code)
+  end
 
-    self.amount = gateway_response[:amount]
-    self.last4 = gateway_response[:source][:last4]
-    self.authorization_code = gateway_response[:id]
-    self.status = 'success'
-    true
-
-  rescue Stripe::StripeError => error
-    errors.add(:base, error.message)
-    self.status = 'failure'
-    false
+  def create_intent(total_amount)
+    Stripe::PaymentIntent.create({
+      # Amount in cents and integer
+      amount: (total_amount * 100).to_i,
+      currency: conference.tickets.first.price_currency,
+      receipt_email: user.email,
+      description: "ticket purchases (#{user.email})"
+    })
   end
 end
