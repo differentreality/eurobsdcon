@@ -212,7 +212,6 @@ gem 'faker'
 gem 'factory_girl_rails'
 
 # for integrating Stripe payment gateway
-gem 'paymill_ruby'
 gem 'stripe'
 
 # Provides Sprockets implementation for Rails Asset Pipeline
