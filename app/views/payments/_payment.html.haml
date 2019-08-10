@@ -29,9 +29,59 @@
             = simple_format(overall_discount_text(@conference))
           %td= humanized_money_with_symbol(overall_discount)
 
-= form_tag conference_payments_path do
-  %script.stripe-button{ src: "https://checkout.stripe.com/checkout.js",
-        data: { amount: @total_amount_to_pay.cents, label: "Pay #{humanized_money_with_symbol @total_amount_to_pay}",
-          email: current_user.email, currency: @total_amount_to_pay.currency, name: ENV['OSEM_NAME'] || 'OSEM',
-          description: "book your tickets", key: Rails.application.secrets.stripe_publishable_key, locale: "auto"}}
-  = link_to 'Edit Purchase', conference_tickets_path(@conference.short_title), class: 'btn btn-default'
+  %script{ src: "https://js.stripe.com/v3"}
+  #buttons
+    %br
+    %button.btn.btn-success.pull-right{ data: { toggle: 'modal', target: '#payment-details-modal' } } Pay
+
+    = link_to 'Edit Purchase', conference_tickets_path(@conference.short_title), class: 'btn btn-default'
+  .modal.fade#payment-details-modal{ tabindex: '-1', role: 'dialog' }
+    .modal-dialog{ role: 'document' }
+      .modal-content
+        .modal-header
+          %button.close{ type: 'button', 'data-dismiss': 'modal', 'aria-label': 'Close' }
+            %span{ 'aria-hidden': "true" } &times;
+          %h4 Payment Details
+        .modal-body
+          %label Name of card holder
+          %input.form-control#cardholder-name{ type: 'text', placeholder: 'Your Name as it appears on your card', autofocus: true }
+          %br
+          #card-element
+          %br
+          %button.btn.btn-primary#pay-button{ 'data-secret': @intent_secret } Make payment
+:javascript
+  $(document).ready( function() {
+    var stripe = Stripe("#{Rails.application.secrets.stripe_publishable_key}");
+
+    var elements = stripe.elements();
+    var cardElement = elements.create('card');
+    cardElement.mount('#card-element');
+
+    var intent_secret = "#{@stripe_session_id}";
+
+    var cardButton = document.getElementById('pay-button');
+    $('#cardholder-name').focus();
+
+    cardButton.addEventListener('click', function(ev) {
+      // disable form submission
+      cardButton.disable;
+      var cardholderName = document.getElementById('cardholder-name');
+      var clientSecret = cardButton.dataset.secret;
+      stripe.handleCardPayment(
+        clientSecret, cardElement, {
+          payment_method_data: {
+            billing_details: {name: cardholderName.value}
+          }
+        }
+      ).then(function(result) {
+        $('#payment-details-modal').modal('toggle');
+
+        $.ajax({
+          url: "#{@url}",
+          method: 'POST',
+          dataType: 'script',
+          data: { payment_result: result, intent_id: clientSecret }
+        });
+      });
+    });
+  });
