@@ -29,13 +29,9 @@
             = simple_format(overall_discount_text(@conference))
           %td= humanized_money_with_symbol(overall_discount)
 
-- if ENV['PAYMILL_PRIVATE_API_KEY'].present?
-  = render partial: 'paymill_payment', locals: { overall_discount: overall_discount}
-- else
-  = form_tag @url, method: @method do
-    %script.stripe-button{ src: "https://checkout.stripe.com/checkout.js",
-          data: { amount: @total_amount_to_pay.cents, label: "Pay #{humanized_money_with_symbol @total_amount_to_pay}",
-            email: current_user.email, currency: @total_amount_to_pay.currency, name: ENV['OSEM_NAME'] || 'OSEM',
-            description: "book your tickets", key: Rails.application.secrets.stripe_publishable_key, locale: "auto"}}
-
-    = link_to 'Edit Purchase', conference_tickets_path(@conference.short_title, show_unpaid_ticket_purchases: true, payment_id: @payment), class: 'btn btn-default pull-left'
+= form_tag conference_payments_path do
+  %script.stripe-button{ src: "https://checkout.stripe.com/checkout.js",
+        data: { amount: @total_amount_to_pay.cents, label: "Pay #{humanized_money_with_symbol @total_amount_to_pay}",
+          email: current_user.email, currency: @total_amount_to_pay.currency, name: ENV['OSEM_NAME'] || 'OSEM',
+          description: "book your tickets", key: Rails.application.secrets.stripe_publishable_key, locale: "auto"}}
+  = link_to 'Edit Purchase', conference_tickets_path(@conference.short_title), class: 'btn btn-default'

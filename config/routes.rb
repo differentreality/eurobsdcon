@@ -206,11 +206,7 @@ Osem::Application.routes.draw do
     resources :tickets, only: [:index]
     resources :ticket_purchases, only: [:create, :destroy, :index]
     get 'payments/offline_payment', to: 'payments#offline_payment'
-    resources :payments do
-      member do
-        post :update_paymill
-      end
-    end
+    resources :payments
     resources :physical_tickets, only: [:index, :show]
     resource :subscriptions, only: [:create, :destroy]
     resource :schedule, only: [:show] do

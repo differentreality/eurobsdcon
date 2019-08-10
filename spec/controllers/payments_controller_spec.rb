@@ -80,12 +80,8 @@ describe PaymentsController do
     it 'sets variables' do
       expect(assigns(:total_amount_to_pay)).to eq Money.new(350, 'USD')
       expect(assigns(:unpaid_ticket_purchases)).to eq [@user_ticket_purchase]
-      expect(assigns(:url)).to eq update_paymill_conference_payment_path(conference, @offline_payment)
+      # expect(assigns(:url)).to eq update_paymill_conference_payment_path(conference, @offline_payment)
     end
-  end
-
-  describe 'GET #update_paymill' do
-
   end
 
   describe 'GET #offline_payment' do
@@ -117,30 +113,4 @@ describe PaymentsController do
       expected.to change { Payment.count }.by(0)
     end
   end
-
-  # describe '#create' do
-  #   before :each do
-  #     sign_in user
-  #
-  #     paymill_response = [ id: 'tran_123', payment: { last4: '0000' }]
-  #
-  #     # stub_request(:post, "https://api.paymill.com/v2.1/transactions/").
-  #     #    to_return(status: 200, body: paymill_response, headers: {})
-  #
-  #     stub_request(:post, "https://api.paymill.com/v2.1/transactions/").
-  #      with(headers: {'Accept'=>'*/*', 'Accept-Encoding'=>'gzip;q=1.0,deflate;q=0.6,identity;q=0.3', 'Authorization'=>'Basic ZjU0MmE1YTBjODg4NDdhNjYyYTc4ZTdhOGQ3ZTRhZDU6', 'Content-Type'=>'application/x-www-form-urlencoded', 'User-Agent'=>'Ruby'}).
-  #      to_return(status: 200, body: paymill_response, headers: {})
-  #
-  #   end
-  #   context 'without survey' do
-  #     before :each do
-  #       post :create, payment: { amount: 10000 }, conference_id: conference_without_survey, token: 'abc'
-  #     end
-  #
-  #     it 'redirects to registration page' do
-  #       expect(assigns(:payment)).to eq nil
-  #       expect(response).to redirect_to conference_conference_registration_path
-  #     end
-  #   end
-  # end
 end

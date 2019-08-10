@@ -11,7 +11,4 @@
       %p.text-muted.text-center
         %small
           All payments are handled securely by our payment processor,
-          - if ENV['PAYMILL_PRIVATE_API_KEY'].present?
-            = link_to 'Paymill', 'https://paymill.com', target: '_blank'
-          - else
-            = link_to 'Stripe', 'https://stripe.com', target: '_blank'
+          = link_to 'Stripe', 'https://stripe.com', target: '_blank'
