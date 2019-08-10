@@ -213,6 +213,8 @@ gem 'factory_girl_rails'
 
 # for integrating Stripe payment gateway
 gem 'stripe'
+# gem 'stripe', :git => 'https://github.com/stripe/stripe-ruby'
+
 
 # Provides Sprockets implementation for Rails Asset Pipeline
 gem 'sprockets-rails'

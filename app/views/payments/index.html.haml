@@ -38,7 +38,7 @@
               %td= payment.updated_at
               %td
                 = simple_format(payment.ticket_purchases.map{ |tp| "#{tp.quantity} x #{tp.ticket.title}" }.join("\n"))
-              %td.text-right= payment.amount / 100.0
+              %td.text-right= (payment.amount || 0) / 100.0
               %td.text-center
                 - if payment.success?
                   .fa.fa-check.text-success{ title: 'Success' }

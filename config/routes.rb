@@ -135,7 +135,11 @@ Osem::Application.routes.draw do
       resources :emails, only: [:show, :update, :index]
       resources :physical_tickets, only: [:index]
       resources :ticket_purchases
-      resources :payments
+      resources :payments do
+        member do
+          post :update
+        end
+      end
       get 'invoices/add_item', 'invoices#add_invoice_item'
       resources :invoices
       resources :roles, except: [:new, :create] do
@@ -212,7 +216,11 @@ Osem::Application.routes.draw do
     resources :tickets, only: [:index]
     resources :ticket_purchases, only: [:create, :destroy, :index]
     get 'payments/offline_payment', to: 'payments#offline_payment'
-    resources :payments
+    resources :payments do
+      member do
+        post :update
+      end
+    end
     resources :physical_tickets, only: [:index, :show]
     resource :subscriptions, only: [:create, :destroy]
     resource :schedule, only: [:show] do
