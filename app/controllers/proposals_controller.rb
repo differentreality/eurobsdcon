@@ -61,7 +61,7 @@ class ProposalsController < ApplicationController
     end
 
     if @event.save
-      ahoy.track 'Event submission', title: 'New submission'
+      Mailbot.submitted_proposal_mail(@event).deliver_later if @conference.email_settings.send_on_submitted_proposal
       redirect_to conference_program_proposals_path(@conference.short_title), notice: 'Proposal was successfully submitted.'
     else
       flash.now[:error] = "Could not submit proposal: #{@event.errors.full_messages.join(', ')}"
@@ -104,7 +104,7 @@ class ProposalsController < ApplicationController
         @event.event_schedules.destroy_all
       end
     rescue Transitions::InvalidTransition
-      redirect_to :back, error: "Event can't be withdrawn"
+      redirect_back(fallback_location: root_path, error: "Event can't be withdrawn")
       return
     end
 
@@ -124,7 +124,7 @@ class ProposalsController < ApplicationController
     begin
       @event.confirm
     rescue Transitions::InvalidTransition
-      redirect_to :back, error: "Event can't be confirmed"
+      redirect_back(fallback_location: root_path, error: "Event can't be confirmed")
       return
     end
 

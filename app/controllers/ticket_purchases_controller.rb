@@ -12,7 +12,8 @@ class TicketPurchasesController < ApplicationController
       return
     end
     current_user.ticket_purchases.by_conference(@conference).unpaid.where(payment: nil).destroy_all
-    message = TicketPurchase.purchase(@conference, current_user, params[:tickets].try(:first))
+    # Tickets param needs to be .to_h due to Rails prohibiting hash methods on params
+    message = TicketPurchase.purchase(@conference, current_user, ticket_purchase_params[:tickets].to_h)
     registration_survey = @conference.surveys.during_registration.select(&:active?)
     redirect_path = if registration_survey.any?
                       if current_user.survey_submissions.where(survey: registration_survey.first).any?
@@ -38,7 +39,7 @@ class TicketPurchasesController < ApplicationController
         return
       end
     else
-      redirect_to conference_tickets_path(@conference.short_title, tickets: params[:tickets].try(:first)),
+      redirect_to conference_tickets_path(@conference.short_title, tickets: ticket_purchase_params[:tickets].to_h),
                   error: "Oops, something went wrong with your purchase! #{message.join('. ')}"
       return
     end
@@ -51,6 +52,6 @@ class TicketPurchasesController < ApplicationController
   private
 
   def ticket_purchase_params
-    params.require(:ticket_purchase).permit(:ticket_id, :user_id, :conference_id, :quantity)
+    params.require(:ticket_purchase).permit(:ticket_id, :user_id, :conference_id, :quantity, tickets: {})
   end
 end

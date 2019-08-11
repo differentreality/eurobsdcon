@@ -1,18 +1,18 @@
 # frozen_string_literal: true
 
-# Read about factories at https://github.com/thoughtbot/factory_girl
+# Read about factories at https://github.com/thoughtbot/factory_bot
 
-FactoryGirl.define do
+FactoryBot.define do
   factory :conference do
     title { Faker::Book.title }
     short_title { SecureRandom.urlsafe_base64(4) }
     timezone { Faker::Address.time_zone }
     start_date { Time.zone.today }
     end_date { 6.days.from_now }
-    start_hour 9
-    end_hour 20
-    registration_limit 0
-    ticket_layout 'portrait'
+    start_hour { 9 }
+    end_hour { 20 }
+    registration_limit { 0 }
+    ticket_layout { 'portrait' }
     description { Faker::Hipster.paragraph }
     organization
     after(:create) do |conference|
@@ -52,8 +52,6 @@ FactoryGirl.define do
         create_list(:sponsor, 2, sponsorship_level: conference.sponsorship_levels.second, conference: conference)
         create_list(:sponsor, 3, sponsorship_level: conference.sponsorship_levels.third, conference: conference)
 
-        create(:campaign, conference: conference)
-        create(:target, conference: conference)
         create(:question, conferences: [conference])
 
         # Logo...

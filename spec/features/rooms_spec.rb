@@ -5,8 +5,7 @@ require 'spec_helper'
 feature Room do
   let!(:conference) { create(:conference) }
   let!(:venue) { create(:venue, conference: conference) }
-  let!(:organizer_role) { Role.find_by(name: 'organizer', resource: conference) }
-  let!(:organizer) { create(:user, role_ids: [organizer_role.id]) }
+  let!(:organizer) { create(:organizer, resource: conference) }
 
   shared_examples 'rooms' do
     scenario 'adds a room', feature: true, js: true do
@@ -23,7 +22,7 @@ feature Room do
       fill_in 'room_size', with: '100'
 
       click_button 'Create Room'
-
+      page.find('#flash')
       # Validations
       expect(flash).to eq('Room successfully created.')
       within('table#rooms') do
@@ -42,7 +41,7 @@ feature Room do
       fill_in 'room_size', with: '100'
 
       click_button 'Update Room'
-
+      page.find('#flash')
       # Validations
       expect(flash).to eq('Room successfully updated.')
       within('table#rooms') do

@@ -12,21 +12,21 @@ describe Conference do
     it 'updates pending conferences' do
       create(:conference,
              start_date: Date.today - 2.weeks,
-             end_date: Date.today - 1.weeks)
+             end_date:   Date.today - 1.weeks)
 
       subject.start_date = Date.today + 1.weeks
       subject.end_date = Date.today + 2.weeks
 
       result = {
         DateTime.now.end_of_week =>
-          {
-            confirmed: 0,
-            unconfirmed: 0,
-            new: 0,
-            withdrawn: 0,
-            canceled: 0,
-            rejected: 0
-          },
+                                    {
+                                      confirmed:   0,
+                                      unconfirmed: 0,
+                                      new:         0,
+                                      withdrawn:   0,
+                                      canceled:    0,
+                                      rejected:    0
+                                    },
       }
 
       Conference.write_event_distribution_to_db
@@ -37,7 +37,7 @@ describe Conference do
     it 'does not update past conferences' do
       old_conference = create(:conference,
                               start_date: Date.today - 2.weeks,
-                              end_date: Date.today - 1.weeks)
+                              end_date:   Date.today - 1.weeks)
 
       Conference.write_event_distribution_to_db
       old_conference.reload
@@ -76,14 +76,14 @@ describe Conference do
 
       result = {
         DateTime.now.end_of_week =>
-          {
-            confirmed: 1,
-            unconfirmed: 1,
-            new: 1,
-            withdrawn: 1,
-            canceled: 1,
-            rejected: 1
-          },
+                                    {
+                                      confirmed:   1,
+                                      unconfirmed: 1,
+                                      new:         1,
+                                      withdrawn:   1,
+                                      canceled:    1,
+                                      rejected:    1
+                                    },
       }
 
       subject.reload
@@ -96,23 +96,23 @@ describe Conference do
       subject.end_date = Date.today + 7.weeks
       db_data = {
         DateTime.now.end_of_week - 2.weeks =>
-          {
-            confirmed: 1,
-            unconfirmed: 2,
-            new: 0,
-            withdrawn: 0,
-            canceled: 0,
-            rejected: 0
-          },
+                                              {
+                                                confirmed:   1,
+                                                unconfirmed: 2,
+                                                new:         0,
+                                                withdrawn:   0,
+                                                canceled:    0,
+                                                rejected:    0
+                                              },
         DateTime.now.end_of_week - 1.weeks =>
-          {
-            confirmed: 3,
-            unconfirmed: 4,
-            new: 0,
-            withdrawn: 0,
-            canceled: 0,
-            rejected: 0
-          },
+                                              {
+                                                confirmed:   3,
+                                                unconfirmed: 4,
+                                                new:         0,
+                                                withdrawn:   0,
+                                                canceled:    0,
+                                                rejected:    0
+                                              },
       }
       subject.events_per_week = db_data
       subject.save
@@ -131,32 +131,32 @@ describe Conference do
 
       result = {
         DateTime.now.end_of_week - 2.weeks =>
-          {
-            confirmed: 1,
-            unconfirmed: 2,
-            new: 0,
-            withdrawn: 0,
-            canceled: 0,
-            rejected: 0
-          },
+                                              {
+                                                confirmed:   1,
+                                                unconfirmed: 2,
+                                                new:         0,
+                                                withdrawn:   0,
+                                                canceled:    0,
+                                                rejected:    0
+                                              },
         DateTime.now.end_of_week - 1.weeks =>
-          {
-            confirmed: 3,
-            unconfirmed: 4,
-            new: 0,
-            withdrawn: 0,
-            canceled: 0,
-            rejected: 0
-          },
-        DateTime.now.end_of_week =>
-          {
-            confirmed: 1,
-            unconfirmed: 1,
-            new: 1,
-            withdrawn: 0,
-            canceled: 0,
-            rejected: 0
-          },
+                                              {
+                                                confirmed:   3,
+                                                unconfirmed: 4,
+                                                new:         0,
+                                                withdrawn:   0,
+                                                canceled:    0,
+                                                rejected:    0
+                                              },
+        DateTime.now.end_of_week           =>
+                                              {
+                                                confirmed:   1,
+                                                unconfirmed: 1,
+                                                new:         1,
+                                                withdrawn:   0,
+                                                canceled:    0,
+                                                rejected:    0
+                                              },
       }
 
       subject.reload
@@ -166,7 +166,7 @@ describe Conference do
 
   describe '#get_submissions_data' do
     it 'returns emtpy hash if there is no cfp or events' do
-      expect(subject.get_submissions_data).to eq({})
+      expect(subject.get_submissions_data).to eq []
     end
 
     it 'calculates the correct result with data from database' do
@@ -176,11 +176,11 @@ describe Conference do
       # Inject last two weeks to database
       db_data = {
         Date.today.end_of_week - 2.weeks => {
-          confirmed: 1,
+          confirmed:   1,
           unconfirmed: 2,
         },
         Date.today.end_of_week - 1.weeks => {
-          confirmed: 3,
+          confirmed:   3,
           unconfirmed: 4,
         }
       }
@@ -191,12 +191,7 @@ describe Conference do
 
       create(:event, program: subject.program, created_at: Date.today - 2.weeks)
 
-      result = {
-        'Submitted' => [1, 1, 1],
-        'Confirmed' => [1, 3, 0],
-        'Unconfirmed' => [2, 4, 0],
-        'Weeks' => [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-      }
+      result = [{ name: 'Submitted', data: { 'Wk 1' => 1, 'Wk 2' => 1, 'Wk 3' => 1 } }, { name: 'Confirmed', data: { 'Wk 1' => 1, 'Wk 2' => 3, 'Wk 3' => 0 } }, { name: 'Unconfirmed', data: { 'Wk 1' => 2, 'Wk 2' => 4, 'Wk 3' => 0 } }]
       expect(subject.get_submissions_data).to eq(result)
     end
 
@@ -207,12 +202,11 @@ describe Conference do
       create(:cfp, start_date: Date.today, program: subject.program)
       create(:event, program: subject.program)
 
-      result = {
-        'Submitted' => [1],
-        'Confirmed' => [0],
-        'Unconfirmed' => [0],
-        'Weeks' => [1, 2, 3, 4, 5, 6, 7, 8]
-      }
+      result = [
+        { name: 'Submitted', data: { 'Wk 1'=>1 } },
+        { name: 'Confirmed', data: { 'Wk 1'=>0 } },
+        { name: 'Unconfirmed', data: { 'Wk 1'=>0 } }
+      ]
       expect(subject.get_submissions_data).to eq(result)
     end
 
@@ -232,12 +226,20 @@ describe Conference do
       confirmed.accept!(options)
       confirmed.confirm!
 
-      result = {
-        'Submitted' => [0, 0, 3],
-        'Confirmed' => [0, 0, 1],
-        'Unconfirmed' => [0, 0, 1],
-        'Weeks' => [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
-      }
+      result = [
+        {
+          name: 'Submitted',
+          data: { 'Wk 1' => 0, 'Wk 2' => 0, 'Wk 3' => 3 }
+        },
+        {
+          name: 'Confirmed',
+          data: { 'Wk 1' => 0, 'Wk 2' => 0, 'Wk 3' => 1 }
+        },
+        {
+          name: 'Unconfirmed',
+          data: { 'Wk 1' => 0, 'Wk 2' => 0, 'Wk 3' => 1 }
+        }
+      ]
       expect(subject.get_submissions_data).to eq(result)
     end
 
@@ -248,11 +250,11 @@ describe Conference do
       # Inject last two weeks to database
       db_data = {
         Date.today.end_of_week - 3.weeks => {
-          confirmed: 1,
+          confirmed:   1,
           unconfirmed: 2,
         },
         Date.today.end_of_week - 1.weeks => {
-          confirmed: 3,
+          confirmed:   3,
           unconfirmed: 4,
         }
       }
@@ -263,20 +265,27 @@ describe Conference do
 
       create(:event, program: subject.program, created_at: Date.today - 3.weeks)
 
-      result = {
-        'Submitted' => [1, 1, 1, 1],
-        'Confirmed' => [1, 0, 3, 0],
-        'Unconfirmed' => [2, 0, 4, 0],
-        'Weeks' => [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
-      }
+      result = [
+        {
+          name: 'Submitted',
+          data: { 'Wk 1' => 1, 'Wk 2' => 1, 'Wk 3' => 1, 'Wk 4' => 1 }
+        },
+        {
+          name: 'Confirmed',
+          data: { 'Wk 1' => 1, 'Wk 2' => 0, 'Wk 3' => 3, 'Wk 4' => 0 }
+        },
+        {
+          name: 'Unconfirmed',
+          data: { 'Wk 1' => 2, 'Wk 2' => 0, 'Wk 3' => 4, 'Wk 4' => 0 }
+        }
+      ]
       expect(subject.get_submissions_data).to eq(result)
     end
   end
 
   describe '#get_top_submitter' do
     let!(:conference) { create(:conference) }
-    let!(:organizer_role) { Role.find_by(name: 'organizer', resource: conference) }
-    let!(:organizer) { create(:user, role_ids: [organizer_role.id]) }
+    let!(:organizer) { create(:organizer, resource: conference) }
 
     it 'calculates correct hash with top submitters' do
       event = create(:event, program: subject.program)
@@ -300,69 +309,6 @@ describe Conference do
       expect(subject.get_top_submitter.keys).to eq([e2.submitter, e1.submitter])
     end
 
-  end
-
-  describe '#get_targets' do
-    it 'returns 0 if there is no registration' do
-      target = build(:target, target_count: 10, unit: Target.units[:registrations])
-      subject.targets = [target]
-      result = {
-        "10 Registrations by #{target.due_date}" => '0'
-      }
-      expect(subject.get_targets(Target.units[:registrations])).to eq(result)
-    end
-
-    it 'returns 10 if there is 1 registration of 10' do
-      target = build(:target, target_count: 10, unit: Target.units[:registrations])
-      subject.targets = [target]
-      subject.registrations = [create(:registration)]
-      result = {
-        "10 Registrations by #{target.due_date}" => '10'
-      }
-      expect(subject.get_targets(Target.units[:registrations])).to eq(result)
-    end
-
-    it 'returns an empty hash if there is no target' do
-      expect(subject.get_targets(Target.units[:registrations])).to eq({})
-    end
-
-    it 'returns 0 if there is no submission' do
-      target = build(:target, target_count: 10, unit: Target.units[:submissions])
-      subject.targets = [target]
-      result = {
-        "10 Submissions by #{target.due_date}" => '0'
-      }
-      expect(subject.get_targets(Target.units[:submissions])).to eq(result)
-    end
-
-    it 'returns 10 if there is 1 submissions of 10' do
-      target = build(:target, target_count: 10, unit: Target.units[:submissions])
-      subject.targets = [target]
-      subject.program.events = [create(:event)]
-      result = {
-        "10 Submissions by #{target.due_date}" => '10'
-      }
-      expect(subject.get_targets(Target.units[:submissions])).to eq(result)
-    end
-
-    it 'returns 0 if there is no program minute' do
-      target = build(:target, target_count: 300, unit: Target.units[:program_minutes])
-      subject.targets = [target]
-      result = {
-        "300 Program minutes by #{target.due_date}" => '0'
-      }
-      expect(subject.get_targets(Target.units[:program_minutes])).to eq(result)
-    end
-
-    it 'returns 10 if there is 30 program minutes of 300' do
-      target = build(:target, target_count: 300, unit: Target.units[:program_minutes])
-      subject.targets = [target]
-      subject.program.events = [create(:event)]
-      result = {
-        "300 Program minutes by #{target.due_date}" => '10'
-      }
-      expect(subject.get_targets(Target.units[:program_minutes])).to eq(result)
-    end
   end
 
   describe 'program hours and minutes' do
@@ -831,13 +777,7 @@ describe Conference do
       canceled.accept!(@options)
       canceled.cancel!
 
-      @result = {}
-      @result['New'] = { 'value' => 1, 'color' => '#0000FF' }
-      @result['Withdrawn'] = { 'value' => 1, 'color' => '#FF8000' }
-      @result['Unconfirmed'] = { 'value' => 1, 'color' => '#FFFF00' }
-      @result['Rejected'] = { 'value' => 1, 'color' => '#FF0000' }
-      @result['Confirmed'] = { 'value' => 1, 'color' => '#00FF00' }
-      @result['Canceled'] = { 'value' => 1, 'color' => '#848484' }
+      @result = { 'New' => 1, 'Withdrawn' => 1, 'Unconfirmed' => 1, 'Confirmed' => 1, 'Canceled' => 1, 'Rejected' => 1 }
     end
 
     it '#event_distribution does calculate correct values with events' do
@@ -852,7 +792,7 @@ describe Conference do
     it 'event_distribution does calculate correct values with just a new event' do
       conference = create(:conference)
       create(:event, program: conference.program)
-      result = { 'New' => { 'value' => 1, 'color' => '#0000FF' } }
+      result = { 'New' => 1, 'Withdrawn' => 0, 'Unconfirmed' => 0, 'Confirmed' => 0, 'Canceled' => 0, 'Rejected' => 0 }
       expect(conference.event_distribution).to eq(result)
     end
 
@@ -860,7 +800,7 @@ describe Conference do
       conference = create(:conference)
       event = create(:event, program: conference.program)
       event.withdraw!
-      result = { 'Withdrawn' => { 'value' => 1, 'color' => '#FF8000' } }
+      result = { 'New' => 0, 'Withdrawn' => 1, 'Unconfirmed' => 0, 'Confirmed' => 0, 'Canceled' => 0, 'Rejected' => 0 }
       expect(conference.event_distribution).to eq(result)
     end
 
@@ -868,7 +808,7 @@ describe Conference do
       conference = create(:conference)
       event = create(:event, program: conference.program)
       event.accept!(@options)
-      result = { 'Unconfirmed' => { 'value' => 1, 'color' => '#FFFF00' } }
+      result = { 'New' => 0, 'Withdrawn' => 0, 'Unconfirmed' => 1, 'Confirmed' => 0, 'Canceled' => 0, 'Rejected' => 0 }
       expect(conference.event_distribution).to eq(result)
     end
 
@@ -876,7 +816,7 @@ describe Conference do
       conference = create(:conference)
       event = create(:event, program: conference.program)
       event.reject!(@options)
-      result = { 'Rejected' => { 'value' => 1, 'color' => '#FF0000' } }
+      result = { 'New' => 0, 'Withdrawn' => 0, 'Unconfirmed' => 0, 'Confirmed' => 0, 'Canceled' => 0, 'Rejected' => 1 }
       expect(conference.event_distribution).to eq(result)
     end
 
@@ -886,7 +826,7 @@ describe Conference do
       event = create(:event, program: conference.program)
       event.accept!(@options)
       event.confirm!
-      result = { 'Confirmed' => { 'value' => 1, 'color' => '#00FF00' } }
+      result = { 'New' => 0, 'Withdrawn' => 0, 'Unconfirmed' => 0, 'Confirmed' => 1, 'Canceled' => 0, 'Rejected' => 0 }
       expect(conference.event_distribution).to eq(result)
     end
 
@@ -895,7 +835,7 @@ describe Conference do
       event = create(:event, program: conference.program)
       event.accept!(@options)
       event.cancel!
-      result = { 'Canceled' => { 'value' => 1, 'color' => '#848484' } }
+      result = { 'New' => 0, 'Withdrawn' => 0, 'Unconfirmed' => 0, 'Confirmed' => 0, 'Canceled' => 1, 'Rejected' => 0 }
       expect(conference.event_distribution).to eq(result)
     end
 
@@ -911,61 +851,31 @@ describe Conference do
     it 'self#event_distribution does calculate correct values with just a new event' do
       @conference.program.events.clear
       create(:event, program: @conference.program)
-      result = { 'New' => { 'value' => 1, 'color' => '#0000FF' } }
+      result = { 'New' => 1, 'Withdrawn' => 0, 'Unconfirmed' => 0, 'Confirmed' => 0, 'Canceled' => 0, 'Rejected' => 0 }
       expect(Conference.event_distribution).to eq(result)
     end
 
     it 'self#event_distribution does calculate correct values
                       with just a new events from different conferences' do
       create(:event, program: @conference.program)
-      @result['New'] = { 'value' => 2, 'color' => '#0000FF' }
-      expect(Conference.event_distribution).to eq(@result)
+      result = { 'New' => 2, 'Withdrawn' => 1, 'Unconfirmed' => 1, 'Confirmed' => 1, 'Canceled' => 1, 'Rejected' => 1 }
+      expect(Conference.event_distribution).to eq(result)
     end
   end
 
   describe 'self#event_distribution' do
     let!(:conference) { create(:conference) }
-    let!(:organizer_role) { Role.find_by(name: 'organizer', resource: conference) }
-    let!(:organizer) { create(:user, role_ids: [organizer_role.id]) }
+    let!(:organizer) { create(:organizer, resource: conference) }
 
-    it 'self#event_distribution calculates correct values with user' do
-      create(:user, last_sign_in_at: Date.today - 3.months + 1.day) # active
-      create(:user, confirmed_at: nil) # unconfirmed
-      create(:user, last_sign_in_at: Date.today - 1.year - 1.day) # dead
+    it 'self#user_distribution calculates correct values with user' do
       result = {}
       result['Active'] = { 'color' => 'green', 'value' => 1 }
       result['Unconfirmed'] = { 'color' => 'red', 'value' => 1 }
       result['Dead'] = { 'color' => 'black', 'value' => 1 }
 
-      expect(Conference.user_distribution).to eq(result)
-    end
-
-    it 'self#event_distribution calculates correct with only active user' do
-      create(:user, last_sign_in_at: Date.today - 3.months + 1.day) # active
-      result = {}
-      result['Active'] = { 'color' => 'green', 'value' => 1 }
-
-      expect(Conference.user_distribution).to eq(result)
-    end
-
-    it 'self#event_distribution calculates correct values with only unconfirmed user' do
-      create(:user, confirmed_at: nil) # unconfirmed
-      result = {}
-      result['Unconfirmed'] = { 'color' => 'red', 'value' => 1 }
-
-      expect(Conference.user_distribution).to eq(result)
-    end
-
-    it 'self#event_distribution calculates correct values with only dead user' do
-      create(:user, last_sign_in_at: Time.now - 1.year - 1.day) # dead
-      result = {}
-      result['Dead'] = { 'color' => 'black', 'value' => 1 }
-
-      expect(Conference.user_distribution).to eq(result)
-    end
-
-    it 'self#event_distribution calculates correct values without user' do
-      expect(Conference.user_distribution).to eq({})
+      expect(
+        Conference.calculate_user_distribution_hash(1, 1, 1)
+      ).to eq(result)
     end
   end
 
@@ -1146,7 +1056,7 @@ describe Conference do
     it 'calculates new year' do
       subject.registration_period = create(:registration_period,
                                            start_date: Date.new(2013, 12, 31),
-                                           end_date: Date.new(2013, 12, 30) + 6)
+                                           end_date:   Date.new(2013, 12, 30) + 6)
       expect(subject.registration_weeks).to eq(1)
     end
 
@@ -1215,7 +1125,7 @@ describe Conference do
       cfp.end_date = Date.new(2014, 05, 26) + 21
       cfp.save!
       subject.program.events += [create(:event, created_at: Date.new(2014, 05, 26) - 7)]
-      expect(subject.get_submissions_per_week).to eq([1, 1, 1, 1, 1])
+      expect(subject.get_submissions_per_week.values).to eq([1, 1, 1, 1, 1])
     end
 
     it 'does calculate correct if cfp end date is altered' do
@@ -1224,7 +1134,7 @@ describe Conference do
       cfp.end_date = Date.new(2014, 05, 26) + 21
       cfp.save!
       subject.program.events += [create(:event, created_at: Date.new(2014, 05, 26) + 28)]
-      expect(subject.get_submissions_per_week).to eq([0, 0, 0, 0, 1])
+      expect(subject.get_submissions_per_week.values).to eq([0, 0, 0, 0, 1])
     end
 
     it 'pads with zeros if there are no submissions' do
@@ -1232,7 +1142,7 @@ describe Conference do
       cfp.start_date = Date.new(2014, 05, 26)
       cfp.end_date = Date.new(2014, 05, 26) + 21
       cfp.save!
-      expect(subject.get_submissions_per_week).to eq([0, 0, 0, 0])
+      expect(subject.get_submissions_per_week.values).to eq([0, 0, 0, 0])
     end
 
     it 'summarized correct if there are no submissions in one week' do
@@ -1243,7 +1153,7 @@ describe Conference do
       subject.program.events += [create(:event, created_at: Date.new(2014, 05, 26) + 7)]
       subject.program.events += [create(:event, created_at: Date.new(2014, 05, 26) + 14)]
       subject.program.events += [create(:event, created_at: Date.new(2014, 05, 26) + 28)]
-      expect(subject.get_submissions_per_week).to eq([0, 1, 2, 2, 3])
+      expect(subject.get_submissions_per_week.values).to eq([0, 1, 2, 2, 3])
     end
 
     it 'summarized correct if there are submissions every week except the first' do
@@ -1253,7 +1163,7 @@ describe Conference do
       cfp.save!
       subject.program.events += [create(:event, created_at: Date.new(2014, 05, 26) + 7)]
       subject.program.events += [create(:event, created_at: Date.new(2014, 05, 26) + 14)]
-      expect(subject.get_submissions_per_week).to eq([0, 1, 2, 2])
+      expect(subject.get_submissions_per_week.values).to eq([0, 1, 2, 2])
     end
 
     it 'summarized correct if there are submissions every week' do
@@ -1264,7 +1174,9 @@ describe Conference do
       subject.program.events += [create(:event, created_at: Date.new(2014, 05, 26))]
       subject.program.events += [create(:event, created_at: Date.new(2014, 05, 26) + 7)]
       subject.program.events += [create(:event, created_at: Date.new(2014, 05, 26) + 14)]
-      expect(subject.get_submissions_per_week).to eq([1, 2, 3, 3])
+      expect(subject.get_submissions_per_week).to eq(
+        'Wk 1' => 1, 'Wk 2' => 2, 'Wk 3' => 3, 'Wk 4' => 3
+      )
     end
 
     it 'pads left' do
@@ -1273,7 +1185,7 @@ describe Conference do
       cfp.end_date = Date.new(2014, 05, 26) + 21
       cfp.save!
       subject.program.events += [create(:event, created_at: Date.new(2014, 05, 26) + 21)]
-      expect(subject.get_submissions_per_week).to eq([0, 0, 0, 1])
+      expect(subject.get_submissions_per_week.values).to eq([0, 0, 0, 1])
     end
 
     it 'pads middle' do
@@ -1283,7 +1195,7 @@ describe Conference do
       cfp.save!
       subject.program.events += [create(:event, created_at: Date.new(2014, 05, 26))]
       subject.program.events += [create(:event, created_at: Date.new(2014, 05, 26) + 21)]
-      expect(subject.get_submissions_per_week).to eq([1, 1, 1, 2])
+      expect(subject.get_submissions_per_week.values).to eq([1, 1, 1, 2])
     end
 
     it 'pads right' do
@@ -1292,7 +1204,7 @@ describe Conference do
       cfp.end_date = Date.new(2014, 05, 26) + 21
       cfp.save!
       subject.program.events += [create(:event, created_at: Date.new(2014, 05, 26))]
-      expect(subject.get_submissions_per_week).to eq([1, 1, 1, 1])
+      expect(subject.get_submissions_per_week.values).to eq([1, 1, 1, 1])
     end
   end
 
@@ -1303,7 +1215,7 @@ describe Conference do
                                            start_date: Date.new(2014, 05, 26),
                                            end_date: Date.new(2014, 05, 26) + 21, conference: subject)
 
-      expect(subject.get_registrations_per_week).to eq([0, 0, 0, 0])
+      expect(subject.get_registrations_per_week.values).to eq([0, 0, 0, 0])
     end
 
     it 'summarized correct if there are no registrations in one week' do
@@ -1318,7 +1230,7 @@ describe Conference do
       create(:registration, conference: subject,
                             created_at: Date.new(2014, 05, 26) + 28)
 
-      expect(subject.get_registrations_per_week).to eq([0, 1, 2, 2, 3])
+      expect(subject.get_registrations_per_week.values).to eq([0, 1, 2, 2, 3])
     end
 
     it 'returns [1] if there is one registration on the first day' do
@@ -1328,7 +1240,7 @@ describe Conference do
 
       create(:registration, conference: subject,
                             created_at: Date.new(2014, 05, 26))
-      expect(subject.get_registrations_per_week).to eq([1, 1])
+      expect(subject.get_registrations_per_week.values).to eq([1, 1])
     end
 
     it 'summarized correct if there are registrations every week' do
@@ -1342,7 +1254,7 @@ describe Conference do
       create(:registration, conference: subject,
                             created_at: Date.new(2014, 05, 26) + 14)
 
-      expect(subject.get_registrations_per_week).to eq([1, 2, 3, 3])
+      expect(subject.get_registrations_per_week.values).to eq([1, 2, 3, 3])
     end
 
     it 'summarized correct if there are registrations every week except the first' do
@@ -1357,7 +1269,7 @@ describe Conference do
       create(:registration, conference: subject,
                             created_at: Date.new(2014, 05, 26) + 28)
 
-      expect(subject.get_registrations_per_week).to eq([0, 1, 2, 2, 3])
+      expect(subject.get_registrations_per_week.values).to eq([0, 1, 2, 2, 3])
     end
 
     it 'pads left' do
@@ -1372,7 +1284,7 @@ describe Conference do
       create(:registration, conference: subject,
                             created_at: Date.new(2014, 05, 26) + 35)
 
-      expect(subject.get_registrations_per_week).to eq([0, 0, 0, 1, 2, 3])
+      expect(subject.get_registrations_per_week.values).to eq([0, 0, 0, 1, 2, 3])
     end
 
     it 'pads middle' do
@@ -1385,7 +1297,7 @@ describe Conference do
       create(:registration, conference: subject,
                             created_at: Date.new(2014, 05, 26) + 35)
 
-      expect(subject.get_registrations_per_week).to eq([1, 1, 1, 1, 1, 2])
+      expect(subject.get_registrations_per_week.values).to eq([1, 1, 1, 1, 1, 2])
     end
 
     it 'pads right' do
@@ -1398,7 +1310,7 @@ describe Conference do
       create(:registration, conference: subject,
                             created_at: Date.new(2014, 05, 26) + 7)
 
-      expect(subject.get_registrations_per_week).to eq([1, 2, 2, 2, 2, 2])
+      expect(subject.get_registrations_per_week.values).to eq([1, 2, 2, 2, 2, 2])
     end
   end
 
@@ -1472,9 +1384,7 @@ describe Conference do
 
     # It is necessary to use bang version of let to build roles before user
     let!(:conference) { create(:conference) }
-    let!(:organizer_role) { Role.find_by(name: 'organizer', resource: conference) }
-    let!(:organizer) { create(:user, role_ids: [organizer_role.id]) }
-
+    let!(:organizer) { create(:organizer, resource: conference) }
     let(:user) { create(:user) }
 
     context 'user not registered' do

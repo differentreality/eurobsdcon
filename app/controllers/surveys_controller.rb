@@ -48,6 +48,6 @@ class SurveysController < ApplicationController
       end
     end
 
-    redirect_to redirect_link || :back
+    redirect_to redirect_link || root_path
   end
 end

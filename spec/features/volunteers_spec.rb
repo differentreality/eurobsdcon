@@ -4,8 +4,7 @@ require 'spec_helper'
 
 feature Conference do
   let!(:conference) { create(:conference) }
-  let!(:organizer_role) { Role.find_by(name: 'organizer', resource: conference) }
-  let!(:organizer) { create(:user, role_ids: [organizer_role.id]) }
+  let!(:organizer) { create(:organizer, resource: conference) }
 
   shared_examples 'volunteer' do
     scenario 'adds and updates vdays', feature: true, js: true do
@@ -29,6 +28,7 @@ feature Conference do
 #         find('div.nested-fields:nth-of-type(1) div:nth-of-type(1) textarea').
 #           set('Example Person')
       click_button 'Update Conference'
+      page.find('#flash')
       expect(flash)
       .to eq('Volunteering options were successfully updated.')
 
@@ -47,6 +47,7 @@ feature Conference do
 #       click_link 'Remove vday'
 #       expect(page.all('div.nested-fields').count == 0).to be true
       click_button 'Update Conference'
+      page.find('#flash')
       expect(flash).to eq('Volunteering options were successfully updated.')
       expect(page.all('div.nested-fields').count == 0).to be true
       sign_out
@@ -75,6 +76,7 @@ feature Conference do
 #         find('div.nested-fields:nth-of-type(1) div:nth-of-type(1) textarea').
 #         set('Example Person')
       click_button 'Update Conference'
+      page.find('#flash')
       expect(flash)
       .to eq('Volunteering options were successfully updated.')
 
@@ -92,6 +94,7 @@ feature Conference do
 #                  "[id$='_vday_ids']").
 #                       find(:option, "#{Date.today.strftime}").select_option
       click_button 'Update Conference'
+      page.find('#flash')
       expect(flash)
       .to eq('Volunteering options were successfully updated.')
 
@@ -111,6 +114,7 @@ feature Conference do
 #       click_link 'Remove vposition'
 #       expect(page.all('div.nested-fields').count == 1).to be true
 #       click_button 'Update Conference'
+      page.find('#flash')
       expect(flash).to eq('Volunteering options were successfully updated.')
 #       click_link 'Remove vday'
 #       expect(page.all('div.nested-fields').count == 0).to be true

@@ -19,7 +19,7 @@
     - if ticket.registration_ticket?
       - options[:max] = 1
       - options[:disabled] = user.tickets.for_registration(ticket.conference).present?
-    = text_field_tag "tickets[][#{ticket.id}]", @selection.present? ? @selection[ticket.id].to_i : 0 , options
+    = text_field_tag "ticket_purchase[tickets[#{ticket.id}]]", @selection.present? ? @selection[ticket.id].to_i : 0 , options
   %td.col-sm-1.col-md-1.text-center
     = ticket.price.symbol
     %span{id: "price_#{ticket.id}"}

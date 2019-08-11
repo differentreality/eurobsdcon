@@ -15,7 +15,7 @@ describe Event do
     it { is_expected.to belong_to :event_type }
     it { is_expected.to have_many :events_registrations }
     it { is_expected.to have_many :registrations }
-    it { is_expected.to have_many :events_tickets }
+    it { is_expected.to have_many :tickets }
     # it { is_expected.to have_many :tickets, through: :events_tickets }
   end
 
@@ -322,12 +322,12 @@ describe Event do
     states = [:new, :withdrawn, :unconfirmed, :confirmed, :canceled, :rejected]
     transitions = [:restart, :withdraw, :accept, :confirm, :cancel, :reject]
 
-    states_transitions = { new: { restart: false, withdraw: true, accept: true, confirm: false, cancel: false, reject: true},
-                           withdrawn: { restart: true, withdraw: false, accept: false, confirm: false, cancel: false, reject: false},
+    states_transitions = { new:         { restart: false, withdraw: true, accept: true, confirm: false, cancel: false, reject: true},
+                           withdrawn:   { restart: true, withdraw: false, accept: false, confirm: false, cancel: false, reject: false},
                            unconfirmed: { restart: false, withdraw: true, accept: false, confirm: true, cancel: true, reject: false},
-                           confirmed: { restart: false, withdraw: true, accept: false, confirm: false, cancel: true, reject: false},
-                           canceled: { restart: true, withdraw: false, accept: false, confirm: false, cancel: false, reject: false},
-                           rejected: { restart: true, withdraw: false, accept: false, confirm: false, cancel: false, reject: false}
+                           confirmed:   { restart: false, withdraw: true, accept: false, confirm: false, cancel: true, reject: false},
+                           canceled:    { restart: true, withdraw: false, accept: false, confirm: false, cancel: false, reject: false},
+                           rejected:    { restart: true, withdraw: false, accept: false, confirm: false, cancel: false, reject: false}
                          }
 
     states.each do |state|

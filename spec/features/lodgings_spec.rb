@@ -4,8 +4,7 @@ require 'spec_helper'
 
 feature Lodging do
   let!(:conference) { create(:conference) }
-  let!(:organizer_role) { Role.find_by(name: 'organizer', resource: conference) }
-  let!(:organizer) { create(:user, role_ids: [organizer_role.id]) }
+  let!(:organizer) { create(:organizer, resource: conference) }
 
   scenario 'Add a lodging', feature: true, js: true do
     path = "#{Rails.root}/app/assets/images/rails.png"
@@ -21,7 +20,7 @@ feature Lodging do
     attach_file 'Picture', path
 
     click_button 'Create Lodging'
-
+    page.find('#flash')
     # Validations
     expect(flash).to eq('Lodging successfully created.')
     expect(page.has_content?('New lodging')).to be true
@@ -47,7 +46,7 @@ feature Lodging do
     attach_file 'Picture', path
 
     click_button 'Update Lodging'
-
+    page.find('#flash')
     # Validations
     expect(flash).to eq('Lodging successfully updated.')
     expect(page.has_content?('New lodging')).to be true
@@ -67,9 +66,10 @@ feature Lodging do
 
     expect(page.has_content?(lodging.name)).to be true
 
-    # Add lodging
-    click_link 'Delete'
-
+    page.accept_alert do
+      click_link 'Delete'
+    end
+    page.find('#flash')
     # Validations
     expect(flash).to eq('Lodging successfully deleted.')
     expect(page.has_content?(CGI.escapeHTML(lodging.name))).to be false

@@ -30,11 +30,7 @@ class Conference < ApplicationRecord
   has_many :payments, dependent: :destroy
   has_many :invoices
   has_many :supporters, through: :ticket_purchases, source: :user
-  has_many :tickets, dependent: :destroy do
-    def for_registration
-      where(registration_ticket: true)
-    end
-  end
+  has_many :tickets, dependent: :destroy
   has_many :coupons
   has_many :resources, dependent: :destroy
   has_many :booths, dependent: :destroy
@@ -54,8 +50,6 @@ class Conference < ApplicationRecord
   has_many :vpositions, dependent: :destroy
   has_many :sponsorship_levels, -> { order('position ASC') }, dependent: :destroy
   has_many :sponsors, dependent: :destroy
-  has_many :targets, dependent: :destroy
-  has_many :campaigns, dependent: :destroy
   has_many :commercials, as: :commercialable, dependent: :destroy
   has_many :subscriptions, dependent: :destroy
   has_one :call_for_events, -> { where(cfp_type: 'events') }, through: :program, source: :cfps
@@ -85,8 +79,6 @@ class Conference < ApplicationRecord
   accepts_nested_attributes_for :questions, allow_destroy: true
   accepts_nested_attributes_for :vdays, allow_destroy: true
   accepts_nested_attributes_for :vpositions, allow_destroy: true
-  accepts_nested_attributes_for :targets, allow_destroy: true
-  accepts_nested_attributes_for :campaigns, allow_destroy: true
 
   mount_uploader :picture, PictureUploader, mount_on: :logo_file_name
 
@@ -97,7 +89,8 @@ class Conference < ApplicationRecord
             :start_hour,
             :end_hour,
             :ticket_layout,
-            :organization, presence: true
+            :organization,
+            :timezone, presence: true
 
   validates :short_title, uniqueness: true
   validates :short_title, format: { with: /\A[a-zA-Z0-9_-]*\z/ }
@@ -131,7 +124,7 @@ class Conference < ApplicationRecord
   # Delete all EventSchedules that are not in the hours range
   # After the conference has been successfully updated
   def delete_event_schedules
-    if start_hour_changed? || end_hour_changed?
+    if saved_change_to_start_hour? || saved_change_to_end_hour?
       event_schedules = program.event_schedules.select do |event_schedule|
         event_schedule.start_time.hour < start_hour ||
         event_schedule.end_time.hour > end_hour ||
@@ -189,24 +182,22 @@ class Conference < ApplicationRecord
   # ====Returns
   #  * +Array+ -> e.g. 'Submitted' => [0, 3, 3, 5]  -> first week 0 events, second week 3 events.
   def get_submissions_data
-    result = {}
-    if program&.cfp && program&.events
-      result = get_events_per_week_by_state
+    return [] unless program&.cfp && program&.events
 
-      start_week = program.cfp.start_week
-      end_week = end_date.strftime('%W').to_i
-      weeks = weeks(start_week, end_week)
-
-      result.each do |state, values|
-        if state == 'Submitted'
-          result['Submitted'] = pad_array_left_kumulative(start_week, values)
-        else
-          result[state] = pad_array_left_not_kumulative(start_week, values)
-        end
+    start_week = program.cfp.start_week
+    get_events_per_week_by_state.collect do |state, values|
+      if state == 'Submitted'
+        {
+          name: 'Submitted',
+          data: add_week_indices(pad_array_left_kumulative(start_week, values))
+        }
+      else
+        {
+          name: state,
+          data: add_week_indices(pad_array_left_not_kumulative(start_week, values))
+        }
       end
-      result['Weeks'] = weeks > 0 ? (1..weeks).to_a : 0
     end
-    result
   end
 
   ##
@@ -215,19 +206,15 @@ class Conference < ApplicationRecord
   # ====Returns
   #  * +Array+ -> e.g. [0, 3, 3, 5] -> first week 0, second week 3 registrations
   def get_registrations_per_week
-    result = []
+    return [] unless registrations &&
+      registration_period &&
+      registration_period.start_date &&
+      registration_period.end_date
 
-    if registrations &&
-        registration_period &&
-        registration_period.start_date &&
-        registration_period.end_date
-
-      reg = registrations.group(:week).order(:week).count
-      start_week = get_registration_start_week
-      weeks = registration_weeks
-      result = calculate_items_per_week(start_week, weeks, reg)
-    end
-    result
+    reg = registrations.group(:week).order(:week).count
+    start_week = get_registration_start_week
+    weeks = registration_weeks
+    calculate_items_per_week(start_week, weeks, reg)
   end
 
   ##
@@ -236,15 +223,12 @@ class Conference < ApplicationRecord
   # ====Returns
   #  * +Array+ -> e.g. [0, 3, 3, 5] -> first week 0, second week 3 tickets sold
   def get_tickets_sold_per_week
-    result = []
+    return [] unless tickets && ticket_purchases && registration_period
 
-    if tickets && ticket_purchases && registration_period
-      tickets_sold = ticket_purchases.paid.group(:week).sum(:quantity)
-      start_week = get_registration_start_week
-      weeks = registration_weeks
-      result = calculate_items_per_week(start_week, weeks, tickets_sold)
-    end
-    result
+    tickets_sold = ticket_purchases.paid.group(:week).sum(:quantity)
+    start_week = get_registration_start_week
+    weeks = registration_weeks
+    calculate_items_per_week(start_week, weeks, tickets_sold)
   end
 
   ##
@@ -254,33 +238,32 @@ class Conference < ApplicationRecord
   # ====Returns
   #  * +Array+ -> e.g. 'Free Access' => [0, 3, 3, 5]  -> first week 0 tickets sold, second week 3 tickets sold.
   def get_tickets_data
-    result = {}
-    if tickets && ticket_purchases && registration_period
-      tickets_per_ticket_id_and_week = ticket_purchases.paid.group(:ticket_id, :week).sum(:quantity)
+    return [] unless tickets && ticket_purchases && registration_period
 
-      start_week = get_registration_start_week
-      weeks = registration_weeks
+    tickets_per_ticket_id_and_week = ticket_purchases.paid.group(:ticket_id, :week).sum(:quantity)
 
-      tickets_by_id_per_week = {}
+    start_week = get_registration_start_week
+    weeks = registration_weeks
 
-      tickets.each do |ticket|
-        tickets_by_id_per_week[ticket.id] = {}
-        (start_week...(start_week + weeks)).each do |week|
-          tickets_by_id_per_week[ticket.id][week] = 0
-        end
+    tickets_by_id_per_week = {}
+
+    tickets.each do |ticket|
+      tickets_by_id_per_week[ticket.id] = {}
+      (start_week...(start_week + weeks)).each do |week|
+        tickets_by_id_per_week[ticket.id][week] = 0
       end
-
-      tickets_per_ticket_id_and_week.each do |ticket_week, value|
-        tickets_by_id_per_week[ticket_week[0]][ticket_week[1]] = value
-      end
-
-      tickets_by_id_per_week.each do |ticket, values|
-        result[Ticket.find(ticket).title] = pad_array_left_not_kumulative(start_week, values)
-      end
-
-      result['Weeks'] = weeks > 0 ? (1..weeks).to_a : 0
     end
-    result
+
+    tickets_per_ticket_id_and_week.each do |ticket_week, value|
+      tickets_by_id_per_week[ticket_week[0]][ticket_week[1]] = value
+    end
+
+    tickets_by_id_per_week.collect do |ticket, values|
+      {
+        name: Ticket.find(ticket).title,
+        data: add_week_indices(pad_array_left_not_kumulative(start_week, values))
+      }
+    end
   end
 
   ##
@@ -357,18 +340,18 @@ class Conference < ApplicationRecord
   # * +hash+ -> true -> filled / false -> missing
   def get_status
     result = {
-      registration: registration_date_set?,
-      cfp: cfp_set?,
-      venue: venue_set?,
-      rooms: rooms_set?,
-      tracks: tracks_set?,
-      event_types: event_types_set?,
+      registration:      registration_date_set?,
+      cfp:               cfp_set?,
+      venue:             venue_set?,
+      rooms:             rooms_set?,
+      tracks:            tracks_set?,
+      event_types:       event_types_set?,
       difficulty_levels: difficulty_levels_set?,
-      splashpage: splashpage&.public?
+      splashpage:        splashpage&.public?
     }
 
     result.update(
-      process: calculate_setup_progress(result),
+      process:     calculate_setup_progress(result),
       short_title: short_title
     ).with_indifferent_access
   end
@@ -413,7 +396,9 @@ class Conference < ApplicationRecord
   # ====Returns
   # * +hash+ -> hash
   def event_distribution
-    Conference.calculate_event_distribution_hash(program.events.select(:state).group(:state).count)
+    Conference.calculate_event_distribution_hash(
+      program.events.select(:state).group(:state).count
+    )
   end
 
   ##
@@ -508,22 +493,6 @@ class Conference < ApplicationRecord
     end
     result['None'] = { 'value' => none, 'color' => next_color(i) } if none > 0
     result
-  end
-
-  ##
-  # Returns a hash with user distribution => {value: count of user state, color: color}
-  # active: signed in during the last 3 months
-  # unconfirmed: registered but not confirmed
-  # dead: not signed in during the last year
-  #
-  # ====Returns
-  # * +hash+ -> hash
-  def self.user_distribution
-    active_user = User.where('last_sign_in_at > ?', Date.today - 3.months).count
-    unconfirmed_user = User.where('confirmed_at IS NULL').count
-    dead_user = User.where('last_sign_in_at < ?', Date.today - 1.year).count
-
-    calculate_user_distribution_hash(active_user, unconfirmed_user, dead_user)
   end
 
   ##
@@ -682,35 +651,6 @@ class Conference < ApplicationRecord
   end
 
   ##
-  # A map with all conference targets with progress in percent of a certain unit.
-  #
-  # ====Returns
-  # * +Map+ -> target => progress
-  def get_targets(target_unit)
-    conference_target = targets.where('unit = ?', target_unit)
-    result = {}
-    conference_target.each do |target|
-      result[target.to_s] = target.get_progress
-    end
-    result
-  end
-
-  ##
-  # A map with all conference campaigns associated with targets.
-  #
-  # ====Returns
-  # * +Map+ -> campaign => {actual, target, progress}
-  def get_campaigns
-    result = {}
-    campaigns.each do |campaign|
-      campaign.targets.each do |target|
-        result["#{target} from #{campaign.name}"] = target.get_campaign
-      end
-    end
-    result
-  end
-
-  ##
   # Writes an snapshot of the actual event distribution to the database
   # Triggered each every Sunday 11:55 pm form whenever (config/schedule.rb).
   #
@@ -743,7 +683,8 @@ class Conference < ApplicationRecord
   def notify_on_dates_changed?
     return false unless email_settings.send_on_conference_dates_updated
     # do not notify unless one of the dates changed
-    return false unless start_date_changed? || end_date_changed?
+    return false unless saved_change_to_start_date? || saved_change_to_end_date?
+
     # do not notify unless the mail content is set up
     (email_settings.conference_dates_updated_subject.present? && email_settings.conference_dates_updated_body.present?)
   end
@@ -759,7 +700,8 @@ class Conference < ApplicationRecord
     # do not notify unless we allow a registration
     return false unless registration_period
     # do not notify unless one of the dates changed
-    return false unless registration_period.start_date_changed? || registration_period.end_date_changed?
+    return false unless registration_period.saved_change_to_start_date? || registration_period.saved_change_to_end_date?
+
     # do not notify unless the mail content is set up
     (email_settings.conference_registration_dates_updated_subject.present? && email_settings.conference_registration_dates_updated_body.present?)
   end
@@ -784,7 +726,7 @@ class Conference < ApplicationRecord
     start_index = {
       tracks: (program.tracks.count + 1),
       levels: (program.difficulty_levels.count + 51),
-      types: (program.event_types.count + 101)
+      types:  (program.event_types.count + 101)
     }
     next_color(start_index[collection])
   end
@@ -916,8 +858,8 @@ class Conference < ApplicationRecord
   # * +Hash+ -> e.g. 'Confirmed' => { 3 => 5, 4 => 6 }
   def get_events_per_week_by_state
     result = {
-      'Submitted' => {},
-      'Confirmed' => {},
+      'Submitted'   => {},
+      'Confirmed'   => {},
       'Unconfirmed' => {}
     }
 
@@ -1182,20 +1124,19 @@ class Conference < ApplicationRecord
   end
 
   ##
-  # Helper method. Calculates hash with corresponding colors of event state distribution.
+  # Helper method. Calculates hash of all event states in a consistent order.
   #
   # ====Returns
   # * +hash+ -> hash
-  def self.calculate_event_distribution_hash(states)
-    result = {}
-    states.each do |key, value|
-      result[key.capitalize] =
-          {
-            'value' => value,
-            'color' => Event.get_state_color(key)
-          }
-    end
-    result
+  def self.calculate_event_distribution_hash(counts)
+    return {} if counts.values.sum == 0
+
+    Hash[
+      Event.state_machine.states.collect do |state|
+        state_name = state.name.to_s
+        [state_name.capitalize, counts[state_name] || 0]
+      end
+    ]
   end
 
   ##
@@ -1220,7 +1161,6 @@ class Conference < ApplicationRecord
   #
   def create_email_settings
     build_email_settings
-    true
   end
 
   ##
@@ -1283,6 +1223,12 @@ class Conference < ApplicationRecord
       result += Array.new(weeks - result.length, sum)
     end
 
-    result
+    add_week_indices(result)
+  end
+
+  def add_week_indices(values)
+    Hash[
+      values.collect.with_index { |value, index| ["Wk #{index + 1}", value] }
+    ]
   end
 end

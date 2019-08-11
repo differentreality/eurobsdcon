@@ -1,14 +1,19 @@
 sudo: required
-dist: trusty
+dist: xenial
+addons:
+  apt:
+    packages:
+      - chromium-browser
 language: ruby
 cache: bundler
 rvm:
-  - 2.4.0@osem --ignore-gemsets
+branches:
+  except:
+    - /^depfu/.*$/
 before_install:
   - "echo 'gem: --no-ri --no-rdoc' > ~/.gemrc"
-  - "echo `phantomjs -v`"
-addons:
-  mariadb: '10.2'
+  - gem uninstall -v '>= 2' -i $(rvm gemdir)@global -ax bundler || true
+  - gem install bundler -v $(tail -n 1 Gemfile.lock)
 notifications:
   email:
     on_success: change
@@ -19,21 +24,22 @@ notifications:
     on_success: change
     on_failure: change
 before_script:
-  - cp config/database.yml.travis config/database.yml
-  - cp config/secrets.yml.example config/secrets.yml
-  - mysql -u root -e 'create database osem_test;'
-  - RAILS_ENV=test bundle exec rake db:schema:load --trace
+  - RAILS_ENV=test bundle exec rake db:bootstrap --trace
+  - RAILS_ENV=test bundle exec bin/rails webdrivers:chromedriver:update
 script:
   - "./travis_script.sh $TEST_SUITE"
 env:
   global:
-    - CI_NODE_TOTAL=4
-    - TEST_SUITE=rspec
+    - OSEM_DB_ADAPTER=sqlite3
+    - OSEM_DB_HOST=''
+    - OSEM_DB_PORT=''
+    - OSEM_DB_NAME='osem_test'
   matrix:
+    - TEST_SUITE=ability
+    - TEST_SUITE=features
     - TEST_SUITE=linters
-    - CI_NODE_INDEX=0
-    - CI_NODE_INDEX=1
-    - CI_NODE_INDEX=2
-    - CI_NODE_INDEX=3
+    - TEST_SUITE=models
+    - TEST_SUITE=controllers
+    - TEST_SUITE=rest
 matrix:
   fast_finish: true

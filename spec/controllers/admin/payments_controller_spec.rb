@@ -15,7 +15,7 @@ describe Admin::PaymentsController do
     before { sign_in admin }
 
     describe 'GET #index' do
-      before { get :index, conference_id: conference.short_title, tickets: [ {ticket1.id => 3, ticket2.id => 5} ] }
+      before { get :index, params: { conference_id: conference.short_title, tickets: [ {ticket1.id => 3, ticket2.id => 5} ] } }
 
       it 'assigns payments variable' do
         expect(assigns(:conference)).to eq conference
@@ -28,7 +28,7 @@ describe Admin::PaymentsController do
     end
 
     describe 'GET #edit' do
-      before { get :edit, conference_id: conference.short_title, id: payment.id }
+      before { get :edit, params: { conference_id: conference.short_title, id: payment.id } }
 
       it 'renders edit template' do
         expect(response).to render_template('edit')
@@ -40,7 +40,7 @@ describe Admin::PaymentsController do
     end
 
     describe 'GET #new' do
-      before { get :new, conference_id: conference.short_title, user_id: user.id }
+      before { get :new, params: { conference_id: conference.short_title, user_id: user.id } }
 
       it 'renders new template' do
         expect(response).to render_template('new')
@@ -97,9 +97,9 @@ describe Admin::PaymentsController do
     describe 'PATCH #update' do
       context 'updates successfully' do
         before do
-          patch :update, payment: attributes_for(:payment, last4: '6868'),
-                         conference_id: conference.short_title,
-                         id: payment.id
+          patch :update, params: { payment: attributes_for(:payment, last4: '6868'),
+                                  conference_id: conference.short_title,
+                                  id: payment.id }
         end
 
         it 'redirects to admin payments index path' do
@@ -119,9 +119,9 @@ describe Admin::PaymentsController do
       context 'update fails' do
         before do
           allow_any_instance_of(Payment).to receive(:save).and_return(false)
-          patch :update, payment: attributes_for(:payment, last4: '6868'),
-                         conference_id: conference.short_title,
-                         id: payment.id
+          patch :update, params: { payment: attributes_for(:payment, last4: '6868'),
+                                   conference_id: conference.short_title,
+                                   id: payment.id }
         end
 
         it 'renders edit template' do

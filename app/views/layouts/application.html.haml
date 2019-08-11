@@ -24,7 +24,7 @@
       = javascript_include_tag "//cdn.transifex.com/live.js"
 
     = yield(:head)
-  %body
+  %body{ class: ("conference-#{@conference.short_title}" if @conference) }
     = render 'layouts/navigation', conference: @conference
     -# Admin area
     - if controller.class.name.split("::").first=="Admin"
@@ -53,4 +53,5 @@
               Performance data is available on
               #{link_to "Skylight", ENV["SKYLIGHT_PUBLIC_DASHBOARD_URL"]}.
     = yield :script_body
+    = yield :charts_js
     = piwik_tracking_tag

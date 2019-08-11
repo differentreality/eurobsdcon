@@ -28,6 +28,7 @@ feature Conference do
 
       click_button 'Create Conference'
 
+      page.find('#flash')
       expect(flash)
           .to eq('Conference was successfully created.')
       expect(Conference.count).to eq(expected_count)
@@ -38,8 +39,7 @@ feature Conference do
 
     scenario 'update conference', feature: true, js: true do
       conference = create(:conference)
-      organizer_role = Role.find_by(name: 'organizer', resource: conference)
-      organizer = create(:user, role_ids: [organizer_role.id])
+      organizer = create(:organizer, resource: conference)
 
       expected_count = Conference.count
 
@@ -49,9 +49,22 @@ feature Conference do
       fill_in 'conference_title', with: 'New Con'
       fill_in 'conference_short_title', with: ''
 
-      click_button 'Update Conference'
+      day = Time.zone.today + 10
+      page
+          .execute_script("$('#conference-start-datepicker').val('" +
+                             "#{day.strftime('%d/%m/%Y')}')")
+      page
+          .execute_script("$('#conference-end-datepicker').val('" +
+                             "#{(day + 7).strftime('%d/%m/%Y')}')")
+
+      page.accept_alert do
+        click_button 'Update Conference'
+      end
+
+      page.find('#flash')
       expect(flash)
           .to eq("Updating conference failed. Short title can't be blank.")
+      page.find('#flash .close').click
 
       fill_in 'conference_title', with: 'New Con'
       fill_in 'conference_short_title', with: 'NewCon'
@@ -64,9 +77,12 @@ feature Conference do
           .execute_script("$('#conference-end-datepicker').val('" +
                              "#{(day + 7).strftime('%d/%m/%Y')}')")
 
-      click_button 'Update Conference'
-      expect(flash)
-          .to eq('Conference was successfully updated.')
+      page.accept_alert do
+        click_button 'Update Conference'
+      end
+
+      page.find('#flash')
+      expect(flash).to eq('Conference was successfully updated.')
 
       conference.reload
       expect(conference.title).to eq('New Con')
