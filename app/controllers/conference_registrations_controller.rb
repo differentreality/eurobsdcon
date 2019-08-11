@@ -56,8 +56,6 @@ class ConferenceRegistrationsController < ApplicationController
 
     if @registration.save
       RegistrationChangeNotificationMailJob.perform_later(@conference, @registration.user, 'create')
-      # Trigger ahoy event
-      ahoy.track 'Registered', title: 'New registration'
 
       # Sign in the new user
       unless current_user

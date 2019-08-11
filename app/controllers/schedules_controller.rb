@@ -2,7 +2,6 @@
 
 class SchedulesController < ApplicationController
   load_and_authorize_resource
-  protect_from_forgery with: :null_session
   before_action :respond_to_options
   load_resource :conference, find_by: :short_title
   load_resource :program, through: :conference, singleton: true, except: :index
@@ -33,7 +32,7 @@ class SchedulesController < ApplicationController
         # the schedule takes you to today if it is a date of the schedule
         @current_day = @conference.current_conference_day
         @day = @current_day.present? ? @current_day : @dates.first
-        unless @current_day
+        if @current_day
           # the schedule takes you to the current time if it is beetween the start and the end time.
           @hour_column = @conference.hours_from_start_time(@conf_start, @conference.end_hour)
         end
@@ -59,6 +58,10 @@ class SchedulesController < ApplicationController
 
     day = @conference.current_conference_day
     @tag = day.strftime('%Y-%m-%d') if day
+  end
+
+  def app
+    @qr_code = RQRCode::QRCode.new(conference_schedule_url).as_svg(offset: 20, color: '000', shape_rendering: 'crispEdges', module_size: 11)
   end
 
   private

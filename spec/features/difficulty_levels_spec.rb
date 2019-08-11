@@ -4,8 +4,7 @@ require 'spec_helper'
 
 feature DifficultyLevel do
   let!(:conference) { create(:conference) }
-  let!(:organizer_role) { Role.find_by(name: 'organizer', resource: conference) }
-  let!(:organizer) { create(:user, role_ids: [organizer_role.id]) }
+  let!(:organizer) { create(:organizer, resource: conference) }
 
   shared_examples 'difficulty levels' do
     scenario 'adds difficulty level', feature: true, js: true do
@@ -22,7 +21,7 @@ feature DifficultyLevel do
       page.find('#difficulty_level_color').set('#ff0000')
 
       click_button 'Create Difficulty level'
-
+      page.find('#flash')
       # Validations
       expect(flash).to eq('Difficulty level successfully created.')
       within('table#difficulty_levels') do
@@ -40,9 +39,12 @@ feature DifficultyLevel do
                 conference_id: conference.short_title)
 
       # Remove difficulty level
-      within('table tr:nth-of-type(4)') do
-        click_link 'Delete'
+      page.accept_alert do
+        within('table tr:nth-of-type(4)') do
+          click_link 'Delete'
+        end
       end
+      page.find('#flash')
 
       # Validations
       expect(flash).to eq('Difficulty level successfully deleted.')

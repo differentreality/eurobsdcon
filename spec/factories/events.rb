@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-# Read about factories at https://github.com/thoughtbot/factory_girl
+# Read about factories at https://github.com/thoughtbot/factory_bot
 
-FactoryGirl.define do
+FactoryBot.define do
   factory :event do
     title { Faker::Hipster.sentence }
     abstract { Faker::Hipster.paragraph(2) }
@@ -32,7 +32,7 @@ FactoryGirl.define do
 
       factory :event_scheduled do
         transient do
-          hour nil
+          hour { nil }
         end
 
         after(:build) do |event, evaluator|

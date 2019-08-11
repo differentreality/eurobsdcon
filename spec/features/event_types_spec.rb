@@ -4,8 +4,7 @@ require 'spec_helper'
 
 feature EventType do
   let!(:conference) { create(:conference) }
-  let!(:organizer_role) { Role.find_by(name: 'organizer', resource: conference) }
-  let!(:organizer) { create(:user, role_ids: [organizer_role.id]) }
+  let!(:organizer) { create(:organizer, resource: conference) }
 
   shared_examples 'event types' do
     scenario 'adds and updates event type', feature: true do
@@ -28,7 +27,7 @@ feature EventType do
       page.find('#event_type_color').set('#e4e4e4')
 
       click_button 'Create Event type'
-
+      page.find('#flash')
       # Validations
       expect(flash).to eq('Event type successfully created.')
       within('table#event_types') do
@@ -42,6 +41,7 @@ feature EventType do
       within('tr', text: 'Party') do
         click_link 'Delete'
       end
+      page.find('#flash')
       expect(flash).to eq('Event type successfully deleted.')
 
       within('table#event_types') do

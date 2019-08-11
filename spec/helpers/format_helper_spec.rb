@@ -6,7 +6,7 @@ describe FormatHelper, type: :helper do
 
   describe 'discount' do
     it 'returns correct text for discount' do
-      coupon = create(:coupon)
+      coupon = create(:coupon_full_discount)
       expect(discount(coupon)).to eq '100%'
     end
   end

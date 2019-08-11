@@ -20,7 +20,7 @@ describe PaymentsController do
 
   describe 'GET #index' do
     before { sign_in user }
-    before { get :index, conference_id: conference.short_title }
+    before { get :index, params: { conference_id: conference.short_title } }
 
     it 'assigns payments variable' do
       expect(assigns(:payments)).to eq [user_payment]
@@ -35,7 +35,7 @@ describe PaymentsController do
     before { sign_in user }
 
     context 'without tickets' do
-      before { get :new, conference_id: conference.short_title}
+      before { get :new, params: { conference_id: conference.short_title } }
       it 'redirects to root_path' do
         expect(response).to redirect_to root_path
         expect(flash['alert']).to eq 'Nothing to pay for!'
@@ -49,7 +49,7 @@ describe PaymentsController do
     context 'with tickets without discount' do
       before :each do
         @ticket_purchase = create(:ticket_purchase, ticket: ticket1, conference: conference, paid: false, user: user)
-        get :new, conference_id: conference.short_title
+        get :new, params: { conference_id: conference.short_title }
       end
 
       it 'sets variables' do
@@ -74,7 +74,7 @@ describe PaymentsController do
       @offline_payment = create(:payment, user: user, conference: conference, amount: 350)
       @user_ticket_purchase = create(:ticket_purchase, user: user,conference: conference, paid: false, ticket: create(:ticket, price_cents: 35000), payment: @offline_payment)
       user.reload
-      get :edit, conference_id: conference.short_title, id: @offline_payment.id
+      get :edit, params: { conference_id: conference.short_title, id: @offline_payment.id }
     end
 
     it 'sets variables' do
@@ -90,7 +90,7 @@ describe PaymentsController do
 
   describe 'GET #offline_payment' do
     before { sign_in user }
-    before { get :offline_payment, conference_id: conference.short_title, tickets: [ {ticket1.id => 3, ticket2.id => 5} ] }
+    before { get :offline_payment, params: { conference_id: conference.short_title, tickets: [ {ticket1.id => 3, ticket2.id => 5} ] } }
 
     it 'redirects to payments#index' do
       expect(flash[:alert]).to eq nil
@@ -99,7 +99,7 @@ describe PaymentsController do
 
     it 'does not create physical tickets' do
       expected = expect do
-                   get :offline_payment, conference_id: conference.short_title, tickets: [ {ticket1.id => 3, ticket2.id => 5} ]
+                   get :offline_payment, params: { conference_id: conference.short_title, tickets: [ {ticket1.id => 3, ticket2.id => 5} ] }
                  end
       expected.to change { PhysicalTicket.count }.by(0)
     end

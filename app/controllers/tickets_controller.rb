@@ -14,7 +14,7 @@ class TicketsController < ApplicationController
     @selection = if params[:show_unpaid_ticket_purchases]
                    current_user.ticket_purchases.unpaid.by_conference(@conference).where(payment: @payment).map{ |tp| [tp.ticket_id, tp.quantity] }.compact.to_h
                  elsif params[:tickets]
-                   params[:tickets].map{|k, v| [k.to_i, v.to_i] if v.to_i > 0 }.compact.to_h
+                   tickets_params.to_h.map{|k, v| [k.to_i, v.to_i] if v.to_i > 0 }.compact.to_h
                  end
 
     @overall_discount_percent = current_user.overall_discount_percent(@conference)
@@ -25,5 +25,9 @@ class TicketsController < ApplicationController
     if @tickets.empty?
       redirect_to root_path, notice: "There are no tickets available for #{@conference.title}!"
     end
+  end
+
+  def tickets_params
+    params.require(:tickets).permit!
   end
 end
