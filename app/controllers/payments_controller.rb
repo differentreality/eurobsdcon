@@ -230,7 +230,12 @@ class PaymentsController < ApplicationController
 
   def offline_payment
     # message = TicketPurchase.purchase(@conference, user, params[:tickets].try(:first))
-    purchases = params[:tickets].try(:first)
+    purchases = params[:ticket_purchases] ? params[:ticket_purchases][:tickets] : {}
+    if purchases.empty?
+      redirect_to conference_tickets_path(@conference.short_title)
+      return
+    end
+    errors = []
 
     ActiveRecord::Base.transaction do
       @conference.tickets.each do |ticket|
@@ -244,6 +249,7 @@ class PaymentsController < ApplicationController
                    end
         if purchase && !purchase.save
           errors.push(purchase.errors.full_messages)
+          Rails.logger.debug "An error occurred while trying to save purchase ID#{purchase.id} with errors: #{errors.compact.join('. ')}"
         end
       end
     end
