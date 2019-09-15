@@ -27,7 +27,7 @@ class PaymentsController < ApplicationController
           purchase.pay(payment)
         end
         flash[:notice] = 'Ticket(s) successfully booked!'
-        redirect_to conference_conference_registration_path(@conference)
+        redirect_to conference_conference_registration_path(@conference) and return
       else
         raise CanCan::AccessDenied.new('Nothing to pay for!', :new, Payment)
       end
