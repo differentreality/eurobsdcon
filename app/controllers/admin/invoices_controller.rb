@@ -41,23 +41,22 @@ module Admin
       @url = admin_conference_invoices_path(@conference.short_title)
       kind = 0
       @user ||= @payment.try(:user)
-      total_amount = 0
       paid = @payment && @payment.success? ? true : false
-      total_amount = @payment.amount / 100.0 if @payment
+      paid_amount = 0
+      paid_amount = @payment.amount / 100.0 if @payment
 
       # TODO: change me, the invoice no longer has payment_id field!
       # Payment has ticket_purchases
       # Ticket purchases, if all have invoice
       # Then show alert
-      # if @payment && @payment.ticket_purchases.all?{ |purchase| purchase.invoice }
       # if @payment && Invoice.where(payment: @payment).any?
-      #   flash[:alert] = 'Invoice for this payment already exists!'
-      # end
+      if @payment && @payment.ticket_purchases.all?{ |purchase| purchase.invoices.any? }
+        flash[:alert] = 'Invoice for this payment already exists!'
+      end
 
       if params[:kind] == 'sponsorship'
         recipient = Sponsor.find(params[:recipient_id])
         description = [{ description: "Sponsorship #{@conference.title}", quantity: 1 }]
-        total_amount = 0
       else # params[:kind] == 'ticket_purchases'
         kind = 1
         ticket_purchases = if @payment
@@ -72,13 +71,13 @@ module Admin
         @tickets_collection = tickets_collection(@tickets_grouped)
         @tickets_selected = @tickets_grouped
 
-        total_amount = @tickets_grouped.sum{ |p| p[:price] * p[:quantity] }.to_f unless total_amount > 0
+        paid_amount = @tickets_grouped.sum{ |p| p[:price] * p[:quantity] }.to_f unless paid_amount > 0
       end
 
       @overall_discount = Payment.where(id: ticket_purchases.pluck(:payment_id)).sum(&:overall_discount)
 
 
-      @overall_discount = total_amount if @overall_discount > total_amount
+      @overall_discount = paid_amount if @overall_discount > paid_amount
 
       recipient = if params[:recipient_type]
                     params[:recipient_type].camelize.constantize.find(params[:recipient_id])
@@ -89,8 +88,17 @@ module Admin
       recipient_details = recipient&.invoice_details
       recipient_vat = recipient&.invoice_vat
 
-      vat = 0
-      payable =  '%.2f' % ((total_amount + vat).to_f)
+      # If the ticket belongs to a ticket_group,
+      # vat_percent refers to ticket_group.vat_percent, else it is 0
+      vat = @tickets_grouped.sum{ |tp| tp[:price] * tp[:quantity] * tp[:vat_percent] /100.0 } || 0
+
+      payable = paid_amount
+      total_amount = if vat && vat > 0
+                      '%.2f' % (payable / (vat/100.0 + 1))
+                     else
+                       payable
+                     end
+         # '%.2f' % ((total_amount + vat).to_f)
 
       no = (Invoice.order(no: :asc).last.try(:no) || 0) + 1
 

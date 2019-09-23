@@ -13,10 +13,13 @@ function remove_field($this) {
   payable_change();
 }
 
+// Change function content
+// Instead of payable = total_amount + vat
+// We keep payable as the total amount paid, and total_amount gets calculated accordingly
 function calculatePayable() {
-  var payable = (parseFloat($("#invoice_vat").val()) + parseFloat($("#invoice_total_amount").val())).toFixed(2);
+  var total_amount = (parseFloat($("#invoice_payable").val()) - parseFloat($("#invoice_vat").val()));
 
-  $("#invoice_payable").val(payable);
+  $("#invoice_total_amount").val(total_amount);
 }
 
 function payable_change(total_amount, vat) {
@@ -29,7 +32,10 @@ function payable_change(total_amount, vat) {
       price = parseFloat($(this).find('#invoice_description__price').val() || 0).toFixed(2);
       quantity = parseFloat($(this).find('#invoice_description__quantity').val()) || 0;
       item_vat_percent = parseFloat($(this).find('#invoice_description__vat_percent').val()) || 0;
-      item_vat = (parseFloat(item_vat_percent) * parseFloat(price) * parseFloat(quantity) /100.0).toFixed(2) || 0;
+
+      // Math formula to calculate VAT value from gross price:
+      // price * vat% / (vat% + 100)    <--- where price = price of 1 ticket * quantity bought
+      item_vat = (parseFloat(price) * parseFloat(quantity) * parseFloat(item_vat_percent) / (parseFloat(item_vat_percent) + 100.0) ).toFixed(2) || 0;
       $(this).find('#invoice_description__vat').val(item_vat);
 
       total_amount = (parseFloat(total_amount) + parseFloat(price) * parseFloat(quantity)).toFixed(2);
@@ -42,7 +48,7 @@ function payable_change(total_amount, vat) {
     });
   }
 
-  $("#invoice_total_amount").val(total_amount);
+  $("#invoice_payable").val(total_amount);
   $("#invoice_vat").val(vat);
   $("#vat_nok").text(vat_nok.toFixed(2));
 
@@ -97,18 +103,12 @@ $(function () {
     $("#vat_nok").text(vat_nok.toFixed(2));
   });
 
-  $("#invoice_vat_percent").change(function () {
-    $("#invoice_vat").val(($("#invoice_total_amount").val() * parseFloat($("#invoice_vat_percent").val()) / 100).toFixed(2));
+  // $("#invoice_total_amount").change(function () {
+  //   $("#invoice_vat").val(($("#invoice_total_amount").val() * parseFloat($("#invoice_vat_percent").val()) / 100).toFixed(2));
+  //   calculatePayable();
+  // });
 
-    calculatePayable();
-  });
-
-  $("#invoice_total_amount").change(function () {
-    $("#invoice_vat").val(($("#invoice_total_amount").val() * parseFloat($("#invoice_vat_percent").val()) / 100).toFixed(2));
-    calculatePayable();
-  });
-
-  $("#invoice_payable").change(function () {
-    payable_change($(this).val());
-  });
+  // $("#invoice_payable").change(function () {
+  //   payable_change($(this).val());
+  // });
 });
