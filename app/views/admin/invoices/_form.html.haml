@@ -41,13 +41,16 @@
         - if @invoice.kind == 'ticket_purchase'
           = f.input :ticket_purchases, as: :select, label: 'Tickets', collection: @tickets_collection || [], input_html: { multiple: true, size: @tickets_collection&.length }, selected: @tickets_selected&.map{ |x| x[:ticket_purchase_ids].split.join(', ') }
 
-          = @tickets_selected
         #description
           %table.table
             %tr
               %th.text-center.col-md-3 Description
               %th.text-center.col-md-1 Quantity
-              %th.text-center.col-md-2 Price
+              %th.text-center.col-md-2
+                Price
+                .text-muted
+                  incl. discounts&VAT
+
               %th.text-center.col-md-2 Vat %
               %th.text-center.col-md-2 Vat
               %th.text-center.col-md-1 Vat (NOK)
@@ -65,6 +68,7 @@
               - @tickets_grouped.each.with_index(1) do |item, index|
                 - item[:description] = item[:ticket].title
                 - item[:ticket_id] = item[:ticket].id
+
                 = render partial: 'invoice_items', locals: { item: item, index: index }
             - else
               = render partial: 'invoice_items', locals: { item: nil }
@@ -128,7 +132,7 @@
       plugins: ['remove_button'],
       maxItems: 1
     } );
-    payable_change(0);
+    payable_change();
   });
 
   $('#invoice_recipient_id').change(function() {

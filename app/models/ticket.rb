@@ -39,13 +39,13 @@ class Ticket < ApplicationRecord
   def discount(registration)
     discount_value(registration) + discount_percent(registration)
   end
+
   ##
   # Calculate ticket discount for specific user registration
-  # Returns price minus all discounts (percent and value)
+  # Returns the total discount (percent and value) based on
+  # user's applied coupons (related to this particular ticket)
   # ==== Returns
   # * +Money+ -> ticket price minus discounts
-
-  # calc_ticket_discount
   def discount_for_ticket(registration)
     return Money.new(0, self.price_currency) unless registration
     discount_percent = registration.coupons.joins(:ticket).where(ticket: self).select(&:percent?).sum(&:discount_amount)

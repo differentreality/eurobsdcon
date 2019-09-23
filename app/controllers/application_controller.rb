@@ -106,13 +106,15 @@ class ApplicationController < ActionController::Base
   # ==== Returns
   # * +Array+ * -> With ticket information
   def tickets_grouped(ticket_purchases)
+    user_registration = current_user.registrations.for_conference @conference
     ticket_purchases.group_by(&:ticket).map{ |ticket, purchases|
       [ticket, purchases.group_by(&:final_amount)
       .map{ |amount, p| [amount, p.pluck(:quantity).sum, p.pluck(:id)] }  ]}
       .to_h.map{ |ticket, p| p.map{ |x| { :ticket => ticket,
-                                          :price => x.first,
+                                          # Include overall discount percent
+                                          :price => x.first - ticket.discount_for_ticket(user_registration).to_f,
                                           :quantity => x.second,
-                                          :vat_percent => ticket&.ticket_group&.vat_percent,
+                                          :vat_percent => ticket&.ticket_group&.vat_percent || 0,
                                           :ticket_purchase_ids => x.last} } }.flatten
   end
 
