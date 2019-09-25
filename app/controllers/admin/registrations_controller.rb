@@ -40,7 +40,7 @@ module Admin
     def update
       @user.update_attributes(user_params)
 
-      @registration.update_attributes(registration_params)
+      @registration.update_attributes(registration_params) if params[:registration]
       if @registration.save
         redirect_to admin_conference_registrations_path(@conference.short_title),
                     notice: "Successfully updated registration for #{@registration.user.email}!"
