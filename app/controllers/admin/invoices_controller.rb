@@ -70,7 +70,7 @@ module Admin
         @tickets_grouped = tickets_grouped(ticket_purchases)
         @tickets_collection = tickets_collection(@tickets_grouped)
         @tickets_selected = @tickets_grouped
-
+        # Original prices, without discount
         paid_amount = @tickets_grouped.sum{ |p| p[:price] * p[:quantity] }.to_f unless paid_amount > 0
       end
 

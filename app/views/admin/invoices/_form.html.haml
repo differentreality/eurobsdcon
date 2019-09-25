@@ -41,7 +41,6 @@
         - if @invoice.kind == 'ticket_purchase'
           = f.input :ticket_purchases, as: :select, label: 'Tickets', collection: @tickets_collection || [], input_html: { multiple: true, size: @tickets_collection&.length }, selected: @tickets_selected&.map{ |x| x[:ticket_purchase_ids].split.join(', ') }
 
-          = @tickets_selected
         #description
           %table.table
             %tr
