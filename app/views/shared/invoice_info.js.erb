@@ -8,7 +8,7 @@ var collection_size = <%= @tickets_collection.length %>;
 $('#invoice_tickets').attr('size', collection_size);
 
 <% @tickets_collection.each.with_index(1) do |ticket_option, index| %>
-  $('#invoice_tickets').append( $('<option id = "<%= ticket_option.third[:id] %>" data-ticket-name="<%= ticket_option.third[:data][:ticket_name] %>" data-ticket-id="<%= ticket_option.second %>" data-quantity="<%= ticket_option.third[:data][:quantity]%>" data-price="<%= ticket_option.third[:data][:price]%>" data-index="<%= ticket_option.third[:data][:index]%>" value = "<%= ticket_option.second%>"> <%= ticket_option.first%> </option>') );
+  $('#invoice_ticket_purchase_ids').append( $('<option id = "<%= ticket_option.third[:id] %>" data-ticket-name="<%= ticket_option.third[:data][:ticket_name] %>" data-ticket-id="<%= ticket_option.second %>" data-quantity="<%= ticket_option.third[:data][:quantity]%>" data-price="<%= ticket_option.third[:data][:price]%>" data-index="<%= ticket_option.third[:data][:index]%>" value = "<%= ticket_option.second%>"> <%= ticket_option.first%> </option>') );
 <% end %>
 
 $("[id^='tickets_collection_option']").click(function () {
