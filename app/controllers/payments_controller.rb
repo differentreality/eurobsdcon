@@ -245,6 +245,7 @@ class PaymentsController < ApplicationController
         purchase = if ticket.bought?(current_user) && ticket.unpaid?(current_user)
                      TicketPurchase.update_quantity(@conference, quantity, ticket, current_user)
                    else
+                     # Creates new purchase
                      TicketPurchase.purchase_ticket(@conference, quantity, ticket, current_user)
                    end
         if purchase && !purchase.save

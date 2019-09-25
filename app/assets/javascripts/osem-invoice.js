@@ -1,7 +1,7 @@
 function remove_field($this) {
   // Deselect option
   var row_id = $this.parent().parent().attr('id');
-  console.log("row_id: " + row_id);
+
   $("select#invoice_tickets option").each(function () {
     if ($(this).data('index') == row_id ){
       $(this).prop('selected', false);
@@ -17,7 +17,8 @@ function remove_field($this) {
 // Instead of payable = total_amount + vat
 // We keep payable as the total amount paid, and total_amount gets calculated accordingly
 function calculatePayable() {
-  var total_amount = (parseFloat($("#invoice_payable").val()) - parseFloat($("#invoice_vat").val()));
+  var total_amount = (parseFloat($("#invoice_payable").val()) - parseFloat($("#invoice_vat").val()) ).toFixed(2);
+
 
   $("#invoice_total_amount").val(total_amount);
 }
@@ -44,7 +45,7 @@ function payable_change(total_amount, vat) {
       var euro_nok_rate = $('#invoice_exchange_rate').val();
       item_vat_NOK = item_vat * euro_nok_rate;
       $(this).find('#item_vat_nok').text(item_vat_NOK.toFixed(2));
-      vat_nok = (parseFloat(vat_nok) + parseFloat(item_vat_NOK));
+      vat_nok = (parseFloat(vat_nok) + parseFloat(item_vat_NOK)) || 0;
     });
   }
 
