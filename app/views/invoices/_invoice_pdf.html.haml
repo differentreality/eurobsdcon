@@ -37,15 +37,15 @@
       %tbody
         - invoice.description.each.with_index(1) do |item, index|
           - item[:vat_percent] ||= 0
-          - item[:vat] = item[:vat_percent]&.to_f * item[:price].to_f * item[:quantity].to_f / 100
+          - item_amount = item[:price].to_f / (item[:vat_percent].to_f / 100 + 1)
           %tr
             %td= index
             %td= item[:description]
             %td
               = item[:quantity]
               = item[:currency]
-            %td.text-right= number_with_precision(item[:price], precision: 2)
-            %td.text-right= number_with_precision(item[:quantity].to_f * item[:price].to_f, precision: 2)
+            %td.text-right= number_with_precision(item_amount, precision: 2)
+            %td.text-right= number_with_precision(item[:quantity].to_f * item_amount, precision: 2)
             %td.text-right= number_with_precision(item[:vat_percent]&.to_f, precision: 2)
             %td.text-right= number_with_precision(item[:vat], precision: 2)
         %tr
@@ -81,11 +81,6 @@
             %b= number_with_precision(invoice.payable, precision: 2)
 
     %br
-    %p
-      Stichting EuroBSDCon Foundation is not VAT registered
-      %br
-      %br
-      %br
 
     %table{ style: 'margin-bottom: 5px;', align: 'center' }
       %tr
