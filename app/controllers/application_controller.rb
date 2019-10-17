@@ -105,8 +105,9 @@ class ApplicationController < ActionController::Base
   # * +ActiveRecord Collection+ -> ticket purchases
   # ==== Returns
   # * +Array+ * -> With ticket information
-  def tickets_grouped(ticket_purchases)
-    user_registration = current_user.registrations.for_conference @conference
+  def tickets_grouped(ticket_purchases, user: current_user)
+    return unless user
+    user_registration = user.registrations.for_conference @conference
     ticket_purchases.group_by(&:ticket).map{ |ticket, purchases|
       [ticket, purchases.group_by(&:final_amount)
       .map{ |amount, p| [amount, p.pluck(:quantity).sum, p.pluck(:id)] }  ]}

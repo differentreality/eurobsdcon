@@ -67,7 +67,7 @@ module Admin
                              []
                            end
 
-        @tickets_grouped = tickets_grouped(ticket_purchases)
+        @tickets_grouped = tickets_grouped(ticket_purchases, user: @user)
         @tickets_collection = tickets_collection(@tickets_grouped)
         @tickets_selected = @tickets_grouped
         # Original prices, without discount
@@ -124,7 +124,7 @@ module Admin
                            []
                          end
 
-      @tickets_grouped = tickets_grouped(ticket_purchases)
+      @tickets_grouped = tickets_grouped(ticket_purchases, user: @invoice.recipient)
       @tickets_collection = tickets_collection(@tickets_grouped)
       @tickets_selected = tickets_selected(@tickets_grouped)
     end
@@ -153,7 +153,7 @@ module Admin
           format.json { render json: @invoice, status: :created }
         else
           ticket_purchases = @invoice.recipient&.ticket_purchases&.where(conference: @conference)&.where&.not(ticket: nil) || []
-          @tickets_grouped = tickets_grouped(ticket_purchases)
+          @tickets_grouped = tickets_grouped(ticket_purchases, user: @invoice.recipient)
           @tickets_collection = tickets_collection(@tickets_grouped)
           @tickets_selected = tickets_selected(@tickets_grouped)
           @overall_discount = Payment.where(id: ticket_purchases.pluck(:payment_id)).sum(&:overall_discount)
@@ -177,7 +177,7 @@ module Admin
           format.json { head :no_content }
         else
           ticket_purchases = @invoice.recipient&.ticket_purchases&.where(conference: @conference)&.where&.not(ticket: nil) || []
-          @tickets_grouped = tickets_grouped(ticket_purchases)
+          @tickets_grouped = tickets_grouped(ticket_purchases, user: @invoice.recipient)
           @tickets_collection = tickets_collection(@tickets_grouped)
           @tickets_selected = tickets_selected(@tickets_grouped)
 
