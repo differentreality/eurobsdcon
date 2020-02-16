@@ -34,7 +34,7 @@
     %br
     %button.btn.btn-success.pull-right{ data: { toggle: 'modal', target: '#payment-details-modal' } } Pay
 
-    = link_to 'Edit Purchase', conference_tickets_path(@conference.short_title), class: 'btn btn-default'
+    = link_to 'Edit Purchase', conference_tickets_path(@conference.short_title, show_unpaid_ticket_purchases: true), class: 'btn btn-default'
   .modal.fade#payment-details-modal{ tabindex: '-1', role: 'dialog' }
     .modal-dialog{ role: 'document' }
       .modal-content
