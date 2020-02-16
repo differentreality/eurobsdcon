@@ -38,6 +38,10 @@ class User < ApplicationRecord
   scope :active, lambda {
     where(is_disabled: false)
   }
+
+  scope :recent, lambda {
+    where('last_sign_in_at > ?', Date.today - 3.months).where(is_disabled: false)
+  }
   scope :unconfirmed, -> { where('confirmed_at IS NULL') }
   scope :dead, -> { where('last_sign_in_at < ?', Date.today - 1.year) }
 
@@ -92,6 +96,9 @@ class User < ApplicationRecord
   accepts_nested_attributes_for :roles
 
   scope :admin, -> { where(is_admin: true) }
+  scope :active, lambda {
+    where(is_disabled: false)
+  }
 
   validates :email, presence: true
 
@@ -227,7 +234,7 @@ class User < ApplicationRecord
   # * +hash+ -> hash
   def self.distribution
     {
-      'Active'      => User.active.count,
+      'Active'      => User.recent.count,
       'Unconfirmed' => User.unconfirmed.count,
       'Dead'        => User.dead.count
     }
