@@ -74,6 +74,10 @@ class Conference < ApplicationRecord
     def after_conference
       where(target: targets[:after_conference])
     end
+
+    def events_feedback
+      where(target: targets[:events_feedback])
+    end
   end
   accepts_nested_attributes_for :venue
   accepts_nested_attributes_for :tickets, allow_destroy: true

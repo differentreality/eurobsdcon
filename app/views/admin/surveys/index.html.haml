@@ -3,7 +3,9 @@
     .page-header
       %h1
         Surveys
-        = link_to 'New', new_admin_conference_survey_path(@conference.short_title, survey: {  surveyable_type: 'Conference', surveyable_id: @conference.id }), class: 'btn btn-success pull-right'
+        .btn-group.pull-right
+          = link_to 'Sessions Feedback', '#', title: 'Create feedback surveys for all events', class: 'btn btn-primary'
+          = link_to 'New', new_admin_conference_survey_path(@conference.short_title, survey: {  surveyable_type: 'Conference', surveyable_id: @conference.id }), class: 'btn btn-success'
       %p.text-muted
         Available surveys for this conference
 
@@ -23,7 +25,7 @@
         %tbody
           - @surveys.each_with_index do |survey, index|
             %tr
-              %td
+              %td{ style: "background-color: #{survey.active? ? '#dcf9c0' : '#efa5a2'}", title: "#{survey.active? ? 'The survey is active!' : 'Survey ended.'}"}
                 = link_to survey.title, admin_conference_survey_path(@conference.short_title, survey)
               %td
                 = survey.survey_questions.length

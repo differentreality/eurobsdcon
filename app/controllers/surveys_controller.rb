@@ -8,6 +8,7 @@ class SurveysController < ApplicationController
 
   def index
     @surveys = @conference.surveys.select(&:active?)
+    @surveys = @surveys - @conference.surveys.after_conference unless @conference.ended?
   end
 
   def show

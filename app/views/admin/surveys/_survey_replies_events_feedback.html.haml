@@ -1,0 +1,55 @@
+- @survey.surveyable.program.events.each do |event|
+  -# If event has no replies, do not collapse
+  -# event replies mean -- for this event, we have a survey (assume questions are the same as the conf_survey), event is the surveyable and target is needs_feedback (so that we can allow for more after_event surveys)
+  - if event.surveys.events_feedback&.first&.has_replies?
+    .panel.panel-default
+      .panel-heading{ type: 'button', 'data-toggle': 'collapse', 'data-target': "#event-#{event.id}", 'aria-expanded': 'true', 'aria-controls': 'collapse' }
+        %label{ class: "badge badge-success" }
+          = event.surveys.events_feedback&.first.survey_questions.sum{ |x| x.survey_replies.count }
+          replies
+        = event.title
+        .pull-right
+          = link_to 'link to event', admin_conference_program_event_path(@conference, event), target: '_blank'
+
+  - else
+    .panel.panel-default
+      .panel-heading{ type: 'button', 'data-toggle': 'collapse', 'data-target': "#event-#{event.id}", 'aria-expanded': 'true', 'aria-controls': 'collapse' }
+        %label{ class: "badge badge-danger" }
+          No replies
+        = event.title
+        .pull-right
+          = link_to 'link to event', admin_conference_program_event_path(@conference, event), target: '_blank'
+          %span.caret
+
+  .panel-body.collapse{ id: "event-#{event.id}" }
+    -# If there is only 1 question, do not show question title, show directly the replies
+    - if @survey.survey_questions.count <= 1
+      - @survey.survey_questions.each.with_index(1) do |survey_question, question_index|
+        - if survey_question.survey_replies.any?
+          %table.table
+            %thead
+              %th User Email
+              %th Reply
+            %tbody
+              - survey_question.survey_replies.reload.each do |reply|
+                %tr
+                  %td= reply.user.email
+                  %td= reply.text
+
+    - else
+      - @survey.survey_questions.each.with_index(1) do |survey_question, question_index|
+        .panel.panel-default
+          .panel-heading{ type: 'button', 'data-toggle': 'collapse', 'data-target': "#question-#{survey_question.id}", 'aria-expanded': 'true', 'aria-controls': 'collapse' }
+            = render partial: 'survey_question_title', locals:  { survey_question: survey_question, question_index: question_index }
+
+          .panel-body.collapse{ id: "question-#{survey_question.id}" }
+            - if survey_question.survey_replies.any?
+              %table.table
+                %thead
+                  %th User Email
+                  %th Reply
+                %tbody
+                  - survey_question.survey_replies.reload.each do |reply|
+                    %tr
+                      %td= reply.user.email
+                      %td= reply.text
