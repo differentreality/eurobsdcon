@@ -106,20 +106,22 @@
   .row
     %hr
     .col-md-2
-      = f.input :total_amount, value: @invoice.total_amount
+      = f.input :total_amount, value: @invoice.total_amount, input_html: { class: 'text-right' }
 
     .col-md-2
       - hint = @invoice.recipient.try(:invoice_vat).present? ? '' : 'No VAT number was supplied!'
-      = f.input :vat, hint: hint
+      = f.input :vat, hint: hint, input_html: { class: 'text-right' }
 
       .col-md-6
-        #vat_nok
-          = number_with_precision(@invoice.vat * @invoice.exchange_rate, precision: 2)
+        NOK
 
       .col-md-6.pull-left
-        NOK
+        #vat_nok.text-right{ style: 'padding-right: 12px' }
+          = number_with_precision(@invoice.vat * @invoice.exchange_rate, precision: 2)
+
+
     .col-md-2
-      = f.input :payable, input_html: { autofocus: true }
+      = f.input :payable, input_html: { autofocus: true, class: 'text-right' }
       - if @payment && (@payment.amount != (@invoice.payable * 100))
         %p The amount is different than the payment amount (#{@payment.amount / 100.0})!
   .row
