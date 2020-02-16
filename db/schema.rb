@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20190519190735) do
+ActiveRecord::Schema.define(version: 2020_02_16_133116) do
 
   create_table "answers", force: :cascade do |t|
     t.string "title"
@@ -431,6 +431,7 @@ ActiveRecord::Schema.define(version: 20190519190735) do
     t.integer "user_id"
     t.integer "week"
     t.boolean "accepted_code_of_conduct"
+    t.text "badge_text"
   end
 
   create_table "registrations_vchoices", id: false, force: :cascade do |t|

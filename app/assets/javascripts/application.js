@@ -49,6 +49,7 @@
 //= require bootstrap-select
 //= require osem-survey
 //= require osem-invoice
+//= require osem-badge
 
 $(document).ready(function() {
     $('a[disabled=disabled]').click(function(event){

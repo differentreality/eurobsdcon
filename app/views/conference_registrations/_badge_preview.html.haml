@@ -1,0 +1,49 @@
+.row
+  .col-md-12
+    %h4
+      %span.fa-stack
+        %i.fa.fa-square-o.fa-stack-2x
+        %i.fa.fa-id-badge.fa-stack-1x
+      Your Badge
+      .text-muted
+        This is how your badge will look like
+
+    #badge-preview
+      .col-md-5{ style: 'border: 2px solid black; min-height: 550px; width: 450px' }
+        .row.badge-header{ style: 'background-color: #439fe8; color: #cccccc;' }
+          %h3.text-center
+            - if user.is_organizer?(@conference)
+              Crew
+            - elsif user.presented_events.any?
+              Speaker
+            - else
+              Attendee
+        .row.badge-body
+          %p
+            %h1.text-center
+              = user.name
+              This is a quite very big fullname
+            %h4.text-center= user.email
+            -# if user.email_public <-- Cannot be updated
+        .row.text-center#badge-custom-text{ style: 'margin-top: 20px !important' }
+          = user.registrations.find_by(conference: @conference).badge_text
+        .badge-footer{ style: 'bottom: 0px !important; position: absolute; right: 15; left: 15' }
+          .row.badge-conf.text-center{ style: 'padding-bottom: 15px' }
+            .col-md-8
+              %h3
+                %strong
+                  EUROBSDCON 2020
+            .col-md-4
+              = image_tag(@conference.picture_url,
+                class: 'img-responsive img-center',
+                id: 'splash-logo')
+
+          .row.badge-details.text-center{ style: 'background-color: #cfe2f3; min-height: 20px' }
+            %strong
+              CONF
+          .row.text-center.badge-tickets{ style: 'background-color: #dde8cb; min-height: 20px'}
+            %h5
+              %strong= user.tickets.uniq.pluck(:title).join(', ')
+      - if f
+        .col-md-5.col-offset-1
+          = f.input :badge_text, input_html: { rows: 4 }

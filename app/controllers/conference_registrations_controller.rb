@@ -181,7 +181,7 @@ class ConferenceRegistrationsController < ApplicationController
     params.fetch(:registration, {})
         .permit(
           :conference_id, :arrival, :departure,
-          :volunteer, :accepted_code_of_conduct,
+          :volunteer, :accepted_code_of_conduct, :badge_text,
           vchoice_ids: [], qanswer_ids: [],
           qanswers_attributes: [],
           event_ids: [],
