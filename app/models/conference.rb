@@ -25,12 +25,13 @@ class Conference < ApplicationRecord
   has_one :email_settings, dependent: :destroy
   has_one :program, dependent: :destroy
   has_one :venue, dependent: :destroy
-  has_many :physical_tickets, through: :ticket_purchases
   has_many :ticket_purchases, dependent: :destroy
+  has_many :physical_tickets, through: :ticket_purchases
   has_many :payments, dependent: :destroy
   has_many :invoices
   has_many :supporters, through: :ticket_purchases, source: :user
   has_many :tickets, dependent: :destroy
+  has_many :ticket_groups, dependent: :destroy
   has_many :coupons
   has_many :resources, dependent: :destroy
   has_many :booths, dependent: :destroy
@@ -798,6 +799,16 @@ class Conference < ApplicationRecord
     create_contact
     create_program
     create_roles
+    create_ticket_groups
+  end
+
+  ##
+  # Creates ticket groups for the conference
+  # after the conference has been successfully created
+  # Will create 2 new records for ticket_groups
+  def create_ticket_groups
+    ticket_groups.where(name: 'Regular tickets').first_or_create(vat_percent: ENV['TICKET_GROUP_VAT_PERCENT'])
+    ticket_groups.where(name: 'Social event').first_or_create(vat_percent: ENV['TICKET_GROUP_VAT_PERCENT_SECONDARY'])
   end
 
   ##

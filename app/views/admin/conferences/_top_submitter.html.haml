@@ -5,9 +5,7 @@
     - if @top_submitter && !@top_submitter.empty?
       - @top_submitter.each do |key, value|
         .row.top-submitter
-          .col-md-2
-            = image_tag(key.gravatar_url(size: '25'), title: "Yo #{key.name}!", alt: '', 'class' => 'img-circle img-responsive text-center')
-          .col-md-10
+          .col-md-12
             %h4
               = link_to key.name, admin_user_path(key)
               %div

@@ -16,6 +16,7 @@
       = f.input :registration_ticket, hint: 'A registration ticket is with which user register for the conference.'
       = f.input :start_date, as: :string, input_html: { readonly: 'readonly', id: 'datetimepicker-start-date'}
       = f.input :end_date, as: :string, input_html: { readonly: 'readonly', id: 'datetimepicker-end-date'}
+      = f.input :ticket_group, collection: @conference.ticket_groups, include_blank: '(Please select)'
       = f.input :dependent, collection: @conference.tickets, include_blank: '(Please select)', label: 'Requires purchase of ticket:'
       = f.input :event, collection: @conference.program.events, include_blank: '(Please select)'
       %p.text-right

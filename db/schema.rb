@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20181113195810) do
+ActiveRecord::Schema.define(version: 20190519190735) do
 
   create_table "answers", force: :cascade do |t|
     t.string "title"
@@ -137,6 +137,9 @@ ActiveRecord::Schema.define(version: 20181113195810) do
     t.integer  "ticket_id"
     t.datetime "created_at",                    null: false
     t.datetime "updated_at",                    null: false
+    t.integer  "max_times",       default: 0
+    t.datetime "start_time"
+    t.datetime "end_time"
     t.index ["conference_id"], name: "index_coupons_on_conference_id"
     t.index ["ticket_id"], name: "index_coupons_on_ticket_id"
   end
@@ -299,6 +302,7 @@ ActiveRecord::Schema.define(version: 20181113195810) do
     t.integer  "kind"
     t.datetime "created_at",        null: false
     t.datetime "updated_at",        null: false
+    t.float    "exchange_rate",     default: 0.0
     t.index ["conference_id"], name: "index_invoices_on_conference_id"
     t.index ["recipient_type", "recipient_id"], name: "index_invoices_on_recipient_type_and_recipient_id"
   end
@@ -558,6 +562,13 @@ ActiveRecord::Schema.define(version: 20181113195810) do
     t.index ["surveyable_type", "surveyable_id"], name: "index_surveys_on_surveyable_type_and_surveyable_id"
   end
 
+  create_table "ticket_groups", force: :cascade do |t|
+    t.string  "name"
+    t.float   "vat_percent"
+    t.integer "conference_id"
+    t.index ["conference_id"], name: "index_ticket_groups_on_conference_id"
+  end
+
   create_table "ticket_purchases", force: :cascade do |t|
     t.integer  "ticket_id"
     t.integer  "conference_id"
@@ -591,6 +602,7 @@ ActiveRecord::Schema.define(version: 20181113195810) do
     t.datetime "end_date"
     t.integer  "dependent_id"
     t.integer  "event_id"
+    t.integer  "ticket_group_id"
   end
 
   create_table "tracks", force: :cascade do |t|

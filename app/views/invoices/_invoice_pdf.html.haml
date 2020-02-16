@@ -11,15 +11,13 @@
         %td
           .col-xs-8
             %dl.invoice
-              %dt{ style: 'text-align: left'} Invoice number
+              %dt{ style: 'text-align: left'} Invoice number:
               %dd
-                = ': '
                 = invoice.number
             %dl.invoice
               %dt{ style: 'text-align: left'}
-                Date
+                Date:
               %dd
-                = ': '
                 = invoice.date.strftime('%Y-%m-%d')
           .col-xs-4
             = simple_format(invoice.recipient_details)
@@ -33,16 +31,23 @@
         %th Qty
         %th.text-right Price
         %th.text-right Amount
+        %th.text-right VAT %
+        %th.text-right
+          VAT
       %tbody
         - invoice.description.each.with_index(1) do |item, index|
+          - item[:vat_percent] ||= 0
+          - item_amount = item[:price].to_f / (item[:vat_percent].to_f / 100 + 1)
           %tr
             %td= index
             %td= item[:description]
             %td
               = item[:quantity]
               = item[:currency]
-            %td.text-right= number_with_precision(item[:price], precision: 2)
-            %td.text-right= number_with_precision(item[:quantity].to_f * item[:price].to_f, precision: 2)
+            %td.text-right= number_with_precision(item_amount, precision: 2)
+            %td.text-right= number_with_precision(item[:quantity].to_f * item_amount, precision: 2)
+            %td.text-right= number_with_precision(item[:vat_percent]&.to_f, precision: 2)
+            %td.text-right= number_with_precision(item[:vat], precision: 2)
         %tr
           %td
           %td{ colspan: 2 }
@@ -57,16 +62,15 @@
           %td.text-left
             %b VAT
           %td
-            %b
-              #{@invoice.vat_percent}%
-              = invoice.currency
+          %td
           %td.text-right
             %b
-              = number_with_precision(invoice.total_amount, precision: 2)
+              = number_with_precision(invoice.vat, precision: 2)
               = invoice.currency
-          %td.text-right{ style: 'white-space: nowrap' }
-            %b= number_with_precision(invoice.vat, precision: 2)
-
+            - unless invoice.exchange_rate.zero?
+              .text-muted
+                = number_with_precision(invoice.vat * invoice.exchange_rate, precision: 2, delimiter: ',')
+                NOK
         %tr
           %td
           %td{ style: 'white-space: nowrap', colspan: 2 }
@@ -77,11 +81,6 @@
             %b= number_with_precision(invoice.payable, precision: 2)
 
     %br
-    %p
-      Stichting EuroBSDCon Foundation is not VAT registered
-      %br
-      %br
-      %br
 
     %table{ style: 'margin-bottom: 5px;', align: 'center' }
       %tr

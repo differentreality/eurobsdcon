@@ -40,7 +40,11 @@ class InvoicesController < ApplicationController
       RequestInvoiceMailJob.perform_later(current_user, @conference, @payment)
       redirect_back fallback_location: conference_conference_registration_path(@conference.short_title), notice: 'Invoice requested'
     rescue => e
-      redirect_to :back, error: "An error occured while requesting your invoice. #{e.message}"
+      if current_user.invoice_details
+        redirect_back fallback_location: conference_conference_registration_path(@conference.short_title), error: "An error occured while requesting your invoice. #{e.message}"
+      else
+        redirect_to conference_conference_registration_path(@conference.short_title), error: e.message
+      end
     end
   end
 

@@ -41,18 +41,22 @@ module Admin
       @url = admin_conference_invoices_path(@conference.short_title)
       kind = 0
       @user ||= @payment.try(:user)
-      total_amount = 0
       paid = @payment && @payment.success? ? true : false
-      total_amount = @payment.amount / 100.0 if @payment
+      paid_amount = 0
+      paid_amount = @payment.amount / 100.0 if @payment
 
-      if @payment && Invoice.where(payment: @payment).any?
+      # TODO: change me, the invoice no longer has payment_id field!
+      # Payment has ticket_purchases
+      # Ticket purchases, if all have invoice
+      # Then show alert
+      # if @payment && Invoice.where(payment: @payment).any?
+      if @payment && @payment.ticket_purchases.all?{ |purchase| purchase.invoices.any? }
         flash[:alert] = 'Invoice for this payment already exists!'
       end
 
       if params[:kind] == 'sponsorship'
         recipient = Sponsor.find(params[:recipient_id])
         description = [{ description: "Sponsorship #{@conference.title}", quantity: 1 }]
-        total_amount = 0
       else # params[:kind] == 'ticket_purchases'
         kind = 1
         ticket_purchases = if @payment
@@ -63,17 +67,17 @@ module Admin
                              []
                            end
 
-        @tickets_grouped = tickets_grouped(ticket_purchases)
+        @tickets_grouped = tickets_grouped(ticket_purchases, user: @user)
         @tickets_collection = tickets_collection(@tickets_grouped)
         @tickets_selected = @tickets_grouped
-
-        total_amount = @tickets_grouped.sum{ |p| p[:price] * p[:quantity] }.to_f unless total_amount > 0
+        # Original prices, without discount
+        paid_amount = @tickets_grouped.sum{ |p| p[:price] * p[:quantity] }.to_f unless paid_amount > 0
       end
 
       @overall_discount = Payment.where(id: ticket_purchases.pluck(:payment_id)).sum(&:overall_discount)
 
 
-      @overall_discount = total_amount if @overall_discount > total_amount
+      @overall_discount = paid_amount if @overall_discount > paid_amount
 
       recipient = if params[:recipient_type]
                     params[:recipient_type].camelize.constantize.find(params[:recipient_id])
@@ -84,17 +88,24 @@ module Admin
       recipient_details = recipient&.invoice_details
       recipient_vat = recipient&.invoice_vat
 
+      # If the ticket belongs to a ticket_group,
+      # vat_percent refers to ticket_group.vat_percent, else it is 0
+      vat = @tickets_grouped.sum{ |tp| tp[:price] * tp[:quantity] * tp[:vat_percent] /100.0 } || 0
 
-      vat_percent = 0 #ENV['VAT_PERCENT'].to_f
-      vat = total_amount * vat_percent / 100
-      payable =  '%.2f' % ((total_amount + vat).to_f)
+      payable = paid_amount
+      total_amount = if vat && vat > 0
+                      '%.2f' % (payable / (vat/100.0 + 1))
+                     else
+                       payable
+                     end
+         # '%.2f' % ((total_amount + vat).to_f)
 
       no = (Invoice.order(no: :asc).last.try(:no) || 0) + 1
 
       @invoice = @conference.invoices.new(no: no, date: Date.current,
                                           kind: kind, paid: paid,
+                                          exchange_rate: '%.2f' % (Invoice.exchange_rate || 0),
                                           total_amount: total_amount,
-                                          vat_percent: vat_percent,
                                           vat: vat,
                                           payable: payable,
                                           description: description,
@@ -113,7 +124,7 @@ module Admin
                            []
                          end
 
-      @tickets_grouped = tickets_grouped(ticket_purchases)
+      @tickets_grouped = tickets_grouped(ticket_purchases, user: @invoice.recipient)
       @tickets_collection = tickets_collection(@tickets_grouped)
       @tickets_selected = tickets_selected(@tickets_grouped)
     end
@@ -142,7 +153,7 @@ module Admin
           format.json { render json: @invoice, status: :created }
         else
           ticket_purchases = @invoice.recipient&.ticket_purchases&.where(conference: @conference)&.where&.not(ticket: nil) || []
-          @tickets_grouped = tickets_grouped(ticket_purchases)
+          @tickets_grouped = tickets_grouped(ticket_purchases, user: @invoice.recipient)
           @tickets_collection = tickets_collection(@tickets_grouped)
           @tickets_selected = tickets_selected(@tickets_grouped)
           @overall_discount = Payment.where(id: ticket_purchases.pluck(:payment_id)).sum(&:overall_discount)
@@ -166,7 +177,7 @@ module Admin
           format.json { head :no_content }
         else
           ticket_purchases = @invoice.recipient&.ticket_purchases&.where(conference: @conference)&.where&.not(ticket: nil) || []
-          @tickets_grouped = tickets_grouped(ticket_purchases)
+          @tickets_grouped = tickets_grouped(ticket_purchases, user: @invoice.recipient)
           @tickets_collection = tickets_collection(@tickets_grouped)
           @tickets_selected = tickets_selected(@tickets_grouped)
 
@@ -199,15 +210,16 @@ module Admin
 
       # Never trust parameters from the scary internet, only allow the white list through.
       def invoice_params
-        params.require(:invoice).permit(:no, :date, :conference_id, :currency,
+        params.require(:invoice).permit(:no, :date, :conference_id,
+                                        :currency, :exchange_rate,
                                         :recipient_details, :recipient_vat,
                                         :recipient_type,
                                         :quantity, :total_quantity,
                                         :item_price, :total_price,
-                                        :total_amount, :vat_percent, :vat,
+                                        :total_amount, :vat,
                                         :payable, :paid, :kind,
-                                        :payment_id, :recipient_id, ticket_purchase_ids: [],
-                                        description: [:description, :quantity, :price] )
+                                        :recipient_id, ticket_purchase_ids: [],
+                                        description: [:description, :quantity, :price, :vat_percent, :vat] )
       end
   end
 end

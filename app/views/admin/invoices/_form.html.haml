@@ -21,10 +21,12 @@
   - if @payment
     = f.hidden_field :payment_id, value: @payment.id
   .row
-    .col-md-3
+    .col-md-2
       = f.input :kind, selected: @invoice.kind, input_html: { collection: Invoice::kinds }
     .col-md-2
-      = f.input :currency, selected: @invoice.currency || 'EUR', collection: ENV['OSEM_DEFAULT_CURRENCIES'].split(' ')
+      = f.input :currency, selected: @invoice.currency || 'EUR', collection: ENV['OSEM_DEFAULT_CURRENCIES']&.split(' ')
+    .col-md-1
+      = f.input :exchange_rate
     .col-md-1.col-md-offset-1
       = f.label :paid
       = f.input :paid, label: ''
@@ -35,20 +37,28 @@
 
   .row
     = f.inputs 'Invoice Details' do
-      .col-md-6
+      .col-md-8
         - if @invoice.kind == 'ticket_purchase'
           = f.input :ticket_purchases, as: :select, label: 'Tickets', collection: @tickets_collection || [], input_html: { multiple: true, size: @tickets_collection&.length }, selected: @tickets_selected&.map{ |x| x[:ticket_purchase_ids].split.join(', ') }
 
         #description
           %table.table
             %tr
-              %th.text-center.col-md-7 Description
-              %th.text-center.col-md-2 Quantity
-              %th.text-center.col-md-2 Price
-              %th.col-md-3
+              %th.text-center.col-md-3 Description
+              %th.text-center.col-md-1 Quantity
+              %th.text-center.col-md-2
+                Price
+                .text-muted
+                  incl. discounts&VAT
+
+              %th.text-center.col-md-2 Vat %
+              %th.text-center.col-md-2 Vat
+              %th.text-center.col-md-1 Vat (NOK)
+              %th
 
           - if @invoice.persisted? && @invoice.description.present?
             - @invoice.description.each do |item|
+
               - item_match = @tickets_collection.select{ |data| data.third[:data][:ticket_name] == item[:description] && data.third[:data][:quantity].to_s == item[:quantity] && data.third[:data][:price].to_s == item[:price] } if @tickets_collection&.any?
 
               - index = item_match.first.third[:data][:index] if item_match&.any?
@@ -58,19 +68,20 @@
               - @tickets_grouped.each.with_index(1) do |item, index|
                 - item[:description] = item[:ticket].title
                 - item[:ticket_id] = item[:ticket].id
+
                 = render partial: 'invoice_items', locals: { item: item, index: index }
             - else
               = render partial: 'invoice_items', locals: { item: nil }
 
             -# - if @payment && @payment.overall_discount && @payment.overall_discount > 0
-            - if @overall_discount > 0
-              = render partial: 'invoice_items', locals: { item: { description: 'Discount', quantity: '1', price: -@overall_discount } }
+            -# - if @overall_discount && @overall_discount > 0
+            -#   = render partial: 'invoice_items', locals: { item: { description: 'Discount', quantity: '1', price: -@overall_discount } }
 
 
         %br
         = link_to 'Add item', admin_conference_invoices_add_item_path(@conference), remote: true
         %br
-      .col-md-5.col-md-offset-1
+      .col-md-4
         - collection_items = []
 
         %div#invoice-recipient{ 'data-class' => @invoice.recipient.try(:class) || 'User' }
@@ -96,11 +107,17 @@
     %hr
     .col-md-2
       = f.input :total_amount, value: @invoice.total_amount
-    .col-md-2
-      = f.input :vat_percent, label: 'VAT percent (%)'
+
     .col-md-2
       - hint = @invoice.recipient.try(:invoice_vat).present? ? '' : 'No VAT number was supplied!'
       = f.input :vat, hint: hint
+
+      .col-md-6
+        #vat_nok
+          = number_with_precision(@invoice.vat * @invoice.exchange_rate, precision: 2)
+
+      .col-md-6.pull-left
+        NOK
     .col-md-2
       = f.input :payable, input_html: { autofocus: true }
       - if @payment && (@payment.amount != (@invoice.payable * 100))
@@ -115,7 +132,7 @@
       plugins: ['remove_button'],
       maxItems: 1
     } );
-    payable_change(0);
+    payable_change();
   });
 
   $('#invoice_recipient_id').change(function() {

@@ -8,7 +8,7 @@ class TicketPurchasesController < ApplicationController
 
   def create
     if params['offline']
-      redirect_to conference_payments_offline_payment_path(@conference, tickets: params[:tickets])
+      redirect_to conference_payments_offline_payment_path(@conference, ticket_purchases: ticket_purchase_params)
       return
     end
     current_user.ticket_purchases.by_conference(@conference).unpaid.where(payment: nil).destroy_all

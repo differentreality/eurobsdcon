@@ -38,7 +38,7 @@
               %td= payment.updated_at
               %td
                 = simple_format(payment.ticket_purchases.map{ |tp| "#{tp.quantity} x #{tp.ticket.title}" }.join("\n"))
-              %td.text-right= payment.amount / 100.0
+              %td.text-right= (payment.amount || 0) / 100.0
               %td.text-center
                 - if payment.success?
                   .fa.fa-check.text-success{ title: 'Success' }
@@ -59,7 +59,7 @@
                 .btn-group
                   = link_to 'Pay Now', edit_conference_payment_path(@conference, payment), class: 'btn btn-primary', disabled: !(payment.unpaid? || payment.failure?)
 
-                  - if !current_user.invoices.where(conference: @conference).any?
+                  - if payment.not_invoiced?
                     = link_to 'Request Invoice',
                     user_request_invoice_path(current_user, conference_id: @conference.short_title, payment_id: payment.id),
                     class: 'btn btn-warning'

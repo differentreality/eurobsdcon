@@ -7,6 +7,7 @@ class Ticket < ApplicationRecord
   belongs_to :dependent, class_name: 'Ticket'
   has_many :ticket_purchases, dependent: :destroy
   belongs_to :event
+  belongs_to :ticket_group
   has_many :buyers, -> { distinct }, through: :ticket_purchases, source: :user
 
   has_paper_trail meta: { conference_id: :conference_id },
@@ -38,13 +39,13 @@ class Ticket < ApplicationRecord
   def discount(registration)
     discount_value(registration) + discount_percent(registration)
   end
+
   ##
   # Calculate ticket discount for specific user registration
-  # Returns price minus all discounts (percent and value)
+  # Returns the total discount (percent and value) based on
+  # user's applied coupons (related to this particular ticket)
   # ==== Returns
   # * +Money+ -> ticket price minus discounts
-
-  # calc_ticket_discount
   def discount_for_ticket(registration)
     return Money.new(0, self.price_currency) unless registration
     discount_percent = registration.coupons.joins(:ticket).where(ticket: self).select(&:percent?).sum(&:discount_amount)
@@ -121,6 +122,7 @@ class Ticket < ApplicationRecord
   end
 
   def self.total_price(conference, user, paid: false, payment: nil)
+
     tickets = Ticket.where(conference_id: conference.id)
     result = nil
     begin
@@ -153,6 +155,10 @@ class Ticket < ApplicationRecord
 
   def tickets_sold
     ticket_purchases.paid.sum(:quantity)
+  end
+
+  def vat
+    ticket_group&.vat
   end
 
   private

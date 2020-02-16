@@ -85,7 +85,11 @@ class TicketPurchase < ApplicationRecord
                      conference_id: conference.id,
                      user_id: user.id,
                      quantity: quantity,
+                     # Ticket price
+                     # Discounted price for coupons of specific ticket
+                     # can be calculated based on price and discount fields
                      amount_paid: ticket.price,
+                     # Discounts from coupons that refer to this particular ticket
                      discount_percent: ticket.discount_percent(registration),
                      discount_value: ticket.discount_value(registration))
       purchase.pay(nil) if purchase.final_amount_sum.zero? #ticket.price_cents.zero?

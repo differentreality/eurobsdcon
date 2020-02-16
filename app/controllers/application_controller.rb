@@ -8,7 +8,7 @@ class ApplicationController < ActionController::Base
   before_action :store_location
   # Ensure every controller authorizes resource or skips authorization (skip_authorization_check)
   check_authorization unless: :devise_controller?
-  skip_authorization_check only: :invoice_info
+  skip_authorization_check only: [:invoice_info, :euro_to_nok]
 
   def store_location
     # store last url - this is needed for post-login redirect to whatever the user last visited.
@@ -83,6 +83,15 @@ class ApplicationController < ActionController::Base
     render 'shared/invoice_info'
   end
 
+  def euro_to_nok
+    vat_value = params['vat_value']
+    result = ApplicationController.helpers.euro_to_nok(vat_value)
+
+    respond_to do |format|
+      format.js { render text: result }
+    end
+  end
+
   def not_found
     raise ActionController::RoutingError.new('Not Found')
   end
@@ -96,14 +105,24 @@ class ApplicationController < ActionController::Base
   # * +ActiveRecord Collection+ -> ticket purchases
   # ==== Returns
   # * +Array+ * -> With ticket information
-  def tickets_grouped(ticket_purchases)
+  def tickets_grouped(ticket_purchases, user: current_user)
+    return unless user
+    user_registration = user.registrations.for_conference @conference
     ticket_purchases.group_by(&:ticket).map{ |ticket, purchases|
-      [ticket, purchases.group_by(&:final_amount).map{ |amount, p| [amount, p.pluck(:quantity).sum, p.pluck(:id)] }  ]}
-      .to_h.map{ |ticket, p| p.map{ |x| { :ticket => ticket, :price => x.first, :quantity => x.second, :ticket_purchase_ids => x.last} } }.flatten
+      [ticket, purchases.group_by(&:final_amount)
+      .map{ |amount, p| [amount, p.pluck(:quantity).sum, p.pluck(:id)] }  ]}
+      .to_h.map{ |ticket, p| p.map{ |x| { :ticket => ticket,
+                                          # Include overall discount percent
+                                          :price => x.first - ticket.discount_for_ticket(user_registration).to_f,
+                                          :quantity => x.second,
+                                          :vat_percent => ticket&.ticket_group&.vat_percent || 0,
+                                          :ticket_purchase_ids => x.last} } }.flatten
   end
 
   def tickets_selected(tickets_grouped)
-    tickets_grouped.select{ |data| @invoice.description.any?{ |invoice_item| invoice_item[:description] == data[:ticket].title && invoice_item[:quantity] == data[:quantity].to_s && invoice_item[:price] == data[:price].to_s} }
+    result = tickets_grouped.select{ |data| @invoice.description.any?{ |invoice_item| invoice_item[:description] == data[:ticket].title &&
+                                                                                      invoice_item[:quantity] == data[:quantity].to_s && invoice_item[:price] == data[:price].to_s} }
+    return result
   end
 
   ##
@@ -126,7 +145,11 @@ class ApplicationController < ActionController::Base
       ["#{data[:ticket].title} (#{data[:quantity]} * #{data[:price]} #{data[:ticket].price_currency})",
         data[:ticket_purchase_ids].split.join(', '),
         id: "tickets_collection_option#{index}",
-        data: { ticket_name: data[:ticket].title, quantity: data[:quantity], price: data[:price], index: index }
+        data: { ticket_name: data[:ticket].title,
+                quantity: data[:quantity],
+                price: data[:price],
+                vat_percent: data[:ticket].ticket_group&.vat_percent || 0,
+                index: index }
       ] }
   end
 end

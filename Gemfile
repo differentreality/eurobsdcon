@@ -208,8 +208,9 @@ gem 'faker'
 gem 'factory_bot_rails'
 
 # for integrating Stripe payment gateway
-gem 'paymill_ruby'
 gem 'stripe'
+# gem 'stripe', :git => 'https://github.com/stripe/stripe-ruby'
+
 
 # Provides Sprockets implementation for Rails Asset Pipeline
 gem 'sprockets-rails'

@@ -8,10 +8,8 @@ $(function () {
   });
 
   $("input[id^='datepicker']").datetimepicker({
-    pickTime: false,
     useCurrent: false,
     sideBySide: true,
-    autoclose: true,
     format: 'YYYY-MM-DD'
   });
 

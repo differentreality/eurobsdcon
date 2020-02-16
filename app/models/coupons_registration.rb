@@ -8,6 +8,22 @@ class CouponsRegistration < ApplicationRecord
 
   validate :applied_before_conference
 
+  validate :validity
+
+  ##
+  # Check if a coupon can still be applied
+  # According to time period and the max_times it can be used
+  # ====Returns
+  # * +True+ -> If we are within the allowed time period
+  #             and coupon can still be applied
+  # * validation error -> (with proper message) If one of the checks fails
+  def validity
+    return true if coupon.available?
+
+    errors.add(:base, 'None left!') unless coupon.remaining?
+    errors.add(:base, 'Outside of time period.') unless coupon.within_time_period?
+  end
+
   private
 
   def applied_before_conference
