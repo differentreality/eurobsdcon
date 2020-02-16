@@ -5,10 +5,13 @@
         Survey: #{@survey.title}
         = link_to 'Edit Survey', edit_admin_conference_survey_path(@conference.short_title, @survey), class: 'btn btn-primary pull-right'
       %p.text-muted
-        From:
-        = @survey.start_date
-        to
-        = @survey.end_date
+        - if @survey.start_date
+          From:
+          = @survey.start_date
+        - if @survey.end_date
+          to
+          = @survey.end_date
+        %h4= @survey.survey_questions.first.title if @survey.survey_questions.count == 1
 .row
   .col-md-12
     .tabbable
@@ -29,6 +32,9 @@
                   = render partial: 'survey_question', locals:  { survey_question: survey_question, question_index: question_index, survey_reply: survey_reply }
           = link_to 'Add Question', new_admin_conference_survey_survey_question_path(@conference.short_title, @survey), class: 'btn btn-success pull-right'
         .tab-pane#replies-content
-          = render partial: 'survey_replies'
+          - if @survey.events_feedback?
+            = render partial: 'survey_replies_events_feedback'
+          - else
+            = render partial: 'survey_replies'
         .tab-pane#stats-content
           = render partial: 'survey_stats'

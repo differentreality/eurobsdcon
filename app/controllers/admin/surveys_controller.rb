@@ -19,7 +19,9 @@ module Admin
       if @survey.save
         redirect_to new_admin_conference_survey_survey_question_path(@conference.short_title, @survey), notice: 'Successfully created survey'
       else
-        redirect_to new_admin_conference_survey_path(@conference.short_title, survey: { surveyable_type: survey_params['surveyable_type'], surveyable_id: survey_params['surveyable_id'] }), error: 'Could not create survey.' + @survey.errors.full_messages.to_sentence
+        @url = admin_conference_surveys_path(@conference.short_title)
+        flash[:error] = 'Could not create survey.' + @survey.errors.full_messages.to_sentence
+        render :new
       end
     end
 
