@@ -116,6 +116,7 @@
 
   = render partial: 'coupons'
   = render partial: 'invoices'
+  = render partial: 'badge_preview', locals: { user: current_user, f: nil }
 
   .row
     .col-md-12

@@ -291,6 +291,21 @@ class User < ApplicationRecord
     result
   end
 
+  ##
+  # Check if user is organizer of the conference
+  # === Gets
+  # * Conference
+  # ==== Returns
+  # * +true+ --> if user has role organizer/cfp/volunteers_coordinator for the conference
+  # * +false+ --> if user does not have organizing roles for the conference - even if user.is_admin
+  def is_organizer?(conference)
+    conference_roles = conference.roles.where(name: ['organizer',
+                                                     'cfp',
+                                                     'info_desk',
+                                                     'volunteers_coordinator'])
+    (roles & conference_roles).any?
+  end
+
   def registered
     registrations = self.registrations
     if registrations.count == 0
