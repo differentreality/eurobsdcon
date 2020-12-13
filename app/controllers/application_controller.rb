@@ -106,7 +106,7 @@ class ApplicationController < ActionController::Base
   # ==== Returns
   # * +Array+ * -> With ticket information
   def tickets_grouped(ticket_purchases, user: current_user)
-    return unless user
+    return [] unless user
     user_registration = user.registrations.for_conference @conference
     ticket_purchases.group_by(&:ticket).map{ |ticket, purchases|
       [ticket, purchases.group_by(&:final_amount)
