@@ -3,7 +3,7 @@
 wb = xlsx_package.workbook
 wb.add_worksheet(name: 'registrations') do |sheet|
   bold_style = wb.styles.add_style(b: true)
-  row = ['Attended', 'Name', 'Nickname', 'Affilιation', 'Email', 'Codes applied', 'Arrival', 'Departure']
+  row = ['Attended', 'Name', 'Nickname', 'Affilιation', 'Email', 'Codes applied'
 
   @conference.questions.each do |question|
     row << question.title
@@ -19,8 +19,6 @@ wb.add_worksheet(name: 'registrations') do |sheet|
     row << registration.affiliation
     row << registration.email
     row << registration.coupons.pluck(:name).sort.join(', ').html_safe
-    row << registration.arrival.to_s
-    row << registration.departure.to_s
     @conference.questions.each do |question|
       qa = registration.qanswers.find_by(question: question)
       answer = ( qa ? qa.answer.title : '' )

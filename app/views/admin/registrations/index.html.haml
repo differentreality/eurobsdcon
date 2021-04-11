@@ -26,18 +26,15 @@
       %table.datatable#registrations{ data: { source: admin_conference_registrations_path(conference_id: @conference, format: :json) } }
         %thead
           %tr
-            %th ID#
-            %th Name
-            %th E-Mail
+            %th{ width: '0' } ID#
+            %th{ width: '25%' } Name
+            %th{ width: '0' } Roles
+            %th{ width: '0' } E-Mail
             %th Codes Applied
             - if @code_of_conduct
-              %th
+              %th{ width: '0' }
                 %abbr{ title: 'Code of Conduct' } CoC
-            %th Arrival
-            %th Departure
-            - if @conference.questions.any?
-              %th Questions
-            %th Actions
+            %th{ width: '0' } Actions
         %tbody
           - @registrations.each_with_index do |registration, index|
             %tr
@@ -60,19 +57,6 @@
                   %td.text-center.text-warning
                     = fa_icon('exclamation-circle',
                       title: 'Has not accepted Code of Conduct')
-              %td
-                - if registration.arrival
-                  = registration.arrival.strftime('%d %b %H:%M')
-                - else
-                  n/a
-              %td
-                - if registration.departure
-                  = registration.departure.strftime('%d %b %H:%M')
-                - else
-                  n/a
-              -if @conference.questions.any?
-                %td
-                  = link_to 'Questions','#', class: 'btn btn-success question-btn', 'data-id' => index, 'data-name' => registration.name
               %td{ 'data-order' => registration.attended.to_s }
                 = check_box_tag "#{@conference.short_title}_#{registration.id}", registration.id, registration.attended,
                   class: 'switch-checkbox',
@@ -83,9 +67,7 @@
                   = link_to 'Delete', admin_conference_registration_path(@conference.short_title, registration),
                   method: :delete, class: 'btn btn-danger', data: { confirm: "Do you really want to delete the Registration for #{registration.name}?" }
                   = link_to 'Invoice', new_admin_conference_invoice_path(@conference, user_id: registration.user), class: 'btn btn-warning'
-  - @registrations.each_with_index do |registration, index|
-    .questions{class: "question#{index}", style: 'display:none;'}
-      = render partial: 'questions', locals: { registration: registration }
+
 
 :javascript
   $(function () {
@@ -132,22 +114,6 @@
           "data": "accepted_code_of_conduct",
           "className": "code-of-conduct text-center",
           "searchable": false
-        },
-        {
-          "data": "arrival",
-          "searchable": false,
-          "render": function(data, type, row) {
-            if (data) { return moment(data).format('ll LT'); }
-            return '';
-          }
-        },
-        {
-          "data": "departure",
-          "searchable": false,
-          "render": function(data, type, row) {
-            if (data) { return moment(data).format('ll LT'); }
-            return '';
-          }
         },
         {
           "data": null,
