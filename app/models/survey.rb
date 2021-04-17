@@ -12,7 +12,7 @@ class Survey < ActiveRecord::Base
   ##
   # Survey for events_feedback should occur only once per conference
   def single_occurrence_of_events_feedback_per_conference
-    errors.add(:target, 'You can only have 1 events_feedback survey') if events_feedback? && surveyable.surveys.events_feedback.any?
+    errors.add(:target, 'You can only have 1 events_feedback survey') if new_record? && events_feedback? && surveyable.surveys.events_feedback.any?
   end
 
   ##

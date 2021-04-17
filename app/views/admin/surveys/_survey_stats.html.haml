@@ -3,7 +3,7 @@
 - @survey.survey_questions.each.with_index(1) do |survey_question, question_index|
   .panel.panel-default
     .panel-heading
-      = render partial: 'survey_question_title', locals:  { survey_question: survey_question, question_index: question_index }
+      = render partial: 'survey_question_title', locals:  { survey_question: survey_question, question_index: question_index, replyable: nil }
     .panel-body
       - question_replies = survey_question.survey_replies
       - if question_replies.any?

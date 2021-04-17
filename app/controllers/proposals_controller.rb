@@ -18,6 +18,7 @@ class ProposalsController < ApplicationController
     @event_schedule = @event.event_schedules.find_by(schedule_id: @program.selected_schedule_id)
     @speakers_ordered = @event.speakers_ordered
     @surveys_after_event = @event.surveys.after_event.select(&:active?)
+    @surveys_events_feedback = @conference.surveys.events_feedback.select(&:active?)
   end
 
   def new
