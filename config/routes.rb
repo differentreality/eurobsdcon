@@ -1,4 +1,5 @@
 Osem::Application.routes.draw do
+  mount LetterOpenerWeb::Engine, at: '/letter_opener' if Rails.env.development?
 
   constraints DomainConstraint do
     get '/', to: 'conferences#show'
@@ -243,6 +244,8 @@ Osem::Application.routes.draw do
   end
 
   get '/admin' => redirect('/admin/conferences')
+
+  get '/calendar' => 'conferences#calendar'
 
   unless ENV['OSEM_ROOT_CONFERENCE'].blank?
     root to: redirect("/conferences/#{ENV['OSEM_ROOT_CONFERENCE']}")

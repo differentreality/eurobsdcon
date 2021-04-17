@@ -91,6 +91,17 @@ feature Event do
       expect(User.count).to eq(expected_count_user)
     end
 
+    scenario 'edit proposal without cfp' do
+      conference = create(:conference)
+      proposal = create(:event, program: conference.program)
+
+      sign_in proposal.submitter
+
+      visit edit_conference_program_proposal_path(proposal.program.conference.short_title, proposal)
+
+      expect(page).to have_content 'Proposal Information'
+    end
+
     scenario 'update a proposal' do
       conference = create(:conference)
       create(:cfp, program: conference.program)
@@ -114,9 +125,12 @@ feature Event do
 
       visit conference_program_proposals_path(conference.short_title)
       click_link 'New Proposal'
+      expect(page).to have_selector(".in[id='#{find_field('event[event_type_id]').value}-help']") # End of animation
 
       fill_in 'event_title', with: 'Example Proposal'
       select('Example Event Type', from: 'event[event_type_id]')
+      expect(page).to have_selector(".in[id='#{find_field('event[event_type_id]').value}-help']") # End of animation
+
       fill_in 'event_abstract', with: 'Lorem ipsum abstract'
       expect(page).to have_text('You have used 3 words')
 
@@ -127,7 +141,6 @@ feature Event do
 
       page.find('#flash')
       expect(page).to have_content 'Proposal was successfully submitted.'
-      TransactionalCapybara::AjaxHelpers.wait_for_ajax(page)
       expect(current_path).to eq(conference_program_proposals_path(conference.short_title))
       expect(Event.count).to eq(expected_count)
     end

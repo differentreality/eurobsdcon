@@ -5,9 +5,7 @@ prawn_document(force_download: true, filename: @pdf_filename, page_layout: :land
                   'Nickname',
                   'Affiliation',
                   'Email',
-                  'Codes applied',
-                  'Arrival Date',
-                  'Departure Date']
+                  'Codes applied']
   @conference.questions.each do |question|
     header_array << question.title
   end
@@ -21,8 +19,6 @@ prawn_document(force_download: true, filename: @pdf_filename, page_layout: :land
     row << registration.affiliation
     row << registration.email
     row << registration.coupons.pluck(:name).sort.join(', ').html_safe
-    row << registration.arrival.to_s || ''
-    row << registration.departure.to_s || ''
 
     @conference.questions.each do |question|
       qa = registration.qanswers.find_by(question: question)

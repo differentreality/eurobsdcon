@@ -3,9 +3,9 @@
 # This file is copied to spec/ when you run 'rails generate rspec:install'
 require 'simplecov'
 
-if ENV['TRAVIS']
-  require 'codecov'
-  SimpleCov.formatter = SimpleCov::Formatter::Codecov
+if ENV['GITHUB_ACTIONS']
+  require 'simplecov-cobertura'
+  SimpleCov.formatter = SimpleCov::Formatter::CoberturaFormatter
 end
 SimpleCov.start 'rails'
 
@@ -19,9 +19,6 @@ require 'webdrivers'
 # To avoid confusion on missed migrations - use Rails 4 checker to ensure
 # all migrations applied
 ActiveRecord::Migration.maintain_test_schema!
-
-# Keep capybara and the database on the same page
-require 'transactional_capybara/rspec'
 
 # Adds rspec helper provided by paper_trail
 # makes it easier to control when PaperTrail is enabled during testing.
@@ -49,10 +46,8 @@ RSpec.configure do |config|
   # config.mock_with :flexmock
   # config.mock_with :rr
 
-  # If you're not using ActiveRecord, or you'd prefer not to run each of your
-  # examples within a transaction, remove the following line or assign false
-  # instead of true.
-  config.use_transactional_fixtures = false
+  # Test within database transactions
+  config.use_transactional_examples = true
 
   # Run specs in random order to surface order dependencies. If you find an
   # order dependency and want to debug it, you can fix the order by providing

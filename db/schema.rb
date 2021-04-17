@@ -421,8 +421,6 @@ ActiveRecord::Schema.define(version: 20190519190735) do
 
   create_table "registrations", force: :cascade do |t|
     t.integer "conference_id"
-    t.datetime "arrival"
-    t.datetime "departure"
     t.datetime "created_at"
     t.datetime "updated_at"
     t.text "other_special_needs"
