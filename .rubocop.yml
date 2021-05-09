@@ -12,6 +12,7 @@ AllCops:
   MaxFilesInCache: 4000
   Exclude:
     - db/schema.rb
+    - bundle/**/*
 
 #################### Style ###########################
 
