@@ -13,6 +13,7 @@ AllCops:
   Exclude:
     - db/schema.rb
     - bundle/**/*
+    - app/views/admin/registrations/index.xlsx.axlsx
 
 #################### Style ###########################
 
