@@ -33,5 +33,5 @@
                 .fa.fa-times.text-danger
             %td.text-center.nowrap
               .btn-group
-                = link_to 'Show', user_invoice_path(current_user, invoice), class: 'btn btn-success'
-                = link_to 'Download PDF', user_invoice_path(current_user, invoice, format: 'pdf'), class: 'btn btn-success'
+                = link_to 'Show', user_invoice_path(user, invoice), class: 'btn btn-success'
+                = link_to 'Download PDF', user_invoice_path(user, invoice, format: 'pdf'), class: 'btn btn-success'

@@ -2,7 +2,7 @@
 
 source 'https://rubygems.org'
 
-# ruby ENV['OSEM_RUBY_VERSION'] || '2.5.0'
+ruby ENV['OSEM_RUBY_VERSION'] || '2.5.8'
 
 # rails-assets requires >= 1.8.4
 if Gem::Version.new(Bundler::VERSION) < Gem::Version.new('1.8.4')
@@ -149,7 +149,7 @@ gem 'axlsx', git: 'https://github.com/randym/axlsx.git'
 gem 'axlsx_rails'
 
 # as error catcher
-gem 'airbrake'
+gem 'sentry-rails'
 
 # to make links faster
 gem 'turbolinks'
@@ -162,9 +162,6 @@ gem 'font-awesome-rails'
 
 # for markdown
 gem 'redcarpet'
-
-# as rdoc generator
-gem 'rdoc-generator-fivefish'
 
 # for visitor tracking
 gem 'piwik_analytics', '~> 1.0.1'
@@ -229,6 +226,8 @@ gem 'nokogiri', '>= 1.8.1'
 # memcached binary connector
 gem 'dalli'
 
+gem 'icalendar'
+
 # Use guard and spring for testing in development
 group :development do
   # to launch specs when files are modified
@@ -240,12 +239,11 @@ group :development do
   gem 'rubocop-rspec'
   # to open mails
   gem 'letter_opener'
+  gem 'letter_opener_web'
   # as deployment system
   gem 'mina'
   # as debugger on error pages
   gem 'web-console'
-  # as development database
-  gem 'sqlite3'
 end
 
 group :test do
@@ -254,10 +252,9 @@ group :test do
   gem 'database_cleaner'
   gem 'geckodriver-helper'
   gem 'rspec-rails'
-  gem 'transactional_capybara'
   gem 'webdrivers'
   # for measuring test coverage
-  gem 'codecov', require: false
+  gem 'simplecov-cobertura'
   # for describing models
   gem 'shoulda-matchers', require: false
   # for stubing/mocking models
@@ -281,4 +278,6 @@ end
 group :development, :test do
   # as debugger
   gem 'byebug'
+  # as development/test database
+  gem 'sqlite3'
 end

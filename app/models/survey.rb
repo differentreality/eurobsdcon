@@ -5,8 +5,21 @@ class Survey < ActiveRecord::Base
   has_many :survey_questions, dependent: :destroy
   has_many :survey_submissions, dependent: :destroy
 
-  enum target: [:after_conference, :during_registration, :after_event]
+  enum target: [:after_conference, :during_registration, :after_event, :events_feedback]
   validates :title, presence: true
+  validate :single_occurrence_of_events_feedback_per_conference
+
+  ##
+  # Survey for events_feedback should occur only once per conference
+  def single_occurrence_of_events_feedback_per_conference
+    errors.add(:target, 'You can only have 1 events_feedback survey') if new_record? && events_feedback? && surveyable.surveys.events_feedback.any?
+  end
+
+  ##
+  # Check if survey has any reply for any of its questions
+  def has_replies?
+    survey_questions.any?{ |question| question.survey_replies.any? }
+  end
 
   ##
   # Finds active surveys

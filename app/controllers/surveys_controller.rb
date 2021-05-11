@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 class SurveysController < ApplicationController
+  before_action :authenticate_user!, except: [:index]
   load_resource :conference, find_by: :short_title
   load_and_authorize_resource except: :reply
   load_resource only: :reply
@@ -8,6 +9,7 @@ class SurveysController < ApplicationController
 
   def index
     @surveys = @conference.surveys.select(&:active?)
+    @surveys = @surveys - @conference.surveys.after_conference unless @conference.ended?
   end
 
   def show
@@ -28,16 +30,16 @@ class SurveysController < ApplicationController
       return
     end
 
-    survey_submission = params[:survey_submission]
+    replyable = params[:replyable_type]&.camelize&.constantize&.find_by(id: params[:replyable_id])
 
     @survey.survey_questions.each do |survey_question|
-      reply = survey_question.survey_replies.find_by(user: current_user)
-      reply_text = survey_submission[survey_question.id.to_s].reject(&:blank?).join(',')
+      reply = survey_question.survey_replies.find_by(user: current_user, replyable: replyable)
+      reply_text = params[:survey_submission][survey_question.id.to_s]&.reject(&:blank?)&.join(',')
 
       if reply
         reply.update_attributes(text: reply_text) unless reply.text == reply_text
       else
-        survey_question.survey_replies.create!(text: reply_text, user: current_user)
+        survey_question.survey_replies.create!(text: reply_text, user: current_user, replyable: replyable)
       end
 
       user_survey_submission = @survey.survey_submissions.find_by(user: current_user)
@@ -50,4 +52,10 @@ class SurveysController < ApplicationController
 
     redirect_to redirect_link || root_path
   end
+end
+
+private
+
+def survey_params
+  params.require(:survey_submission).permit(:replyable_id, :replyable_type)
 end

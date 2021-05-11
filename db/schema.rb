@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20190519190735) do
+ActiveRecord::Schema.define(version: 2021_04_11_200104) do
 
   create_table "answers", force: :cascade do |t|
     t.string "title"
@@ -421,8 +421,6 @@ ActiveRecord::Schema.define(version: 20190519190735) do
 
   create_table "registrations", force: :cascade do |t|
     t.integer "conference_id"
-    t.datetime "arrival"
-    t.datetime "departure"
     t.datetime "created_at"
     t.datetime "updated_at"
     t.text "other_special_needs"
@@ -431,6 +429,7 @@ ActiveRecord::Schema.define(version: 20190519190735) do
     t.integer "user_id"
     t.integer "week"
     t.boolean "accepted_code_of_conduct"
+    t.text "badge_text"
   end
 
   create_table "registrations_vchoices", id: false, force: :cascade do |t|
@@ -540,6 +539,9 @@ ActiveRecord::Schema.define(version: 20190519190735) do
     t.text "text"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "replyable_type"
+    t.integer "replyable_id"
+    t.index ["replyable_type", "replyable_id"], name: "index_survey_replies_on_replyable_type_and_replyable_id"
   end
 
   create_table "survey_submissions", force: :cascade do |t|

@@ -31,8 +31,6 @@ class Registration < ApplicationRecord
   validates :user_id, uniqueness: { scope: :conference_id, message: 'already Registered!' }
   validate :registration_limit_not_exceed, on: :create
   validate :registered_to_non_intersecting_events
-  validate :registration_to_events_only_if_present
-
   validates :accepted_code_of_conduct, acceptance: {
     if: -> { conference.try(:code_of_conduct).present? }
   }
@@ -59,19 +57,6 @@ class Registration < ApplicationRecord
       result = remaining_events.any?{ |event| (event.time.to_datetime...(event.time+event.event_type.length.minutes).to_datetime).cover? check_event.time.to_datetime }
     end
     errors.add(:base, 'You cannot register to 2 happenings at the same time!') if result
-  end
-
-  ##
-  # If the user registers to attend events that are already scheduled,
-  # only allow registration to events if the user will be present
-  # (based on arrival and departure attributes)
-  # No validation if arrival/departure attributes are empty
-  def registration_to_events_only_if_present
-    if (arrival || departure) && events.pluck(:start_time).any?
-      errors.add(:arrival, 'is too late! You cannot register for events that take place before your arrival') if events.pluck(:start_time).compact.map { |x| x < arrival }.any?
-
-      errors.add(:departure, 'is too early! You cannot register for events that take place after your departure') if events.pluck(:start_time).compact.map { |x| x > departure }.any?
-    end
   end
 
   def subscribe_to_conference

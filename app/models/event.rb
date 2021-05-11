@@ -56,6 +56,14 @@ class Event < ApplicationRecord
   scope :withdrawn, -> { where(state: 'withdrawn') }
   scope :highlighted, -> { where(is_highlight: true) }
 
+  ## Get events that have already taken place
+  def self.ended(conference)
+    selected_schedule = conference.program.selected_schedule
+    return [] unless selected_schedule
+
+    conference.program.events.select{ |event| event.event_schedules.any? }.select{ |event| end_time = event.event_schedules.find_by(schedule_id: selected_schedule.id).end_time <= Time.current }
+  end
+
   state_machine initial: :new do
     state :new
     state :withdrawn

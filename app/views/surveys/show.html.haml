@@ -3,28 +3,51 @@
     .col-md-10.col-md-offset-1
       .page-header
         %h1
-          Survey #{@survey.title}
+          #{@survey.title}
           - if can? :edit, @survey
             = link_to 'Edit Survey', admin_conference_survey_path(@conference.short_title, @survey), class: 'btn btn-primary pull-right'
         %p.text-muted
-          From:
-          = @survey.start_date
-          to
-          = @survey.end_date
+          - if @survey.start_date
+            From:
+            = @survey.start_date
+          - if @survey.end_date
+            to
+            = @survey.end_date
           - unless @survey.active?
             %label
               %i.fa.fa-exclamation-circle
               This survey does not accept replies at this monent.
+
   .row
-    .col-md-12
-      = semantic_form_for @survey_submission, url: reply_conference_survey_path(@conference.short_title, @survey) do |f|
-        - @survey.survey_questions.each.with_index(1) do |survey_question, question_index|
+    .col-md-10.col-md-offset-1
+      - if @survey.events_feedback?
+        - conference = @survey.surveyable
+        - selected_schedule = conference.program.selected_schedule
+
+        - conference.program.events.ended(conference).each do |event|
+          .page-header
+            %h2= event.title
+          = semantic_form_for @survey_submission, url: reply_conference_survey_path(@conference.short_title, @survey, replyable_id: event.id, replyable_type: 'Event') do |f|
+            - @survey.survey_questions.each.with_index(1) do |survey_question, question_index|
+              .row
+                .col-md-10.col-md-offset-1
+                  - survey_reply = survey_question.survey_replies.find_by(user: current_user, replyable: event) || SurveyReply.new(survey_question_id: survey_question.id, user: current_user, replyable: event)
+                  = render partial: 'admin/surveys/survey_question', locals:  { survey_question: survey_question, question_index: question_index, survey_reply: survey_reply, replyable: event }
+            = hidden_field_tag 'request_referer', @request_referer
+
+            .row
+              .col-md-10.col-md-offset-1
+                = f.submit 'Submit', class: 'btn btn-primary pull-right', disabled: !(can? :reply, @survey)
+
+      - else
+        = semantic_form_for @survey_submission, url: reply_conference_survey_path(@conference.short_title, @survey) do |f|
+          - @survey.survey_questions.each.with_index(1) do |survey_question, question_index|
+            .row
+              .col-md-10.col-md-offset-1
+                - survey_reply = survey_question.survey_replies.find_by(user: current_user) || SurveyReply.new(survey_question_id: survey_question.id, user: current_user)
+                = render partial: 'admin/surveys/survey_question', locals:  { survey_question: survey_question, question_index: question_index, survey_reply: survey_reply }
+          = hidden_field_tag 'request_referer', @request_referer
+
           .row
             .col-md-10.col-md-offset-1
-              - survey_reply = survey_question.survey_replies.find_by(user: current_user) || SurveyReply.new(survey_question_id: survey_question.id, user: current_user)
-              = render partial: 'admin/surveys/survey_question', locals:  { survey_question: survey_question, question_index: question_index, survey_reply: survey_reply }
-        = hidden_field_tag 'request_referer', @request_referer
-
-        .row
-          .col-md-10.col-md-offset-1
-            = f.submit 'Submit', class: 'btn btn-primary pull-right', disabled: !(can? :reply, @survey)
+              = f.submit 'Submit', class: 'btn btn-primary pull-right', disabled: !(can? :reply, @survey)

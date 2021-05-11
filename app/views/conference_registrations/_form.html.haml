@@ -22,6 +22,9 @@
             = render partial: 'devise/shared/sign_up_form_embedded'
 
             = render partial: 'registration_info', locals: { f: f }
+            = f.input :conference_id, as: :hidden, value: @conference.id
+            = render partial: 'badge_preview', locals: { user: current_user, f: f } if current_user
+
             .row
               .col-md-12
                 %p.pull-right

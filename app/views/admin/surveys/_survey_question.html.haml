@@ -1,6 +1,6 @@
 .panel.panel-default
   .panel-heading
-    = render partial: 'admin/surveys/survey_question_title',  locals:  { survey_question: survey_question, question_index: question_index }
+    = render partial: 'admin/surveys/survey_question_title',  locals:  { survey_question: survey_question, question_index: question_index, replyable: nil }
   .panel-body
     - if survey_question.boolean?
       %input{ type: 'hidden', name: "survey_submission[#{survey_question.id}][]" }
